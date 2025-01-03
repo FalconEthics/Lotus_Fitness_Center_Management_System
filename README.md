@@ -49,7 +49,7 @@
   </ol>
 </details>
 
-[![Product Name Screen Shot][product-screenshot]]()
+[![Product Name Screen Shot][product-screenshot]](https://raw.githubusercontent.com/FalconEthics/Lotus_Fitness_Center_Management_System/refs/heads/main/public/screenshot.png)
 Lotus Fitness Center Management System is a single-page application (SPA) to manage a fitness center. This project was
 initially a task given by a company to assess my coding skills in the frontend.
 
