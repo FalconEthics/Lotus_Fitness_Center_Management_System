@@ -1,7 +1,7 @@
+import {ErrorModal} from "../../Reusable_Components/ErrorModal.jsx";
+
 export function InvalidRoute() {
   return (
-    <>
-      Invalid Route
-    </>
+    <ErrorModal Error={"404"}/>
   )
 }
