@@ -49,7 +49,7 @@
   </ol>
 </details>
 
-[![Product Name Screen Shot][product-screenshot]](https://lotus-fitness-center-management-system.vercel.app/)
+[![Product Name Screen Shot][product-screenshot]]()
 Lotus Fitness Center Management System is a single-page application (SPA) to manage a fitness center. This project was
 initially a task given by a company to assess my coding skills in the frontend.
 
@@ -145,7 +145,6 @@ Distributed under the GNU License. See `LICENSE.txt` for more information.
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
 <!-- ACKNOWLEDGMENTS -->
-ˆ
 
 ## Acknowledgments
 
