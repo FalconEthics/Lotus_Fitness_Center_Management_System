@@ -1,7 +1,7 @@
 import {AiFillCloseCircle, AiOutlineUser} from "react-icons/ai";
 
 export const EnrolledMembersCard = (cls, members) => {
-  return <div className="grid grid-cols-5 gap-4">
+  return <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
     {/* Loop through all the enrolled members and display their names */}
     {cls.enrolled.map(memberId => {
       const member = members.find(m => m.id === memberId);

@@ -17,7 +17,7 @@ export function Dashboard() {
         <AiFillDashboard className="text-4xl"/>
         <h1 className="text-2xl font-bold">Dashboard</h1>
       </div>
-      <div className="flex flex-row items-center space-x-2 justify-start">
+      <div className="grid grid-cols-2 gap-3 md:flex md:flex-row md:items-center md:space-x-2 md:justify-start">
         {/* There's no db so i just computed the values */}
         <StatCard icon={AiOutlineUsergroupAdd} title="Total Users" value={dataset.members.length}/>
         <StatCard icon={AiOutlineMenu} title="Total Classes" value={dataset.classes.length}/>

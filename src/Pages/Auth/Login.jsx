@@ -45,7 +45,7 @@ export function Login() {
     <div className="w-screen h-screen flex justify-start items-center relative">
       <img src={bg} alt="Background Image" className="w-full h-full object-cover absolute top-0 left-0 z-0 fade-in"/>
       <div
-        className="z-10 text-white relative backdrop-blur-md p-10 border rounded-2xl shadow-2xl ml-[15%] flex flex-col space-y-6 justify-center items-center slide-in-from-left">
+        className="z-10 text-white relative backdrop-blur-md p-10 border rounded-2xl shadow-2xl md:ml-[15%] flex flex-col space-y-6 justify-center items-center slide-in-from-left">
         <div className={"flex flex-col justify-center items-center space-y-2"}>
           <img src={logo} alt="Logo" className="w-48 h-auto"/>
           <p className={"font-bold text-red-600 text-4xl"}>Lotus Fitness Center</p>
