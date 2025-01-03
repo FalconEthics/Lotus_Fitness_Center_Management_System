@@ -26,7 +26,13 @@ const datasetSlice = createSlice({
       }
     },
     deleteMember: (state, action) => {
-      state.members = state.members.filter(member => member.id !== action.payload);
+      const memberId = action.payload;
+      state.members = state.members.filter(member => member.id !== memberId);
+      // Remove the member from all classes
+      state.classes = state.classes.map(cls => ({
+        ...cls,
+        enrolled: cls.enrolled.filter(id => id !== memberId)
+      }));
     },
 
     // Class CRUD operations
