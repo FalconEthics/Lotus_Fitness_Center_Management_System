@@ -51,7 +51,7 @@
 
 <img src="src/assets/screenshot.png">
 Lotus Fitness Center Management System is a single-page application (SPA) to manage a fitness center. This project was
-initially a task given by a company to assess my coding skills in the frontend.
+initially a task given by a company to assess my coding skills in frontend.
 
 ### Built With
 
@@ -90,6 +90,17 @@ To get a local copy up and running follow these simple steps.
 3. Start the development server
    ```sh
    npm run dev
+   ```
+
+4. Username: admin
+
+   ```sh
+   Password: admin
+   ```
+5. Upload the dataset.json
+ˆ
+   ```sh
+    download from - https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/blob/main/public/dataset.json
    ```
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
