@@ -1,0 +1,53 @@
+import {createSlice} from '@reduxjs/toolkit';
+
+const initialState = {
+  members: [],
+  classes: [],
+};
+
+const datasetSlice = createSlice({
+  name: 'dataset',
+  initialState,
+  reducers: {
+    setDataset: (state, action) => {
+      state.members = action.payload.members;
+      state.classes = action.payload.classes;
+    },
+    addMember: (state, action) => {
+      state.members.push(action.payload);
+    },
+    updateMember: (state, action) => {
+      const index = state.members.findIndex(member => member.id === action.payload.id);
+      if (index !== -1) {
+        state.members[index] = action.payload;
+      }
+    },
+    deleteMember: (state, action) => {
+      state.members = state.members.filter(member => member.id !== action.payload);
+    },
+    addClass: (state, action) => {
+      state.classes.push(action.payload);
+    },
+    updateClass: (state, action) => {
+      const index = state.classes.findIndex(cls => cls.id === action.payload.id);
+      if (index !== -1) {
+        state.classes[index] = action.payload;
+      }
+    },
+    deleteClass: (state, action) => {
+      state.classes = state.classes.filter(cls => cls.id !== action.payload);
+    },
+  },
+});
+
+export const {
+  setDataset,
+  addMember,
+  updateMember,
+  deleteMember,
+  addClass,
+  updateClass,
+  deleteClass,
+} = datasetSlice.actions;
+
+export default datasetSlice.reducer;

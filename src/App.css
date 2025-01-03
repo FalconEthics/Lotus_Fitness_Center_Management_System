@@ -1,0 +1,41 @@
+/*slide In from top*/
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100%);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+/*slide In from left*/
+@keyframes slideInFromLeft {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/*fade In*/
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.slide-in-from-top {
+    animation: slideInFromTop 0.5s ease-out;
+}
+
+.slide-in-from-left {
+    animation: slideInFromLeft 0.5s ease-out;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
