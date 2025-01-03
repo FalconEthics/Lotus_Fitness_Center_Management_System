@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "src": "/login",
+      "dest": "/"
+    },
+    {
+      "src": "/",
+      "dest": "/"
+    },
+    {
+      "src": "/manageclasses",
+      "dest": "/"
+    },
+    {
+      "src": "/managemembers",
+      "dest": "/"
+    ˆ}
+  ]
+}
