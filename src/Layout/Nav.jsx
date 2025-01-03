@@ -5,6 +5,7 @@ import {useNavigate} from "react-router";
 export function Nav() {
   const navigate = useNavigate();
 
+  // This is just a mock function to simulate a logout action.
   function logout() {
     localStorage.removeItem("auth");
     navigate("/login");

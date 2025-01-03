@@ -4,6 +4,7 @@ import {useState} from "react";
 import {useNavigate} from "react-router";
 import {Loading} from "../../Reusable_Components/Loading.jsx";
 
+// This Page mocks the login page of the application.
 export function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +13,8 @@ export function Login() {
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    // Basic validation
     if (username === "") {
       alert("Username is required");
       window.document.getElementById("username").focus();
@@ -22,10 +25,13 @@ export function Login() {
       return;
     }
 
+    // Mocking the login process with local storage
     if (username === "admin" && password === "admin") {
       setSuccess(true);
       // set auth ture in local storage
       localStorage.setItem("auth", "true");
+
+      // in order to show the loading screen for 2 seconds
       setTimeout(() => {
         navigate("/");
       }, 2000);
@@ -45,6 +51,7 @@ export function Login() {
           <p className={"font-bold text-red-600 text-4xl"}>Lotus Fitness Center</p>
           <p className={"text-lg"}>Management System</p>
         </div>
+        {/* If the login is not successful, stay on the login form, else show the welcome message */}
         {!success ? <form className="flex flex-col space-y-4 w-full text-black">
             <input
               value={username}

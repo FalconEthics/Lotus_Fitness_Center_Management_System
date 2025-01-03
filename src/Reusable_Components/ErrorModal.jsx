@@ -7,6 +7,7 @@ export function ErrorModal(props) {
       <img src={bg} alt="bg" className={"w-screen h-screen object-cover absolute z-0"}/>
       <div
         className={"w-fit h-fit backdrop-blur-md border text-white p-10 rounded-lg shadow-lg flex flex-col space-y-2 relative z-30 ml-[13%]"}>
+        {/* Capable of displaying error codes */}
         <h1
           className="text-3xl font-bold text-red-600">{props.Error ? `The app crashed with error code ${props.Error}!` : "Oops! Something went wrong 😟"}</h1>
         <p className="text-lg">Please try again later.</p>

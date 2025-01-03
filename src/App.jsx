@@ -8,6 +8,7 @@ import {Classes} from './Pages/Classes/Classes.jsx';
 import {Members} from './Pages/Members/Members.jsx';
 import WithAuthAndDataset from './Layout/WithAuthAndDataset.jsx';
 
+// Wrapping the pages with the WithAuthAndDataset HOC to provide authentication and dataset validation.
 const DashboardWithAuth = WithAuthAndDataset(Dashboard);
 const ClassesWithAuth = WithAuthAndDataset(Classes);
 const MembersWithAuth = WithAuthAndDataset(Members);

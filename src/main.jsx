@@ -8,6 +8,9 @@ import store from './store/store';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    {/* This ErrorBoundary is the last line of defense for the application.
+    So if something goes so wrong that the application crashes,
+    this will catch it and show a friendly error message. */}
     <ErrorBoundary>
       <Provider store={store}>
         <App/>

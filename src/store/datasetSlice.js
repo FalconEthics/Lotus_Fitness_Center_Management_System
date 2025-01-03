@@ -9,10 +9,13 @@ const datasetSlice = createSlice({
   name: 'dataset',
   initialState,
   reducers: {
+    // This sets the dataset in the Redux store when the user uploads a dataset file.
     setDataset: (state, action) => {
       state.members = action.payload.members;
       state.classes = action.payload.classes;
     },
+
+    // Member CRUD operations
     addMember: (state, action) => {
       state.members.push(action.payload);
     },
@@ -25,6 +28,8 @@ const datasetSlice = createSlice({
     deleteMember: (state, action) => {
       state.members = state.members.filter(member => member.id !== action.payload);
     },
+
+    // Class CRUD operations
     addClass: (state, action) => {
       state.classes.push(action.payload);
     },
