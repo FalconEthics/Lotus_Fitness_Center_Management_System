@@ -1,153 +1,305 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  HiAcademicCap,
+  HiPlus,
+  HiMagnifyingGlass,
+  HiUsers,
+  HiUser,
+  HiClock,
+  HiHashtag
+} from 'react-icons/hi2';
 import { useClasses, useMembers, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
-import { SiGoogleclassroom } from "react-icons/si";
-import { GrAdd } from "react-icons/gr";
-import { AiOutlineOrderedList } from "react-icons/ai";
-import { FormInput } from "../../Reusable_Components/FormInput";
-import { showEditFields } from "./Components/ShowEditFields";
-import { showValueFields } from "./Components/ShowValueFields";
-import { EnrolledMembersCard } from "./Components/EnrolledMembersCard";
-import { AddMembers } from "./Components/AddMembers";
 import { FitnessClass } from '../../types';
 import { ValidationUtils, DataUtils } from '../../utils/lodashHelpers';
+import { ClassCard } from '../../components/classes/ClassCard';
+import { Card, CardHeader, CardContent } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
+import { fadeInUp, staggerChildren, pageVariants } from '../../theme';
 
 export function Classes(): JSX.Element {
   const dispatch = useDatasetDispatch();
-  // get classes and members from the Context store
   const classes = useClasses();
   const members = useMembers();
 
-  // to store the new class details
-  const [newClass, setNewClass] = useState<Omit<FitnessClass, 'id' | 'enrolled'>>({name: '', instructor: '', schedule: '', capacity: 0});
-  // to store the class being edited (identified by id)
-  const [editingClass, setEditingClass] = useState<FitnessClass | null>(null);
-  // to store the member to be added to a class
-  const [memberToAdd, setMemberToAdd] = useState<number | null>(null);
+  // Form state for adding new classes
+  const [newClass, setNewClass] = useState<Omit<FitnessClass, 'id' | 'enrolled'>>({
+    name: '', 
+    instructor: '', 
+    schedule: '', 
+    capacity: 20
+  });
+  
+  // UI state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // function to add a new class with Lodash validation
+  // Filtered classes based on search
+  const filteredClasses = classes.filter(fitnessClass => 
+    fitnessClass.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    fitnessClass.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    fitnessClass.schedule.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const stats = {
+    total: classes.length,
+    totalCapacity: classes.reduce((sum, cls) => sum + cls.capacity, 0),
+    totalEnrolled: classes.reduce((sum, cls) => sum + cls.enrolled.length, 0),
+    averageUtilization: classes.length > 0 
+      ? Math.round((classes.reduce((sum, cls) => sum + (cls.enrolled.length / cls.capacity) * 100, 0) / classes.length))
+      : 0
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!newClass.name.trim()) newErrors.name = 'Class name is required';
+    if (!newClass.instructor.trim()) newErrors.instructor = 'Instructor is required';
+    if (!newClass.schedule.trim()) newErrors.schedule = 'Schedule is required';
+    if (!newClass.capacity || newClass.capacity <= 0) {
+      newErrors.capacity = 'Capacity must be greater than 0';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleAddClass = (): void => {
-    // Use centralized validation
-    const { isValid, missingFields } = ValidationUtils.validateRequiredFields(
-      newClass,
-      ['name', 'instructor', 'schedule']
-    );
-    
-    if (!isValid || newClass.capacity <= 0) {
-      alert(`Please fill the following fields: ${missingFields.join(', ')} and ensure capacity is greater than 0`);
-      return;
+    if (validate()) {
+      dispatch(datasetActions.addClass({...newClass, id: Date.now(), enrolled: []}));
+      setNewClass({name: '', instructor: '', schedule: '', capacity: 20});
+      setShowAddForm(false);
+      setErrors({});
     }
-
-    // dispatch the addClass action with the new class details
-    dispatch(datasetActions.addClass({...newClass, id: Date.now(), enrolled: []}));
-    // reset the newClass state
-    setNewClass({name: '', instructor: '', schedule: '', capacity: 0});
   };
 
-  // function to update a class with Lodash validation
-  const handleUpdateClass = (): void => {
-    if (!editingClass) return;
-    
-    // Use centralized validation
-    const { isValid, missingFields } = ValidationUtils.validateRequiredFields(
-      editingClass,
-      ['name', 'instructor', 'schedule']
-    );
-    
-    if (!isValid || editingClass.capacity <= 0) {
-      alert(`Please fill the following fields: ${missingFields.join(', ')} and ensure capacity is greater than 0`);
-      return;
-    }
-
-    // dispatch the updateClass action with the updated class details
-    dispatch(datasetActions.updateClass(editingClass));
-    // reset the editingClass state
-    setEditingClass(null);
+  const handleUpdateClass = (fitnessClass: FitnessClass): void => {
+    dispatch(datasetActions.updateClass(fitnessClass));
   };
 
-  const handleDeleteClass = (id) => {
-    // Confirm before deleting
-    if (!window.confirm('Are you sure you want to delete this class?')) {
-      return;
-    }
-    // Just delete the class with the given id
+  const handleDeleteClass = (id: number): void => {
     dispatch(datasetActions.deleteClass(id));
   };
 
-  // function to add a member to a class using Lodash find
-  const handleAddMemberToClass = (classId: number): void => {
-    if (!memberToAdd) return;
-
-    // Use centralized data utilities
-    const updatedClass = DataUtils.findClassById(classes, classId);
+  const handleAddMemberToClass = (classId: number, memberId: number): void => {
+    const targetClass = DataUtils.findClassById(classes, classId);
     
-    if (!updatedClass) {
-      alert('Class not found');
-      return;
-    }
+    if (!targetClass) return;
     
-    if (updatedClass.enrolled.length >= updatedClass.capacity) {
+    if (targetClass.enrolled.length >= targetClass.capacity) {
       alert('Class is full');
       return;
     }
     
-    // Add member to class
-    const newEnrolled = [...updatedClass.enrolled, memberToAdd];
-    dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
-    setMemberToAdd(null);
+    const newEnrolled = [...targetClass.enrolled, memberId];
+    dispatch(datasetActions.updateClass({...targetClass, enrolled: newEnrolled}));
   };
 
   return (
-    <div className="w-full h-full flex flex-col space-y-6 justify-start p-6 text-gray-800 overflow-y-auto pb-36">
-      <h1 className="text-2xl font-bold flex flex-row items-center">
-        <SiGoogleclassroom className="inline-block mr-2"/>
-        <p>Manage Classes</p>
-      </h1>
-      {/* Add New Class Section */}
-      <div className="flex flex-col space-y-4 border p-6 shadow-lg rounded-xl">
-        <h2 className="text-xl font-bold flex flex-row items-center">
-          <GrAdd className="inline-block mr-2"/>
-          <p>Add New Class</p>
-        </h2>
-        <FormInput
-          type="text" placeholder="Class Name" value={newClass.name}
-          onChange={(e) => setNewClass({...newClass, name: e.target.value})}/>
-        <FormInput
-          type="text" placeholder="Instructor" value={newClass.instructor}
-          onChange={(e) => setNewClass({...newClass, instructor: e.target.value})}/>
-        <FormInput
-          type="text" placeholder="Schedule" value={newClass.schedule}
-          onChange={(e) => setNewClass({...newClass, schedule: e.target.value})}/>
-        <div className="flex flex-row items-center justify-between">
-          <label htmlFor="capacity">Capacity</label>
-          <span>{newClass.capacity}</span>
-        </div>
-        <FormInput
-          type="range" placeholder="Capacity" value={newClass.capacity}
-          onChange={(e) => setNewClass({...newClass, capacity: parseInt(e.target.value)})}/>
-        <button onClick={handleAddClass} className="bg-blue-500 text-white p-2 rounded">Add Class</button>
-      </div>
-      {/* Lists all the classes with options to edit, delete and add members */}
-      <div className="flex flex-col space-y-4">
-        <h2 className="text-xl font-bold flex flex-row items-center">
-          <AiOutlineOrderedList className="inline-block mr-2"/>
-          <p>Class List</p>
-        </h2>
-        {/* Loop through all the classes from the store */}
-        {classes.map(cls => (
-          <div key={cls.id} className="p-6 rounded-lg flex flex-col space-y-4 bg-gray-800 text-white shadow-xl">
-            {/* if the class in editingClass state is the current class, show edit fields, else show value fields */}
-            {editingClass && editingClass.id === cls.id
-              ? showEditFields(editingClass, setEditingClass, handleUpdateClass)
-              : showValueFields(cls, setEditingClass, handleDeleteClass)}
-            {/* Add Member Section */}
-            <h4 className="text-md font-bold">Add Member</h4>
-            {AddMembers(setMemberToAdd, memberToAdd, members, cls, handleAddMemberToClass)}
-            {/* Enrolled Members Section */}
-            <h4 className="text-md font-bold">Enrolled Members</h4>
-            {EnrolledMembersCard(cls, members)}
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="in"
+      exit="out"
+      className="min-h-screen bg-neutral-50 p-6"
+    >
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <motion.div variants={fadeInUp} className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-red-100 rounded-lg">
+                <HiAcademicCap className="h-8 w-8 text-red-600" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">Classes</h1>
+                <p className="text-neutral-600">Manage fitness classes and schedules</p>
+              </div>
+            </div>
+            <Button onClick={() => setShowAddForm(true)} className="gap-2">
+              <HiPlus className="h-4 w-4" />
+              Add Class
+            </Button>
           </div>
-        ))}
+        </motion.div>
+
+        {/* Stats Cards */}
+        <motion.div 
+          variants={staggerChildren}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          {[
+            { label: 'Total Classes', value: stats.total, icon: HiAcademicCap, color: 'bg-blue-500' },
+            { label: 'Total Enrolled', value: stats.totalEnrolled, icon: HiUsers, color: 'bg-red-500' },
+            { label: 'Total Capacity', value: stats.totalCapacity, icon: HiHashtag, color: 'bg-green-500' },
+            { label: 'Avg. Utilization', value: `${stats.averageUtilization}%`, icon: HiUser, color: 'bg-yellow-500' },
+          ].map((stat, index) => (
+            <motion.div key={index} variants={fadeInUp}>
+              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+                <CardContent className="flex items-center gap-4">
+                  <div className={`p-3 rounded-lg ${stat.color}`}>
+                    <stat.icon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
+                    <p className="text-sm text-neutral-600">{stat.label}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Search */}
+        <motion.div variants={fadeInUp} className="mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <Input
+                placeholder="Search classes by name, instructor, or schedule..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                startIcon={<HiMagnifyingGlass className="h-4 w-4" />}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Add Class Form Modal */}
+        <AnimatePresence>
+          {showAddForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+              onClick={() => setShowAddForm(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-2xl"
+              >
+                <Card>
+                  <CardHeader>
+                    <h2 className="text-xl font-semibold flex items-center gap-2">
+                      <HiPlus className="h-5 w-5" />
+                      Add New Class
+                    </h2>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input
+                        label="Class Name"
+                        value={newClass.name}
+                        onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                        startIcon={<HiAcademicCap className="h-4 w-4" />}
+                        error={errors.name}
+                        required
+                      />
+                      <Input
+                        label="Instructor"
+                        value={newClass.instructor}
+                        onChange={(e) => setNewClass({ ...newClass, instructor: e.target.value })}
+                        startIcon={<HiUser className="h-4 w-4" />}
+                        error={errors.instructor}
+                        required
+                      />
+                      <Input
+                        label="Schedule"
+                        value={newClass.schedule}
+                        onChange={(e) => setNewClass({ ...newClass, schedule: e.target.value })}
+                        startIcon={<HiClock className="h-4 w-4" />}
+                        error={errors.schedule}
+                        required
+                        className="md:col-span-2"
+                        placeholder="e.g., Mon, Wed, Fri 9:00 AM - 10:00 AM"
+                      />
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">
+                          Capacity: {newClass.capacity} members
+                          {errors.capacity && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        <input
+                          type="range"
+                          min="1"
+                          max="50"
+                          value={newClass.capacity}
+                          onChange={(e) => setNewClass({ ...newClass, capacity: parseInt(e.target.value) })}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                        />
+                        <div className="flex justify-between text-sm text-neutral-500 mt-1">
+                          <span>1</span>
+                          <span>50</span>
+                        </div>
+                        {errors.capacity && (
+                          <p className="text-xs text-red-500 mt-1">{errors.capacity}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-3 pt-4">
+                      <Button onClick={handleAddClass} className="flex-1">
+                        Add Class
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => setShowAddForm(false)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Classes Grid */}
+        <motion.div
+          variants={staggerChildren}
+          initial="initial"
+          animate="animate"
+          className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3"
+        >
+          <AnimatePresence>
+            {filteredClasses.map(fitnessClass => (
+              <ClassCard
+                key={fitnessClass.id}
+                fitnessClass={fitnessClass}
+                members={members}
+                onUpdate={handleUpdateClass}
+                onDelete={handleDeleteClass}
+                onAddMember={handleAddMemberToClass}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {filteredClasses.length === 0 && (
+          <motion.div
+            variants={fadeInUp}
+            className="text-center py-12"
+          >
+            <HiAcademicCap className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-neutral-900 mb-2">
+              {searchTerm ? 'No classes found' : 'No classes yet'}
+            </h3>
+            <p className="text-neutral-600">
+              {searchTerm 
+                ? 'Try adjusting your search criteria.'
+                : 'Add your first class to get started.'
+              }
+            </p>
+          </motion.div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 }
