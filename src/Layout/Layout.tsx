@@ -1,5 +1,5 @@
-import {Nav} from "./Nav.jsx";
-import {Sidebar} from "./Sidebar.jsx";
+import {Nav} from "./Nav";
+import {Sidebar} from "./Sidebar";
 
 export function Layout({children}) {
   // This component is a layout component that wraps the entire application.

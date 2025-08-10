@@ -1,18 +1,18 @@
-import {useEffect} from 'react';
-import {useNavigate} from 'react-router';
-import {useDispatch, useSelector} from 'react-redux';
-import {setDataset} from '../store/datasetSlice';
-import {Suspense} from 'react';
-import {Loading} from "../Reusable_Components/Loading.jsx";
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { useDataset, useDatasetDispatch, datasetActions } from '../contexts/DatasetContext';
+import { Suspense } from 'react';
+import { Loading } from "../Reusable_Components/Loading";
+import { WithAuthAndDatasetProps, Dataset } from '../types';
 
-// This fuction is a higher order component that wraps all the pages that require authentication and a dataset.
-const WithAuthAndDataset = (WrappedComponent) => {
+// This function is a higher order component that wraps all the pages that require authentication and a dataset.
+const WithAuthAndDataset = <P extends WithAuthAndDatasetProps>(WrappedComponent: React.ComponentType<P>) => {
 
-  const ComponentWithAuthAndDataset = (props) => {
+  const ComponentWithAuthAndDataset = (props: P): JSX.Element => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-    // Get the dataset from the Redux store.
-    const dataset = useSelector(state => state.dataset);
+    const dispatch = useDatasetDispatch();
+    // Get the dataset from the Context store.
+    const dataset = useDataset();
 
     // Check if the user is authenticated, if not, redirect to the login page.
     useEffect(() => {
@@ -23,13 +23,22 @@ const WithAuthAndDataset = (WrappedComponent) => {
       // checks onload and on every change of route
     }, [navigate]);
 
-    // This uploads the dataset file and sets the dataset in the Redux store.
-    const handleFileUpload = (event) => {
-      const file = event.target.files[0];
+    // This uploads the dataset file and sets the dataset in the Context store.
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>): void => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      
       const reader = new FileReader();
       reader.onload = (e) => {
-        const data = JSON.parse(e.target.result);
-        dispatch(setDataset(data));
+        if (typeof e.target?.result === 'string') {
+          try {
+            const data: Dataset = JSON.parse(e.target.result);
+            dispatch(datasetActions.setDataset(data));
+          } catch (error) {
+            console.error('Invalid JSON file:', error);
+            alert('Please upload a valid JSON file.');
+          }
+        }
       };
       reader.readAsText(file);
     };

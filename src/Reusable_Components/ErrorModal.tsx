@@ -1,7 +1,8 @@
 import bg from "../assets/bg.webp";
-import {AiOutlineReload} from "react-icons/ai";
+import { AiOutlineReload } from "react-icons/ai";
+import { ErrorModalProps } from "../types";
 
-export function ErrorModal(props) {
+export function ErrorModal(props: ErrorModalProps): JSX.Element {
   return (
     <div className={"w-screen h-screen flex justify-start items-center relative"}>
       <img src={bg} alt="bg" className={"w-screen h-screen object-cover absolute z-0"}/>

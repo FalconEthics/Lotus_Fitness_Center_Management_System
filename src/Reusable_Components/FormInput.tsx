@@ -1,5 +1,7 @@
-export const FormInput = ({type, placeholder, value, onChange, options}) => {
-  // This fuction exists so that all forms have a consistent look and feel (css repetition purposes mainly)
+import { FormInputProps } from '../types';
+
+export const FormInput = ({ type, placeholder, value, onChange, options }: FormInputProps): JSX.Element => {
+  // This function exists so that all forms have a consistent look and feel (css repetition purposes mainly)
   switch (type) {
     case 'select':
       return (
@@ -9,8 +11,8 @@ export const FormInput = ({type, placeholder, value, onChange, options}) => {
           onChange={onChange}
         >
           <option value="" disabled>Select Membership Type</option>
-          {options.map(type => (
-            <option key={type} value={type}>{type}</option>
+          {options?.map(option => (
+            <option key={option} value={option}>{option}</option>
           ))}
         </select>
       );
@@ -19,7 +21,7 @@ export const FormInput = ({type, placeholder, value, onChange, options}) => {
         <input
           type="date"
           placeholder={placeholder}
-          value={value}
+          value={value as string}
           className="border p-2 rounded"
           onChange={onChange}
         />

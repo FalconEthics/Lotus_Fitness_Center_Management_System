@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {ErrorModal} from "../../Reusable_Components/ErrorModal.jsx";
+import {ErrorModal} from "../../Reusable_Components/ErrorModal";
 
 // Our last line of defense for the application.
 class ErrorBoundary extends Component {

@@ -72,9 +72,9 @@ To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-- npm
+- bun
   ```sh
-  npm install npm@latest -g
+  bun install bun@latest -g
   ```
 
 ### Installation
@@ -83,13 +83,13 @@ To get a local copy up and running follow these simple steps.
    ```sh
    git clone https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System.git
    ```
-2. Install NPM packages
+2. Install bun packages
    ```sh
-   npm install
+   bun install
    ```
 3. Start the development server
    ```sh
-   npm run dev
+   bun run dev
    ```
 
 4. Username: admin

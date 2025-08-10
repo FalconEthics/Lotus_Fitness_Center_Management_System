@@ -2,7 +2,7 @@ import bg from "../../assets/bg.webp";
 import logo from "../../assets/logo.png";
 import {useState} from "react";
 import {useNavigate} from "react-router";
-import {Loading} from "../../Reusable_Components/Loading.jsx";
+import {Loading} from "../../Reusable_Components/Loading";
 
 // This Page mocks the login page of the application.
 export function Login() {

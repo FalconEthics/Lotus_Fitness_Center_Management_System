@@ -1,45 +1,51 @@
-import {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {addMember, deleteMember, updateClass, updateMember} from '../../store/datasetSlice';
-import {AiOutlineOrderedList, AiOutlineUser} from "react-icons/ai";
-import {GrAdd} from "react-icons/gr";
-import {FormInput} from "../../Reusable_Components/FormInput.jsx";
-import {showEditFields} from "./Components/ShowEditFields.jsx";
-import {showValueFields} from "./Components/ShowValueFields.jsx";
-import {AddClasses} from "./Components/AddClasses.jsx";
-import {EnrolledClassesCard} from "./Components/EnrolledClassesCard.jsx";
+import { useState } from 'react';
+import { useMembers, useClasses, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
+import { AiOutlineOrderedList, AiOutlineUser } from "react-icons/ai";
+import { GrAdd } from "react-icons/gr";
+import { FormInput } from "../../Reusable_Components/FormInput";
+import { showEditFields } from "./Components/ShowEditFields";
+import { showValueFields } from "./Components/ShowValueFields";
+import { AddClasses } from "./Components/AddClasses";
+import { EnrolledClassesCard } from "./Components/EnrolledClassesCard";
+import { Member, MembershipType, MEMBERSHIP_TYPES } from '../../types';
 
-export function Members() {
-  const dispatch = useDispatch();
-  // Get the members and classes from the Redux store
-  const members = useSelector(state => state.dataset.members);
-  const classes = useSelector(state => state.dataset.classes);
+export function Members(): JSX.Element {
+  const dispatch = useDatasetDispatch();
+  // Get the members and classes from the Context store
+  const members = useMembers();
+  const classes = useClasses();
 
   // to manage the state of the new member being added
-  const [newMember, setNewMember] = useState({name: '', email: '', phone: '', membershipType: '', startDate: ''});
+  const [newMember, setNewMember] = useState<Omit<Member, 'id'>>({
+    name: '', 
+    email: '', 
+    phone: '', 
+    membershipType: 'Basic', 
+    startDate: ''
+  });
   // to identify the member being edited (when null, no member is being edited)
-  const [editingMember, setEditingMember] = useState(null);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
   // to store the class id to add the member to
-  const [classToAdd, setClassToAdd] = useState(null);
+  const [classToAdd, setClassToAdd] = useState<number | null>(null);
 
   // changes to this array will be reflected in the select dropdown
-  const membershipTypes = ['Basic', 'Premium', 'VIP'];
+  const membershipTypes = [...MEMBERSHIP_TYPES];
 
   // validate email and phone number formats
-  const validateEmail = (email) => {
+  const validateEmail = (email: string): boolean => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
   };
-  const validatePhone = (phone) => {
+  const validatePhone = (phone: string): boolean => {
     const re = /^\d{10}$/;
     return re.test(String(phone));
   };
 
   // functions to handle adding, updating, and deleting members
-  const handleAddMember = () => {
+  const handleAddMember = (): void => {
 
     //Basic validation
-    if (newMember.name === '' || newMember.email === '' || newMember.phone === '' || newMember.membershipType === '' || newMember.startDate === '') {
+    if (!newMember.name || !newMember.email || !newMember.phone || !newMember.membershipType || !newMember.startDate) {
       alert('Please fill all fields');
       return;
     }
@@ -53,14 +59,20 @@ export function Members() {
     }
 
     //dispatch the addMember action with the new member object and reset the newMember state
-    dispatch(addMember({...newMember, id: Date.now()}));
-    setNewMember({name: '', email: '', phone: '', membershipType: '', startDate: ''});
+    dispatch(datasetActions.addMember({...newMember, id: Date.now()}));
+    setNewMember({
+      name: '', 
+      email: '', 
+      phone: '', 
+      membershipType: 'Basic', 
+      startDate: ''
+    });
   };
 
   // function to handle updating a member
-  const handleUpdateMember = () => {
+  const handleUpdateMember = (): void => {
     //Basic validation
-    if (editingMember.name === '' || editingMember.email === '' || editingMember.phone === '' || editingMember.membershipType === '' || editingMember.startDate === '') {
+    if (!editingMember || !editingMember.name || !editingMember.email || !editingMember.phone || !editingMember.membershipType || !editingMember.startDate) {
       alert('Please fill all fields');
       return;
     }
@@ -74,32 +86,34 @@ export function Members() {
     }
 
     //dispatch the updateMember action with the updated member object and reset the editingMember state
-    dispatch(updateMember(editingMember));
+    if (editingMember) {
+      dispatch(datasetActions.updateMember(editingMember));
+    }
     setEditingMember(null);
   };
 
-  const handleDeleteMember = (id) => {
+  const handleDeleteMember = (id: number): void => {
     // just a confirmation dialog to confirm the delete action
     if (window.confirm('Are you sure you want to delete this member?')) {
       // dispatch the deleteMember action with the member id
-      dispatch(deleteMember(id));
+      dispatch(datasetActions.deleteMember(id));
     } else {
       return;
     }
   };
 
   // function to add a member to a class
-  const handleAddMemberToClass = (memberId) => {
+  const handleAddMemberToClass = (memberId: number): void => {
     // shouldn't be empty
     if (classToAdd) {
 
       // find the class object to add the member to
       const updatedClass = classes.find(cls => cls.id === classToAdd);
       // check if the class is full, if so, alert the user
-      if (updatedClass.enrolled.length < updatedClass.capacity) {
+      if (updatedClass && updatedClass.enrolled.length < updatedClass.capacity) {
         // otherwise, add the member to the class and reset the classToAdd state
         const newEnrolled = [...updatedClass.enrolled, memberId];
-        dispatch(updateClass({...updatedClass, enrolled: newEnrolled}));
+        dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
         setClassToAdd(null);
       } else {
         alert('Class is full');

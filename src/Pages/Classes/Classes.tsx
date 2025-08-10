@@ -1,20 +1,19 @@
 import {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {addClass, deleteClass, updateClass} from '../../store/datasetSlice';
+import {useClasses, useMembers, useDatasetDispatch, datasetActions} from '../../contexts/DatasetContext';
 import {SiGoogleclassroom} from "react-icons/si";
 import {GrAdd} from "react-icons/gr";
 import {AiOutlineOrderedList} from "react-icons/ai";
-import {FormInput} from "../../Reusable_Components/FormInput.jsx";
-import {showEditFields} from "./Components/ShowEditFields.jsx";
-import {showValueFields} from "./Components/ShowValueFields.jsx";
-import {EnrolledMembersCard} from "./Components/EnrolledMembersCard.jsx";
-import {AddMembers} from "./Components/AddMembers.jsx";
+import {FormInput} from "../../Reusable_Components/FormInput";
+import {showEditFields} from "./Components/ShowEditFields";
+import {showValueFields} from "./Components/ShowValueFields";
+import {EnrolledMembersCard} from "./Components/EnrolledMembersCard";
+import {AddMembers} from "./Components/AddMembers";
 
 export function Classes() {
-  const dispatch = useDispatch();
-  // get classes and members from the store
-  const classes = useSelector(state => state.dataset.classes);
-  const members = useSelector(state => state.dataset.members);
+  const dispatch = useDatasetDispatch();
+  // get classes and members from the Context store
+  const classes = useClasses();
+  const members = useMembers();
 
   // to store the new class details
   const [newClass, setNewClass] = useState({name: '', instructor: '', schedule: '', capacity: 0});
@@ -33,7 +32,7 @@ export function Classes() {
     }
 
     // dispatch the addClass action with the new class details
-    dispatch(addClass({...newClass, id: Date.now(), enrolled: []}));
+    dispatch(datasetActions.addClass({...newClass, id: Date.now(), enrolled: []}));
     // reset the newClass state
     setNewClass({name: '', instructor: '', schedule: '', capacity: 0});
   };
@@ -47,7 +46,7 @@ export function Classes() {
     }
 
     // dispatch the updateClass action with the updated class details
-    dispatch(updateClass(editingClass));
+    dispatch(datasetActions.updateClass(editingClass));
     // reset the editingClass state
     setEditingClass(null);
   };
@@ -58,7 +57,7 @@ export function Classes() {
       return;
     }
     // Just delete the class with the given id
-    dispatch(deleteClass(id));
+    dispatch(datasetActions.deleteClass(id));
   };
 
   // function to add a member to a class
@@ -71,7 +70,7 @@ export function Classes() {
       if (updatedClass.enrolled.length < updatedClass.capacity) {
         // Add the member to the class
         const newEnrolled = [...updatedClass.enrolled, memberToAdd];
-        dispatch(updateClass({...updatedClass, enrolled: newEnrolled}));
+        dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
         // Reset the memberToAdd state
         setMemberToAdd(null);
       } else {

@@ -1,14 +1,14 @@
-import {useSelector} from 'react-redux';
-import {AiFillDashboard, AiOutlineMenu, AiOutlineUser, AiOutlineUserAdd, AiOutlineUsergroupAdd,} from 'react-icons/ai';
-import {MdEventSeat} from 'react-icons/md';
-import {CgAdd} from 'react-icons/cg';
+import { useDataset } from '../../contexts/DatasetContext';
+import { AiFillDashboard, AiOutlineMenu, AiOutlineUser, AiOutlineUserAdd, AiOutlineUsergroupAdd } from 'react-icons/ai';
+import { MdEventSeat } from 'react-icons/md';
+import { CgAdd } from 'react-icons/cg';
 
 // Just to make things reusable
-import {MemberCard} from "../../Reusable_Components/MemberCard.jsx";
-import {StatCard} from "../../Reusable_Components/StatCard.jsx";
+import { MemberCard } from "../../Reusable_Components/MemberCard";
+import { StatCard } from "../../Reusable_Components/StatCard";
 
-export function Dashboard() {
-  const dataset = useSelector(state => state.dataset);
+export function Dashboard(): JSX.Element {
+  const dataset = useDataset();
 
   return (
     <div className="w-full h-full flex flex-col space-y-6 justify-start p-6 text-gray-800">
