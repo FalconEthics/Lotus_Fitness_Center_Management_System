@@ -2,6 +2,7 @@ import { useDataset } from '../../contexts/DatasetContext';
 import { AiFillDashboard, AiOutlineMenu, AiOutlineUser, AiOutlineUserAdd, AiOutlineUsergroupAdd } from 'react-icons/ai';
 import { MdEventSeat } from 'react-icons/md';
 import { CgAdd } from 'react-icons/cg';
+import { useDashboardStats } from '../../hooks/useDashboardStats';
 
 // Just to make things reusable
 import { MemberCard } from "../../Reusable_Components/MemberCard";
@@ -9,6 +10,9 @@ import { StatCard } from "../../Reusable_Components/StatCard";
 
 export function Dashboard(): JSX.Element {
   const dataset = useDataset();
+
+  // Use custom hook with optimized Lodash calculations
+  const stats = useDashboardStats(dataset.members, dataset.classes);
 
   return (
     <div className="w-full h-full flex flex-col space-y-6 justify-start p-6 text-gray-800">
@@ -18,13 +22,11 @@ export function Dashboard(): JSX.Element {
         <h1 className="text-2xl font-bold">Dashboard</h1>
       </div>
       <div className="grid grid-cols-2 gap-3 md:flex md:flex-row md:items-center md:space-x-2 md:justify-start">
-        {/* There's no db so i just computed the values */}
-        <StatCard icon={AiOutlineUsergroupAdd} title="Total Users" value={dataset.members.length}/>
-        <StatCard icon={AiOutlineMenu} title="Total Classes" value={dataset.classes.length}/>
-        <StatCard icon={MdEventSeat} title="Available Seats"
-                  value={dataset.classes.reduce((acc, cls) => acc + (cls.capacity - cls.enrolled.length), 0)}/>
-        <StatCard icon={AiOutlineUserAdd} title="Unassigned Users"
-                  value={dataset.members.filter(member => !dataset.classes.some(cls => cls.enrolled.includes(member.id))).length}/>
+        {/* Optimized calculations using Lodash hook */}
+        <StatCard icon={AiOutlineUsergroupAdd} title="Total Users" value={stats.totalMembers}/>
+        <StatCard icon={AiOutlineMenu} title="Total Classes" value={stats.totalClasses}/>
+        <StatCard icon={MdEventSeat} title="Available Seats" value={stats.availableSeats}/>
+        <StatCard icon={AiOutlineUserAdd} title="Unassigned Users" value={stats.unassignedUsers}/>
         {/* This button is just a placeholder */}
         <button
           onClick={() => {
@@ -44,8 +46,8 @@ export function Dashboard(): JSX.Element {
         <h1 className="text-2xl font-bold">Recently Joined</h1>
       </div>
       <div className="flex flex-row items-center space-x-2 justify-start overflow-x-auto">
-        {/* Again, there's no db so i just sliced the array */}
-        {dataset.members.slice(0, 7).map(member => (
+        {/* Use Lodash for better sorting and limiting */}
+        {stats.recentMembers.map(member => (
           <MemberCard key={member.id} member={member}/>
         ))}
       </div>

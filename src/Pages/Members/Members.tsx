@@ -8,6 +8,7 @@ import { showValueFields } from "./Components/ShowValueFields";
 import { AddClasses } from "./Components/AddClasses";
 import { EnrolledClassesCard } from "./Components/EnrolledClassesCard";
 import { Member, MembershipType, MEMBERSHIP_TYPES } from '../../types';
+import { ValidationUtils, DataUtils } from '../../utils/lodashHelpers';
 
 export function Members(): JSX.Element {
   const dispatch = useDatasetDispatch();
@@ -31,22 +32,21 @@ export function Members(): JSX.Element {
   // changes to this array will be reflected in the select dropdown
   const membershipTypes = [...MEMBERSHIP_TYPES];
 
-  // validate email and phone number formats
-  const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-  const validatePhone = (phone: string): boolean => {
-    const re = /^\d{10}$/;
-    return re.test(String(phone));
-  };
+  // Use centralized validation utilities
+  const validateEmail = ValidationUtils.isValidEmail;
+  const validatePhone = ValidationUtils.isValidPhone;
 
   // functions to handle adding, updating, and deleting members
   const handleAddMember = (): void => {
 
-    //Basic validation
-    if (!newMember.name || !newMember.email || !newMember.phone || !newMember.membershipType || !newMember.startDate) {
-      alert('Please fill all fields');
+    // Use centralized validation
+    const { isValid, missingFields } = ValidationUtils.validateRequiredFields(
+      newMember,
+      ['name', 'email', 'phone', 'membershipType', 'startDate']
+    );
+    
+    if (!isValid) {
+      alert(`Please fill the following fields: ${missingFields.join(', ')}`);
       return;
     }
     if (!validateEmail(newMember.email)) {
@@ -60,6 +60,7 @@ export function Members(): JSX.Element {
 
     //dispatch the addMember action with the new member object and reset the newMember state
     dispatch(datasetActions.addMember({...newMember, id: Date.now()}));
+    // Reset form with sanitized empty values
     setNewMember({
       name: '', 
       email: '', 
@@ -102,23 +103,27 @@ export function Members(): JSX.Element {
     }
   };
 
-  // function to add a member to a class
+  // function to add a member to a class using Lodash find
   const handleAddMemberToClass = (memberId: number): void => {
-    // shouldn't be empty
-    if (classToAdd) {
+    if (!classToAdd) return;
 
-      // find the class object to add the member to
-      const updatedClass = classes.find(cls => cls.id === classToAdd);
-      // check if the class is full, if so, alert the user
-      if (updatedClass && updatedClass.enrolled.length < updatedClass.capacity) {
-        // otherwise, add the member to the class and reset the classToAdd state
-        const newEnrolled = [...updatedClass.enrolled, memberId];
-        dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
-        setClassToAdd(null);
-      } else {
-        alert('Class is full');
-      }
+    // Use centralized data utilities
+    const updatedClass = DataUtils.findClassById(classes, classToAdd);
+    
+    if (!updatedClass) {
+      alert('Class not found');
+      return;
     }
+    
+    if (updatedClass.enrolled.length >= updatedClass.capacity) {
+      alert('Class is full');
+      return;
+    }
+    
+    // Add member to class
+    const newEnrolled = [...updatedClass.enrolled, memberId];
+    dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
+    setClassToAdd(null);
   };
 
   return (

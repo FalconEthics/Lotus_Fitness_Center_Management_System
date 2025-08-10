@@ -1,33 +1,39 @@
-import {useState} from 'react';
-import {useClasses, useMembers, useDatasetDispatch, datasetActions} from '../../contexts/DatasetContext';
-import {SiGoogleclassroom} from "react-icons/si";
-import {GrAdd} from "react-icons/gr";
-import {AiOutlineOrderedList} from "react-icons/ai";
-import {FormInput} from "../../Reusable_Components/FormInput";
-import {showEditFields} from "./Components/ShowEditFields";
-import {showValueFields} from "./Components/ShowValueFields";
-import {EnrolledMembersCard} from "./Components/EnrolledMembersCard";
-import {AddMembers} from "./Components/AddMembers";
+import { useState } from 'react';
+import { useClasses, useMembers, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
+import { SiGoogleclassroom } from "react-icons/si";
+import { GrAdd } from "react-icons/gr";
+import { AiOutlineOrderedList } from "react-icons/ai";
+import { FormInput } from "../../Reusable_Components/FormInput";
+import { showEditFields } from "./Components/ShowEditFields";
+import { showValueFields } from "./Components/ShowValueFields";
+import { EnrolledMembersCard } from "./Components/EnrolledMembersCard";
+import { AddMembers } from "./Components/AddMembers";
+import { FitnessClass } from '../../types';
+import { ValidationUtils, DataUtils } from '../../utils/lodashHelpers';
 
-export function Classes() {
+export function Classes(): JSX.Element {
   const dispatch = useDatasetDispatch();
   // get classes and members from the Context store
   const classes = useClasses();
   const members = useMembers();
 
   // to store the new class details
-  const [newClass, setNewClass] = useState({name: '', instructor: '', schedule: '', capacity: 0});
+  const [newClass, setNewClass] = useState<Omit<FitnessClass, 'id' | 'enrolled'>>({name: '', instructor: '', schedule: '', capacity: 0});
   // to store the class being edited (identified by id)
-  const [editingClass, setEditingClass] = useState(null);
+  const [editingClass, setEditingClass] = useState<FitnessClass | null>(null);
   // to store the member to be added to a class
-  const [memberToAdd, setMemberToAdd] = useState(null);
+  const [memberToAdd, setMemberToAdd] = useState<number | null>(null);
 
-  // function to add a new class
-  const handleAddClass = () => {
-
-    //Basic validation to check if all fields are filled
-    if (newClass.name === '' || newClass.instructor === '' || newClass.schedule === '' || newClass.capacity === 0) {
-      alert('Please fill all fields');
+  // function to add a new class with Lodash validation
+  const handleAddClass = (): void => {
+    // Use centralized validation
+    const { isValid, missingFields } = ValidationUtils.validateRequiredFields(
+      newClass,
+      ['name', 'instructor', 'schedule']
+    );
+    
+    if (!isValid || newClass.capacity <= 0) {
+      alert(`Please fill the following fields: ${missingFields.join(', ')} and ensure capacity is greater than 0`);
       return;
     }
 
@@ -37,11 +43,18 @@ export function Classes() {
     setNewClass({name: '', instructor: '', schedule: '', capacity: 0});
   };
 
-  // function to update a class
-  const handleUpdateClass = () => {
-    // Basic validation to check if all fields are filled
-    if (editingClass.name === '' || editingClass.instructor === '' || editingClass.schedule === '' || editingClass.capacity === 0) {
-      alert('Please fill all fields');
+  // function to update a class with Lodash validation
+  const handleUpdateClass = (): void => {
+    if (!editingClass) return;
+    
+    // Use centralized validation
+    const { isValid, missingFields } = ValidationUtils.validateRequiredFields(
+      editingClass,
+      ['name', 'instructor', 'schedule']
+    );
+    
+    if (!isValid || editingClass.capacity <= 0) {
+      alert(`Please fill the following fields: ${missingFields.join(', ')} and ensure capacity is greater than 0`);
       return;
     }
 
@@ -60,23 +73,27 @@ export function Classes() {
     dispatch(datasetActions.deleteClass(id));
   };
 
-  // function to add a member to a class
-  const handleAddMemberToClass = (classId) => {
-    // Check if a member is selected
-    if (memberToAdd) {
-      // Find the class to which the member is to be added
-      const updatedClass = classes.find(cls => cls.id === classId);
-      // Check if the class is not full, alerts if full
-      if (updatedClass.enrolled.length < updatedClass.capacity) {
-        // Add the member to the class
-        const newEnrolled = [...updatedClass.enrolled, memberToAdd];
-        dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
-        // Reset the memberToAdd state
-        setMemberToAdd(null);
-      } else {
-        alert('Class is full');
-      }
+  // function to add a member to a class using Lodash find
+  const handleAddMemberToClass = (classId: number): void => {
+    if (!memberToAdd) return;
+
+    // Use centralized data utilities
+    const updatedClass = DataUtils.findClassById(classes, classId);
+    
+    if (!updatedClass) {
+      alert('Class not found');
+      return;
     }
+    
+    if (updatedClass.enrolled.length >= updatedClass.capacity) {
+      alert('Class is full');
+      return;
+    }
+    
+    // Add member to class
+    const newEnrolled = [...updatedClass.enrolled, memberToAdd];
+    dispatch(datasetActions.updateClass({...updatedClass, enrolled: newEnrolled}));
+    setMemberToAdd(null);
   };
 
   return (

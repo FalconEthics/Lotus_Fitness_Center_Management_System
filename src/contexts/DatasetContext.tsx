@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useMemo, ReactNode } from 'react';
+import { cloneDeep, findIndex, reject, defaults } from 'lodash';
 import {
   Dataset,
   DatasetAction,
@@ -19,11 +20,8 @@ const initialState: Dataset = {
 function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
   switch (action.type) {
     case DatasetActionType.SET_DATASET:
-      return {
-        ...state,
-        members: action.payload.members || [],
-        classes: action.payload.classes || [],
-      };
+      // Use Lodash defaults for cleaner null/undefined handling
+      return defaults({}, action.payload, { members: [], classes: [] });
 
     case DatasetActionType.ADD_MEMBER:
       return {
@@ -32,29 +30,28 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_MEMBER: {
-      const updatedMembers = state.members.map(member =>
-        member.id === action.payload.id ? action.payload : member
-      );
-      return {
-        ...state,
-        members: updatedMembers,
-      };
+      // Use Lodash cloneDeep for immutability and findIndex for performance
+      const newState = cloneDeep(state);
+      const memberIndex = findIndex(newState.members, { id: action.payload.id });
+      if (memberIndex !== -1) {
+        newState.members[memberIndex] = action.payload;
+      }
+      return newState;
     }
 
     case DatasetActionType.DELETE_MEMBER: {
       const memberId = action.payload;
-      const filteredMembers = state.members.filter(member => member.id !== memberId);
-      // Remove member from all classes
-      const updatedClasses = state.classes.map(cls => ({
-        ...cls,
-        enrolled: cls.enrolled.filter(id => id !== memberId),
-      }));
+      const newState = cloneDeep(state);
       
-      return {
-        ...state,
-        members: filteredMembers,
-        classes: updatedClasses,
-      };
+      // Use Lodash reject for cleaner filtering
+      newState.members = reject(newState.members, { id: memberId });
+      
+      // Remove member from all classes efficiently
+      newState.classes.forEach(cls => {
+        cls.enrolled = reject(cls.enrolled, id => id === memberId);
+      });
+      
+      return newState;
     }
 
     case DatasetActionType.ADD_CLASS:
@@ -64,20 +61,20 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_CLASS: {
-      const updatedClasses = state.classes.map(cls =>
-        cls.id === action.payload.id ? action.payload : cls
-      );
-      return {
-        ...state,
-        classes: updatedClasses,
-      };
+      // Use Lodash cloneDeep and findIndex for better performance
+      const newState = cloneDeep(state);
+      const classIndex = findIndex(newState.classes, { id: action.payload.id });
+      if (classIndex !== -1) {
+        newState.classes[classIndex] = action.payload;
+      }
+      return newState;
     }
 
     case DatasetActionType.DELETE_CLASS: {
-      const filteredClasses = state.classes.filter(cls => cls.id !== action.payload);
+      // Use Lodash reject for cleaner filtering
       return {
         ...state,
-        classes: filteredClasses,
+        classes: reject(state.classes, { id: action.payload }),
       };
     }
 
