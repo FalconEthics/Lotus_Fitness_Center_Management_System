@@ -1,256 +1,451 @@
 {
+  "userProfile": {
+    "id": 1,
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@lotus-fitness.co.uk",
+    "phone": "+44 20 7946 0958",
+    "role": "Owner",
+    "preferences": {
+      "theme": "light",
+      "autoSaveInterval": 5,
+      "defaultView": "dashboard"
+    }
+  },
   "members": [
     {
       "id": 1,
-      "name": "Aarav Sharma",
-      "email": "aarav.sharma@example.in",
-      "phone": "9854027242",
-      "membershipType": "Basic",
-      "startDate": "2023-01-15"
+      "name": "James Smith",
+      "email": "james.smith@email.co.uk",
+      "phone": "+44 7700 900001",
+      "age": 28,
+      "gender": "Male",
+      "membershipPlanId": 2,
+      "startDate": "2024-01-15",
+      "endDate": "2024-12-15",
+      "status": "Active"
     },
     {
       "id": 2,
-      "name": "Ishita Verma",
-      "email": "ishita.verma@example.in",
-      "phone": "9876543210",
-      "membershipType": "Premium",
-      "startDate": "2022-11-20"
+      "name": "Emily Johnson",
+      "email": "emily.johnson@gmail.com",
+      "phone": "+44 7700 900002",
+      "age": 25,
+      "gender": "Female",
+      "membershipPlanId": 3,
+      "startDate": "2024-02-01",
+      "endDate": "2025-01-01",
+      "status": "Active"
     },
     {
       "id": 3,
-      "name": "Rohan Mehta",
-      "email": "rohan.mehta@example.in",
-      "phone": "9123456789",
-      "membershipType": "VIP",
-      "startDate": "2021-05-10"
+      "name": "Michael Brown",
+      "email": "m.brown@outlook.com",
+      "phone": "+44 7700 900003",
+      "age": 35,
+      "gender": "Male",
+      "membershipPlanId": 1,
+      "startDate": "2024-03-10",
+      "endDate": "2024-12-10",
+      "status": "Active"
     },
     {
       "id": 4,
-      "name": "Priya Kapoor",
-      "email": "priya.kapoor@example.in",
-      "phone": "9834567890",
-      "membershipType": "Basic",
-      "startDate": "2023-03-25"
+      "name": "Sophie Wilson",
+      "email": "sophie.wilson@yahoo.co.uk",
+      "phone": "+44 7700 900004",
+      "age": 22,
+      "gender": "Female",
+      "membershipPlanId": 2,
+      "startDate": "2024-01-20",
+      "endDate": "2024-12-20",
+      "status": "Active"
     },
     {
       "id": 5,
-      "name": "Vikram Reddy",
-      "email": "vikram.reddy@example.in",
-      "phone": "9876541230",
-      "membershipType": "Premium",
-      "startDate": "2022-07-30"
+      "name": "David Taylor",
+      "email": "david.taylor@btinternet.com",
+      "phone": "+44 7700 900005",
+      "age": 42,
+      "gender": "Male",
+      "membershipPlanId": 3,
+      "startDate": "2023-12-01",
+      "endDate": "2024-11-01",
+      "status": "Expired"
     },
     {
       "id": 6,
-      "name": "Sneha Iyer",
-      "email": "sneha.iyer@example.in",
-      "phone": "9890123456",
-      "membershipType": "Basic",
-      "startDate": "2023-04-10"
+      "name": "Charlotte Davies",
+      "email": "charlotte.davies@hotmail.co.uk",
+      "phone": "+44 7700 900006",
+      "age": 29,
+      "gender": "Female",
+      "membershipPlanId": 1,
+      "startDate": "2024-04-01",
+      "endDate": "2025-01-01",
+      "status": "Active"
     },
     {
       "id": 7,
-      "name": "Arjun Singh",
-      "email": "arjun.singh@example.in",
-      "phone": "9786543210",
-      "membershipType": "Premium",
-      "startDate": "2022-08-15"
+      "name": "Thomas Evans",
+      "email": "thomas.evans@gmail.com",
+      "phone": "+44 7700 900007",
+      "age": 31,
+      "gender": "Male",
+      "membershipPlanId": 2,
+      "startDate": "2024-05-15",
+      "endDate": "2025-02-15",
+      "status": "Active"
     },
     {
       "id": 8,
-      "name": "Kavya Nair",
-      "email": "kavya.nair@example.in",
-      "phone": "9867012345",
-      "membershipType": "VIP",
-      "startDate": "2021-06-20"
+      "name": "Olivia Roberts",
+      "email": "olivia.roberts@virgin.net",
+      "phone": "+44 7700 900008",
+      "age": 26,
+      "gender": "Female",
+      "membershipPlanId": 1,
+      "startDate": "2024-06-01",
+      "endDate": "2025-03-01",
+      "status": "Trial"
     },
     {
       "id": 9,
-      "name": "Ananya Mukherjee",
-      "email": "ananya.mukherjee@example.in",
-      "phone": "9101234567",
-      "membershipType": "Basic",
-      "startDate": "2023-05-05"
+      "name": "Daniel White",
+      "email": "daniel.white@sky.com",
+      "phone": "+44 7700 900009",
+      "age": 38,
+      "gender": "Male",
+      "membershipPlanId": 3,
+      "startDate": "2024-02-10",
+      "endDate": "2025-01-10",
+      "status": "Active"
     },
     {
       "id": 10,
-      "name": "Rahul Desai",
-      "email": "rahul.desai@example.in",
-      "phone": "9023456781",
-      "membershipType": "Premium",
-      "startDate": "2022-09-10"
+      "name": "Emma Thompson",
+      "email": "emma.thompson@tesco.net",
+      "phone": "+44 7700 900010",
+      "age": 33,
+      "gender": "Female",
+      "membershipPlanId": 2,
+      "startDate": "2024-03-20",
+      "endDate": "2025-02-20",
+      "status": "Active"
     },
     {
       "id": 11,
-      "name": "Meera Sharma",
-      "email": "meera.sharma@example.in",
-      "phone": "9876201234",
-      "membershipType": "Basic",
-      "startDate": "2023-07-10"
+      "name": "Alexander Clark",
+      "email": "alex.clark@talk21.com",
+      "phone": "+44 7700 900011",
+      "age": 27,
+      "gender": "Male",
+      "membershipPlanId": 1,
+      "startDate": "2024-07-01",
+      "endDate": "2025-04-01",
+      "status": "Active"
     },
     {
       "id": 12,
-      "name": "Ramesh Patel",
-      "email": "ramesh.patel@example.in",
-      "phone": "9837011234",
-      "membershipType": "VIP",
-      "startDate": "2021-10-15"
-    },
-    {
-      "id": 13,
-      "name": "Deepika Rao",
-      "email": "deepika.rao@example.in",
-      "phone": "9123450789",
-      "membershipType": "Premium",
-      "startDate": "2022-11-25"
-    },
-    {
-      "id": 14,
-      "name": "Varun Khanna",
-      "email": "varun.khanna@example.in",
-      "phone": "9876540890",
-      "membershipType": "Basic",
-      "startDate": "2023-03-30"
-    },
-    {
-      "id": 15,
-      "name": "Alok Chatterjee",
-      "email": "alok.chatterjee@example.in",
-      "phone": "9101239087",
-      "membershipType": "VIP",
-      "startDate": "2021-08-05"
-    },
-    {
-      "id": 16,
-      "name": "Pooja Joshi",
-      "email": "pooja.joshi@example.in",
-      "phone": "9890123487",
-      "membershipType": "Premium",
-      "startDate": "2022-06-25"
-    },
-    {
-      "id": 17,
-      "name": "Siddharth Gupta",
-      "email": "siddharth.gupta@example.in",
-      "phone": "9834567123",
-      "membershipType": "Basic",
-      "startDate": "2023-09-20"
-    },
-    {
-      "id": 18,
-      "name": "Rekha Nambiar",
-      "email": "rekha.nambiar@example.in",
-      "phone": "9123409876",
-      "membershipType": "VIP",
-      "startDate": "2021-07-20"
-    },
-    {
-      "id": 19,
-      "name": "Mohit Malhotra",
-      "email": "mohit.malhotra@example.in",
-      "phone": "9786541234",
-      "membershipType": "Premium",
-      "startDate": "2022-04-10"
-    },
-    {
-      "id": 20,
-      "name": "Neha Roy",
-      "email": "neha.roy@example.in",
-      "phone": "9123456780",
-      "membershipType": "Basic",
-      "startDate": "2023-11-05"
-    },
-    {
-      "id": 21,
-      "name": "Abhishek Yadav",
-      "email": "abhishek.yadav@example.in",
-      "phone": "9786590123",
-      "membershipType": "VIP",
-      "startDate": "2021-05-15"
-    },
-    {
-      "id": 22,
-      "name": "Nidhi Bansal",
-      "email": "nidhi.bansal@example.in",
-      "phone": "9876023412",
-      "membershipType": "Premium",
-      "startDate": "2022-03-25"
+      "name": "Grace Lewis",
+      "email": "grace.lewis@gmail.com",
+      "phone": "+44 7700 900012",
+      "age": 24,
+      "gender": "Female",
+      "membershipPlanId": 2,
+      "startDate": "2024-01-05",
+      "endDate": "2024-12-05",
+      "status": "Suspended"
     }
   ],
   "classes": [
     {
       "id": 1,
-      "name": "Yoga",
-      "instructor": "Riya Patel",
-      "schedule": "2024-02-01 10:00 AM",
-      "capacity": 5,
-      "enrolled": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ]
+      "name": "Morning HIIT",
+      "trainerId": 1,
+      "schedule": {
+        "dayOfWeek": 1,
+        "startTime": "07:00",
+        "endTime": "08:00",
+        "duration": 60
+      },
+      "capacity": 20,
+      "enrolled": [1, 3, 5, 7, 9, 11],
+      "description": "High-intensity interval training to kickstart your day"
     },
     {
       "id": 2,
-      "name": "Pilates",
-      "instructor": "Manish Malhotra",
-      "schedule": "2024-02-02 11:00 AM",
-      "capacity": 5,
-      "enrolled": [
-        6,
-        7,
-        8,
-        9,
-        10
-      ]
+      "name": "Yoga Flow",
+      "trainerId": 2,
+      "schedule": {
+        "dayOfWeek": 2,
+        "startTime": "18:30",
+        "endTime": "19:30",
+        "duration": 60
+      },
+      "capacity": 15,
+      "enrolled": [2, 4, 6, 8, 10],
+      "description": "Relaxing yoga session focusing on flexibility and mindfulness"
     },
     {
       "id": 3,
-      "name": "Zumba",
-      "instructor": "Neha Gupta",
-      "schedule": "2024-02-03 09:00 AM",
-      "capacity": 5,
-      "enrolled": [
-        11,
-        12,
-        13,
-        14,
-        15
-      ]
+      "name": "Strength Training",
+      "trainerId": 1,
+      "schedule": {
+        "dayOfWeek": 3,
+        "startTime": "19:00",
+        "endTime": "20:00",
+        "duration": 60
+      },
+      "capacity": 12,
+      "enrolled": [1, 3, 7, 9],
+      "description": "Build muscle and increase strength with guided weight training"
     },
     {
       "id": 4,
-      "name": "HIIT",
-      "instructor": "David Wilson",
-      "schedule": "2024-02-05 07:00 AM",
-      "capacity": 5,
-      "enrolled": []
+      "name": "Pilates Core",
+      "trainerId": 3,
+      "schedule": {
+        "dayOfWeek": 4,
+        "startTime": "12:00",
+        "endTime": "13:00",
+        "duration": 60
+      },
+      "capacity": 18,
+      "enrolled": [2, 4, 6, 8, 10, 12],
+      "description": "Core-focused Pilates class for better posture and stability"
     },
     {
       "id": 5,
-      "name": "CrossFit",
-      "instructor": "Sarah Lee",
-      "schedule": "2024-02-06 06:00 AM",
-      "capacity": 5,
-      "enrolled": [
-        16,
-        17,
-        18,
-        19,
-        20
-      ]
+      "name": "Spin Class",
+      "trainerId": 4,
+      "schedule": {
+        "dayOfWeek": 5,
+        "startTime": "17:00",
+        "endTime": "18:00",
+        "duration": 60
+      },
+      "capacity": 25,
+      "enrolled": [1, 2, 5, 7, 9, 11],
+      "description": "High-energy indoor cycling with motivating music"
     },
     {
       "id": 6,
-      "name": "Spin Class",
-      "instructor": "Akash Singh",
-      "schedule": "2024-02-07 05:00 AM",
-      "capacity": 5,
-      "enrolled": [
-        21
-      ]
+      "name": "Weekend Bootcamp",
+      "trainerId": 1,
+      "schedule": {
+        "dayOfWeek": 6,
+        "startTime": "10:00",
+        "endTime": "11:00",
+        "duration": 60
+      },
+      "capacity": 20,
+      "enrolled": [1, 3, 5, 6, 7, 8, 9],
+      "description": "Intensive full-body workout combining cardio and strength"
+    }
+  ],
+  "membershipPlans": [
+    {
+      "id": 1,
+      "name": "Basic Plan",
+      "duration": 365,
+      "cost": 300,
+      "description": "Essential gym access with standard equipment and facilities",
+      "features": [
+        "Gym Access (24/7)",
+        "Locker Room Access",
+        "Basic Equipment Usage",
+        "Free Wi-Fi",
+        "Parking"
+      ],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "name": "Premium Plan",
+      "duration": 365,
+      "cost": 600,
+      "description": "Enhanced membership with personal training and group classes",
+      "features": [
+        "All Basic Plan Features",
+        "Unlimited Group Classes",
+        "2 Personal Training Sessions/Month",
+        "Nutrition Consultation",
+        "Priority Class Booking",
+        "Guest Pass (2/Month)"
+      ],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "VIP Plan",
+      "duration": 365,
+      "cost": 1200,
+      "description": "Ultimate fitness experience with all premium features and exclusive access",
+      "features": [
+        "All Premium Plan Features",
+        "Unlimited Personal Training",
+        "Spa & Wellness Access",
+        "Massage Therapy (2/Month)",
+        "Priority Equipment Booking",
+        "VIP Lounge Access",
+        "Complimentary Towel Service",
+        "Dietary Planning & Supplements",
+        "Unlimited Guest Passes"
+      ],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Student Plan",
+      "duration": 365,
+      "cost": 180,
+      "description": "Discounted plan for students with valid ID",
+      "features": [
+        "Gym Access (6AM - 10PM)",
+        "Locker Room Access",
+        "Basic Equipment Usage",
+        "Group Classes (Off-Peak)",
+        "Free Wi-Fi"
+      ],
+      "isActive": false
+    }
+  ],
+  "trainers": [
+    {
+      "id": 1,
+      "name": "Marcus Williams",
+      "email": "marcus.williams@lotus-fitness.co.uk",
+      "phone": "+44 7700 800001",
+      "expertise": ["HIIT", "Strength Training", "Bootcamp", "Weight Loss"],
+      "assignedClasses": [1, 3, 6],
+      "hourlyRate": 45,
+      "certifications": ["NASM-CPT", "HIIT Specialist", "Strength & Conditioning"],
+      "isActive": true
+    },
+    {
+      "id": 2,
+      "name": "Isabella Davis",
+      "email": "isabella.davis@lotus-fitness.co.uk",
+      "phone": "+44 7700 800002",
+      "expertise": ["Yoga", "Meditation", "Flexibility", "Mindfulness"],
+      "assignedClasses": [2],
+      "hourlyRate": 40,
+      "certifications": ["RYT-500", "Meditation Teacher", "Yin Yoga Specialist"],
+      "isActive": true
+    },
+    {
+      "id": 3,
+      "name": "Rebecca Miller",
+      "email": "rebecca.miller@lotus-fitness.co.uk",
+      "phone": "+44 7700 800003",
+      "expertise": ["Pilates", "Core Training", "Rehabilitation", "Posture Correction"],
+      "assignedClasses": [4],
+      "hourlyRate": 50,
+      "certifications": ["PMA-CPT", "Reformer Pilates", "Pre/Post Natal Specialist"],
+      "isActive": true
+    },
+    {
+      "id": 4,
+      "name": "Christopher Moore",
+      "email": "chris.moore@lotus-fitness.co.uk",
+      "phone": "+44 7700 800004",
+      "expertise": ["Indoor Cycling", "Cardio Training", "Endurance", "Music Therapy"],
+      "assignedClasses": [5],
+      "hourlyRate": 38,
+      "certifications": ["Spinning Instructor", "Cardio Specialist", "First Aid"],
+      "isActive": true
+    },
+    {
+      "id": 5,
+      "name": "Amanda Taylor",
+      "email": "amanda.taylor@lotus-fitness.co.uk",
+      "phone": "+44 7700 800005",
+      "expertise": ["Zumba", "Dance Fitness", "Aerobics", "Weight Management"],
+      "assignedClasses": [],
+      "hourlyRate": 35,
+      "certifications": ["Zumba Instructor", "Group Fitness", "Dance Movement Therapy"],
+      "isActive": false
+    }
+  ],
+  "attendance": [
+    {
+      "id": 1,
+      "memberId": 1,
+      "classId": 1,
+      "date": "2024-08-05",
+      "status": "Present",
+      "checkedInAt": "2024-08-05T06:55:00Z"
+    },
+    {
+      "id": 2,
+      "memberId": 2,
+      "classId": 2,
+      "date": "2024-08-06",
+      "status": "Present",
+      "checkedInAt": "2024-08-06T18:25:00Z"
+    },
+    {
+      "id": 3,
+      "memberId": 3,
+      "classId": 1,
+      "date": "2024-08-05",
+      "status": "Late",
+      "checkedInAt": "2024-08-05T07:15:00Z"
+    },
+    {
+      "id": 4,
+      "memberId": 4,
+      "classId": 4,
+      "date": "2024-08-08",
+      "status": "Present",
+      "checkedInAt": "2024-08-08T11:55:00Z"
+    },
+    {
+      "id": 5,
+      "memberId": 5,
+      "classId": 5,
+      "date": "2024-08-09",
+      "status": "Absent"
+    },
+    {
+      "id": 6,
+      "memberId": 6,
+      "classId": 4,
+      "date": "2024-08-08",
+      "status": "Present",
+      "checkedInAt": "2024-08-08T11:58:00Z"
+    },
+    {
+      "id": 7,
+      "memberId": 7,
+      "classId": 6,
+      "date": "2024-08-10",
+      "status": "Present",
+      "checkedInAt": "2024-08-10T09:58:00Z"
+    },
+    {
+      "id": 8,
+      "memberId": 1,
+      "classId": 3,
+      "date": "2024-08-07",
+      "status": "Present",
+      "checkedInAt": "2024-08-07T18:55:00Z"
+    },
+    {
+      "id": 9,
+      "memberId": 8,
+      "classId": 2,
+      "date": "2024-08-06",
+      "status": "Present",
+      "checkedInAt": "2024-08-06T18:30:00Z"
+    },
+    {
+      "id": 10,
+      "memberId": 9,
+      "classId": 5,
+      "date": "2024-08-09",
+      "status": "Present",
+      "checkedInAt": "2024-08-09T16:58:00Z"
     }
   ]
 }

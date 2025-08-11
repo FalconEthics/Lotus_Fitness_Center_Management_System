@@ -33,15 +33,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label className="block text-sm font-medium text-neutral-700">
+          <label className="block text-sm font-medium text-base-content">
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-error ml-1">*</span>}
           </label>
         )}
         
         <div className="relative">
           {startIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40">
               {startIcon}
             </div>
           )}
@@ -52,26 +52,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             transition={{ duration: 0.2 }}
             className={cn(
               // Base styles
-              'w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500',
+              'w-full rounded-lg border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary',
               // Size variants
               sizeVariants[size],
               // Icon padding
               startIcon && 'pl-10',
               endIcon && 'pr-10',
               // Variant styles
-              variant === 'default' && 'border-neutral-300 bg-white hover:border-neutral-400',
-              variant === 'filled' && 'border-transparent bg-neutral-100 hover:bg-neutral-50',
+              variant === 'default' && 'border-base-300 bg-base-100 hover:border-base-content/40',
+              variant === 'filled' && 'border-transparent bg-base-200 hover:bg-base-200/50',
               // Error state
-              error && 'border-red-500 focus:ring-red-500',
+              error && 'border-error focus:ring-error',
               // Disabled state
-              props.disabled && 'opacity-50 cursor-not-allowed bg-neutral-100',
+              props.disabled && 'opacity-50 cursor-not-allowed bg-base-200',
               className
             )}
             {...props}
           />
           
           {endIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40">
               {endIcon}
             </div>
           )}
@@ -83,7 +83,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             animate={{ opacity: 1, y: 0 }}
             className={cn(
               'text-sm',
-              error ? 'text-red-600' : 'text-neutral-500'
+              error ? 'text-error' : 'text-base-content/60'
             )}
           >
             {error || helper}

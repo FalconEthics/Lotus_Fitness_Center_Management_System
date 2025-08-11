@@ -40,10 +40,10 @@ export const Card: React.FC<CardProps> = ({
       transition={{ duration: 0.3 }}
       whileHover={hover ? { y: -2, transition: { duration: 0.2 } } : undefined}
       className={cn(
-        'bg-white rounded-xl',
+        'bg-base-100 rounded-xl',
         paddingVariants[padding],
         shadowVariants[shadow],
-        border && 'border border-neutral-200',
+        border && 'border border-base-300',
         hover && 'cursor-pointer transition-shadow duration-200 hover:shadow-lg',
         className
       )}
@@ -62,19 +62,19 @@ export const CardHeader = ({ children, className, ...props }: { children: React.
 );
 
 export const CardTitle = ({ children, className, ...props }: { children: React.ReactNode; className?: string }) => (
-  <h3 className={cn('text-xl font-semibold text-neutral-900 mb-2', className)} {...props}>
+  <h3 className={cn('text-xl font-semibold text-base-content mb-2', className)} {...props}>
     {children}
   </h3>
 );
 
 export const CardContent = ({ children, className, ...props }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('text-neutral-600', className)} {...props}>
+  <div className={cn('text-base-content/70', className)} {...props}>
     {children}
   </div>
 );
 
 export const CardFooter = ({ children, className, ...props }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('mt-4 pt-4 border-t border-neutral-200', className)} {...props}>
+  <div className={cn('mt-4 pt-4 border-t border-base-300', className)} {...props}>
     {children}
   </div>
 );

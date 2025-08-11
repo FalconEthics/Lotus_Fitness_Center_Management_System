@@ -1,402 +1,468 @@
-import React, { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  HiUserGroup, 
-  HiPlus, 
-  HiMagnifyingGlass,
-  HiUsers,
-  HiUser,
-  HiEnvelope,
-  HiPhone,
-  HiCalendarDays
-} from 'react-icons/hi2';
-import { useMembers, useClasses, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
-import { Member, MembershipType, MEMBERSHIP_TYPES } from '../../types';
-import { ValidationUtils, DataUtils } from '../../utils/lodashHelpers';
-import { MemberCard } from '../../components/members/MemberCard';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
-import { fadeInUp, staggerChildren, pageVariants } from '../../theme';
-import { useSearchAndFilterQuery } from '../../hooks/useQueryParams';
-import { useDebouncedValue, useSearchQuery } from '../../hooks/useDeferredValue';
-import { useFormTransition } from '../../hooks/useTransition';
+  FaUsers, 
+  FaPlus, 
+  FaSearch, 
+  FaFilter, 
+  FaDownload, 
+  FaUserCheck,
+  FaUserTimes,
+  FaUserClock,
+  FaUserShield
+} from 'react-icons/fa';
+import { debounce } from 'lodash';
+import { useCallback } from 'react';
+import { 
+  useMembers, 
+  useMembershipPlans,
+  useDatasetDispatch, 
+  datasetActions 
+} from '../../contexts/DatasetContext';
+import { Member, MEMBER_STATUSES, GENDERS } from '../../types';
+import { MemberForm } from '../../components/forms/MemberForm';
+import { StatCard } from '../../Reusable_Components/StatCard';
+import { usePrintManager } from '../../components/printables';
+import { usePageShortcuts, commonPageShortcuts, PageShortcut } from '../../hooks/usePageShortcuts';
+import toast from 'react-hot-toast';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      damping: 25,
+      stiffness: 120
+    }
+  }
+};
 
 export function Members(): JSX.Element {
-  const dispatch = useDatasetDispatch();
   const members = useMembers();
-  const classes = useClasses();
-  
-  // React 19-style hooks for state management
-  const [isPending, startTransition] = useTransition();
-  const { isPending: isSubmitting, submitForm } = useFormTransition();
+  const membershipPlans = useMembershipPlans();
+  const dispatch = useDatasetDispatch();
+  const { printMembershipCard, PrintManagerComponent } = usePrintManager();
 
-  // URL-based search and filter state
-  const {
-    searchTerm,
-    filters,
-    updateSearch,
-    updateFilter,
-    clearSearch,
-    clearFilters
-  } = useSearchAndFilterQuery({
-    membershipType: 'All' as MembershipType | 'All',
-  });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [planFilter, setPlanFilter] = useState<string>('All');
+  const [genderFilter, setGenderFilter] = useState<string>('All');
+  const [showForm, setShowForm] = useState(false);
+  const [editingMember, setEditingMember] = useState<Member | undefined>();
 
-  // Debounced search for better performance
-  const { deferredQuery: deferredSearchTerm, isSearching } = useSearchQuery(searchTerm, 300);
+  // Debounced search
+  const debouncedSearch = useCallback(
+    debounce((term: string) => {
+      setSearchTerm(term);
+    }, 300),
+    []
+  );
 
-  // Form state for adding new members
-  const [newMember, setNewMember] = useState<Omit<Member, 'id'>>({
-    name: '', 
-    email: '', 
-    phone: '', 
-    membershipType: 'Basic', 
-    startDate: ''
-  });
-  
-  // UI state
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  };
 
-  // Memoized filtered members with React 19 patterns
+  // Page-specific keyboard shortcuts
+  const pageShortcuts: PageShortcut[] = [
+    commonPageShortcuts.search(() => {
+      const searchInput = document.querySelector('input[type="text"][placeholder*="search" i]') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+        toast.success('Search focused');
+      }
+    }),
+    commonPageShortcuts.add(() => {
+      setShowForm(true);
+      setEditingMember(undefined);
+      toast.success('Add new member form opened');
+    }),
+    commonPageShortcuts.clearFilters(() => {
+      setStatusFilter('All');
+      setPlanFilter('All');
+      setGenderFilter('All');
+      setSearchTerm('');
+      toast.success('All filters cleared');
+    }),
+    {
+      key: 'p',
+      action: () => {
+        // Print all membership cards
+        if (filteredMembers.length > 0) {
+          filteredMembers.forEach(member => printMembershipCard(member));
+          toast.success(`Printing ${filteredMembers.length} membership cards`);
+        } else {
+          toast.info('No members to print');
+        }
+      },
+      description: 'Print all visible membership cards'
+    },
+    {
+      key: '1',
+      action: () => setStatusFilter('Active'),
+      description: 'Filter by Active status'
+    },
+    {
+      key: '2',
+      action: () => setStatusFilter('Expired'),
+      description: 'Filter by Expired status'
+    },
+    {
+      key: '3',
+      action: () => setStatusFilter('Trial'),
+      description: 'Filter by Trial status'
+    },
+    {
+      key: '4',
+      action: () => setStatusFilter('Suspended'),
+      description: 'Filter by Suspended status'
+    }
+  ];
+
+  usePageShortcuts(pageShortcuts);
+
+  // Filtered and searched members
   const filteredMembers = useMemo(() => {
     return members.filter(member => {
-      const matchesSearch = member.name.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-                           member.email.toLowerCase().includes(deferredSearchTerm.toLowerCase()) ||
-                           member.phone.includes(deferredSearchTerm);
-      
-      const matchesFilter = filters.membershipType === 'All' || member.membershipType === filters.membershipType;
-      
-      return matchesSearch && matchesFilter;
+      const matchesSearch = searchTerm === '' || 
+        member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        member.phone.includes(searchTerm);
+
+      const matchesStatus = statusFilter === 'All' || member.status === statusFilter;
+      const matchesPlan = planFilter === 'All' || member.membershipPlanId === parseInt(planFilter);
+      const matchesGender = genderFilter === 'All' || member.gender === genderFilter;
+
+      return matchesSearch && matchesStatus && matchesPlan && matchesGender;
     });
-  }, [members, deferredSearchTerm, filters.membershipType]);
+  }, [members, searchTerm, statusFilter, planFilter, genderFilter]);
 
-  // Memoized statistics
-  const stats = useMemo(() => ({
-    total: members.length,
-    basic: members.filter(m => m.membershipType === 'Basic').length,
-    premium: members.filter(m => m.membershipType === 'Premium').length,
-    vip: members.filter(m => m.membershipType === 'VIP').length,
-  }), [members]);
+  // Statistics
+  const stats = useMemo(() => {
+    return {
+      total: members.length,
+      active: members.filter(m => m.status === 'Active').length,
+      expired: members.filter(m => m.status === 'Expired').length,
+      trial: members.filter(m => m.status === 'Trial').length,
+      suspended: members.filter(m => m.status === 'Suspended').length,
+    };
+  }, [members]);
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!newMember.name.trim()) newErrors.name = 'Name is required';
-    if (!newMember.email.trim()) newErrors.email = 'Email is required';
-    else if (!ValidationUtils.isValidEmail(newMember.email)) {
-      newErrors.email = 'Invalid email format';
-    }
-    if (!newMember.phone.trim()) newErrors.phone = 'Phone is required';
-    else if (!ValidationUtils.isValidPhone(newMember.phone)) {
-      newErrors.phone = 'Phone must be 10 digits';
-    }
-    if (!newMember.startDate) newErrors.startDate = 'Start date is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddMember = (): void => {
-    if (validate()) {
-      // Use React 19-style form submission with transitions
-      submitForm(
-        async () => {
-          // Simulate API delay
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          startTransition(() => {
-            dispatch(datasetActions.addMember({...newMember, id: Date.now()}));
-            setNewMember({
-              name: '', 
-              email: '', 
-              phone: '', 
-              membershipType: 'Basic', 
-              startDate: ''
-            });
-            setShowAddForm(false);
-            setErrors({});
-          });
-        },
-        {
-          onSuccess: () => {
-            console.log('Member added successfully');
-          },
-          onError: (error) => {
-            console.error('Failed to add member:', error);
-          }
-        }
-      );
+  const handleDeleteMember = (member: Member) => {
+    if (confirm(`Are you sure you want to delete ${member.name}?`)) {
+      dispatch(datasetActions.deleteMember(member.id));
+      toast.success('Member deleted successfully!');
     }
   };
 
-  const handleUpdateMember = (member: Member): void => {
-    startTransition(() => {
-      dispatch(datasetActions.updateMember(member));
-    });
+  const handleEditMember = (member: Member) => {
+    setEditingMember(member);
+    setShowForm(true);
   };
 
-  const handleDeleteMember = (id: number): void => {
-    startTransition(() => {
-      dispatch(datasetActions.deleteMember(id));
-    });
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingMember(undefined);
   };
 
-  const handleAddMemberToClass = (memberId: number, classId: number): void => {
-    const targetClass = DataUtils.findClassById(classes, classId);
-    
-    if (!targetClass) return;
-    
-    if (targetClass.enrolled.length >= targetClass.capacity) {
-      alert('Class is full');
-      return;
+  const getMembershipPlanName = (planId: number) => {
+    const plan = membershipPlans.find(p => p.id === planId);
+    return plan?.name || 'Unknown Plan';
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return <FaUserCheck className="text-green-500" />;
+      case 'Expired':
+        return <FaUserTimes className="text-red-500" />;
+      case 'Trial':
+        return <FaUserClock className="text-blue-500" />;
+      case 'Suspended':
+        return <FaUserShield className="text-orange-500" />;
+      default:
+        return <FaUsers />;
     }
-    
-    startTransition(() => {
-      const newEnrolled = [...targetClass.enrolled, memberId];
-      dispatch(datasetActions.updateClass({...targetClass, enrolled: newEnrolled}));
-    });
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'Active':
+        return 'badge-success';
+      case 'Expired':
+        return 'badge-error';
+      case 'Trial':
+        return 'badge-info';
+      case 'Suspended':
+        return 'badge-warning';
+      default:
+        return 'badge-ghost';
+    }
   };
 
   return (
     <motion.div
-      variants={pageVariants}
-      initial="initial"
-      animate="in"
-      exit="out"
-      className="min-h-screen bg-neutral-50 p-6"
+      className="min-h-screen bg-base-100 p-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <motion.div variants={fadeInUp} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-red-100 rounded-lg">
-                <HiUserGroup className="h-8 w-8 text-red-600" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-neutral-900">Members</h1>
-                <p className="text-neutral-600">Manage gym members and memberships</p>
-              </div>
-            </div>
-            <Button onClick={() => setShowAddForm(true)} className="gap-2">
-              <HiPlus className="h-4 w-4" />
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+          <div>
+            <h1 className="text-4xl font-bold text-primary mb-2">Members</h1>
+            <p className="text-base-content/70">Manage gym members and memberships</p>
+          </div>
+          <div className="flex gap-2 mt-4 sm:mt-0">
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn btn-primary gap-2"
+            >
+              <FaPlus />
               Add Member
-            </Button>
+            </button>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          variants={staggerChildren}
-          initial="initial"
-          animate="animate"
-          className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-        >
-          {[
-            { label: 'Total Members', value: stats.total, icon: HiUsers, color: 'bg-blue-500' },
-            { label: 'Basic', value: stats.basic, icon: HiUser, color: 'bg-gray-500' },
-            { label: 'Premium', value: stats.premium, icon: HiUser, color: 'bg-red-500' },
-            { label: 'VIP', value: stats.vip, icon: HiUser, color: 'bg-red-700' },
-          ].map((stat, index) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
-                <CardContent className="flex items-center gap-4">
-                  <div className={`p-3 rounded-lg ${stat.color}`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
-                    <p className="text-sm text-neutral-600">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+        {/* Statistics */}
+        <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <StatCard
+            icon={FaUsers}
+            title="Total Members"
+            value={stats.total}
+            className="bg-primary text-primary-content"
+          />
+          <StatCard
+            icon={FaUserCheck}
+            title="Active"
+            value={stats.active}
+            className="bg-success text-success-content"
+          />
+          <StatCard
+            icon={FaUserTimes}
+            title="Expired"
+            value={stats.expired}
+            className="bg-error text-error-content"
+          />
+          <StatCard
+            icon={FaUserClock}
+            title="Trial"
+            value={stats.trial}
+            className="bg-info text-info-content"
+          />
+          <StatCard
+            icon={FaUserShield}
+            title="Suspended"
+            value={stats.suspended}
+            className="bg-warning text-warning-content"
+          />
         </motion.div>
 
         {/* Search and Filters */}
-        <motion.div variants={fadeInUp} className="mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Input
-                  placeholder="Search members..."
-                  value={searchTerm}
-                  onChange={(e) => updateSearch(e.target.value)}
-                  startIcon={<HiMagnifyingGlass className="h-4 w-4" />}
-                  className="flex-1"
-                />
-                <Select
-                  value={filters.membershipType}
-                  onChange={(e) => updateFilter('membershipType', e.target.value as MembershipType | 'All')}
-                  options={[
-                    { value: 'All', label: 'All Types' },
-                    ...MEMBERSHIP_TYPES.map(type => ({ value: type, label: type }))
-                  ]}
-                  className="sm:w-48"
-                />
-                {(searchTerm || filters.membershipType !== 'All') && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearFilters}
-                    className="whitespace-nowrap"
-                  >
-                    Clear Filters
-                  </Button>
-                )}
+        <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+          <div className="card-body">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {/* Search */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Search</span>
+                </label>
+                <div className="relative">
+                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-base-content/40" />
+                  <input
+                    type="text"
+                    placeholder="Name, email, or phone..."
+                    className="input input-bordered pl-10 w-full"
+                    onChange={handleSearchChange}
+                  />
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Add Member Form Modal */}
-        <AnimatePresence>
-          {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-              onClick={() => setShowAddForm(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl"
-              >
-                <Card>
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold flex items-center gap-2">
-                      <HiPlus className="h-5 w-5" />
-                      Add New Member
-                    </h2>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        label="Name"
-                        value={newMember.name}
-                        onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                        startIcon={<HiUser className="h-4 w-4" />}
-                        error={errors.name}
-                        required
-                      />
-                      <Input
-                        label="Email"
-                        type="email"
-                        value={newMember.email}
-                        onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                        startIcon={<HiEnvelope className="h-4 w-4" />}
-                        error={errors.email}
-                        required
-                      />
-                      <Input
-                        label="Phone"
-                        value={newMember.phone}
-                        onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                        startIcon={<HiPhone className="h-4 w-4" />}
-                        error={errors.phone}
-                        required
-                      />
-                      <Select
-                        label="Membership Type"
-                        value={newMember.membershipType}
-                        onChange={(e) => setNewMember({ ...newMember, membershipType: e.target.value as MembershipType })}
-                        options={MEMBERSHIP_TYPES.map(type => ({ value: type, label: type }))}
-                        required
-                      />
-                      <Input
-                        label="Start Date"
-                        type="date"
-                        value={newMember.startDate}
-                        onChange={(e) => setNewMember({ ...newMember, startDate: e.target.value })}
-                        startIcon={<HiCalendarDays className="h-4 w-4" />}
-                        error={errors.startDate}
-                        required
-                        className="md:col-span-2"
-                      />
-                    </div>
-                    <div className="flex gap-3 pt-4">
-                      <Button 
-                        onClick={handleAddMember} 
-                        className="flex-1"
-                        disabled={isSubmitting || isPending}
-                        loading={isSubmitting || isPending}
-                      >
-                        {isSubmitting || isPending ? 'Adding...' : 'Add Member'}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowAddForm(false)}
-                        className="flex-1"
-                        disabled={isSubmitting || isPending}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {/* Status Filter */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Status</span>
+                </label>
+                <select
+                  className="select select-bordered"
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                >
+                  <option value="All">All Statuses</option>
+                  {MEMBER_STATUSES.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Plan Filter */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Plan</span>
+                </label>
+                <select
+                  className="select select-bordered"
+                  value={planFilter}
+                  onChange={(e) => setPlanFilter(e.target.value)}
+                >
+                  <option value="All">All Plans</option>
+                  {membershipPlans.map(plan => (
+                    <option key={plan.id} value={plan.id.toString()}>{plan.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Gender Filter */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Gender</span>
+                </label>
+                <select
+                  className="select select-bordered"
+                  value={genderFilter}
+                  onChange={(e) => setGenderFilter(e.target.value)}
+                >
+                  <option value="All">All Genders</option>
+                  {GENDERS.map(gender => (
+                    <option key={gender} value={gender}>{gender}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Results Count */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-medium">Results</span>
+                </label>
+                <div className="stat">
+                  <div className="stat-value text-primary text-2xl">{filteredMembers.length}</div>
+                  <div className="stat-desc">members found</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Members Grid */}
-        <motion.div
-          variants={staggerChildren}
-          initial="initial"
-          animate="animate"
-          className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3"
-        >
-          <AnimatePresence>
-            {filteredMembers.map(member => (
-              <MemberCard
-                key={member.id}
-                member={member}
-                classes={classes}
-                onUpdate={handleUpdateMember}
-                onDelete={handleDeleteMember}
-                onAddToClass={handleAddMemberToClass}
-              />
-            ))}
-          </AnimatePresence>
+        <motion.div variants={itemVariants}>
+          {filteredMembers.length === 0 ? (
+            <div className="card bg-base-200 shadow-xl">
+              <div className="card-body text-center py-12">
+                <FaUsers className="mx-auto text-6xl text-base-content/20 mb-4" />
+                <h3 className="text-xl font-bold mb-2">No Members Found</h3>
+                <p className="text-base-content/70 mb-4">
+                  {searchTerm || statusFilter !== 'All' || planFilter !== 'All' || genderFilter !== 'All'
+                    ? 'No members match your current filters.'
+                    : 'Get started by adding your first member.'}
+                </p>
+                <button
+                  onClick={() => setShowForm(true)}
+                  className="btn btn-primary gap-2"
+                >
+                  <FaPlus />
+                  Add First Member
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredMembers.map((member) => (
+                <motion.div
+                  key={member.id}
+                  variants={itemVariants}
+                  className="card bg-base-200 shadow-xl hover:shadow-2xl transition-shadow"
+                >
+                  <div className="card-body">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="avatar placeholder">
+                          <div className="bg-primary text-primary-content rounded-full w-12">
+                            <span className="text-lg font-bold">
+                              {member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg">{member.name}</h3>
+                          <p className="text-sm text-base-content/70">Age: {member.age}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(member.status)}
+                        <span className={`badge ${getStatusBadgeClass(member.status)}`}>
+                          {member.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">Email:</span> {member.email}</p>
+                      <p><span className="font-medium">Phone:</span> {member.phone}</p>
+                      <p><span className="font-medium">Gender:</span> {member.gender}</p>
+                      <p><span className="font-medium">Plan:</span> {getMembershipPlanName(member.membershipPlanId)}</p>
+                      <p><span className="font-medium">Start:</span> {new Date(member.startDate).toLocaleDateString()}</p>
+                      <p><span className="font-medium">Expires:</span> {new Date(member.endDate).toLocaleDateString()}</p>
+                    </div>
+
+                    <div className="card-actions justify-end mt-4">
+                      <button
+                        onClick={() => {
+                          const plan = membershipPlans.find(p => p.id === member.membershipPlanId);
+                          printMembershipCard(member, plan);
+                        }}
+                        className="btn btn-sm btn-outline btn-primary"
+                      >
+                        Print Card
+                      </button>
+                      <button
+                        onClick={() => handleEditMember(member)}
+                        className="btn btn-sm btn-outline"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteMember(member)}
+                        className="btn btn-sm btn-error"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </motion.div>
-
-        {/* Loading indicator */}
-        {isSearching && (
-          <motion.div
-            variants={fadeInUp}
-            className="text-center py-8"
-          >
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-2"></div>
-            <p className="text-sm text-neutral-600">Searching...</p>
-          </motion.div>
-        )}
-
-        {filteredMembers.length === 0 && !isSearching && (
-          <motion.div
-            variants={fadeInUp}
-            className="text-center py-12"
-          >
-            <HiUsers className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-neutral-900 mb-2">
-              {searchTerm || filters.membershipType !== 'All' ? 'No members found' : 'No members yet'}
-            </h3>
-            <p className="text-neutral-600">
-              {searchTerm || filters.membershipType !== 'All'
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Add your first member to get started.'
-              }
-            </p>
-          </motion.div>
-        )}
       </div>
+
+      {/* Member Form Modal */}
+      <AnimatePresence>
+        {showForm && (
+          <MemberForm
+            member={editingMember}
+            onClose={handleFormClose}
+            onSuccess={() => {
+              // Refresh could be handled here if needed
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Print Manager */}
+      <PrintManagerComponent />
     </motion.div>
   );
 }

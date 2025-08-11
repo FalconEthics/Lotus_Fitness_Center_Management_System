@@ -18,34 +18,34 @@ interface StatCardProps {
 
 const colorVariants = {
   red: {
-    bg: 'bg-red-50',
-    icon: 'bg-red-100 text-red-600',
-    text: 'text-red-600',
-    ring: 'ring-red-100',
+    bg: 'bg-error/5',
+    icon: 'bg-error/10 text-error',
+    text: 'text-error',
+    ring: 'ring-error/10',
   },
   blue: {
-    bg: 'bg-blue-50',
-    icon: 'bg-blue-100 text-blue-600',
-    text: 'text-blue-600',
-    ring: 'ring-blue-100',
+    bg: 'bg-primary/5',
+    icon: 'bg-primary/10 text-primary',
+    text: 'text-primary',
+    ring: 'ring-primary/10',
   },
   green: {
-    bg: 'bg-green-50',
-    icon: 'bg-green-100 text-green-600',
-    text: 'text-green-600',
-    ring: 'ring-green-100',
+    bg: 'bg-success/5',
+    icon: 'bg-success/10 text-success',
+    text: 'text-success',
+    ring: 'ring-success/10',
   },
   yellow: {
-    bg: 'bg-yellow-50',
-    icon: 'bg-yellow-100 text-yellow-600',
-    text: 'text-yellow-600',
-    ring: 'ring-yellow-100',
+    bg: 'bg-warning/5',
+    icon: 'bg-warning/10 text-warning',
+    text: 'text-warning',
+    ring: 'ring-warning/10',
   },
   gray: {
-    bg: 'bg-neutral-50',
-    icon: 'bg-neutral-100 text-neutral-600',
-    text: 'text-neutral-600',
-    ring: 'ring-neutral-100',
+    bg: 'bg-base-200/30',
+    icon: 'bg-base-200 text-base-content/60',
+    text: 'text-base-content/60',
+    ring: 'ring-base-200',
   },
 };
 
@@ -66,19 +66,19 @@ export const StatCard: React.FC<StatCardProps> = ({
       padding="lg"
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-neutral-50/30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-base-200/10" />
       
       <div className="relative">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-neutral-600 mb-1">
+            <p className="text-sm font-medium text-base-content/60 mb-1">
               {title}
             </p>
             
             {loading ? (
-              <div className="h-8 bg-neutral-200 rounded animate-pulse" />
+              <div className="h-8 bg-base-200 rounded animate-pulse" />
             ) : (
-              <p className="text-3xl font-bold text-neutral-900 mb-2">
+              <p className="text-3xl font-bold text-base-content mb-2">
                 {typeof value === 'number' ? value.toLocaleString() : value}
               </p>
             )}
@@ -86,18 +86,18 @@ export const StatCard: React.FC<StatCardProps> = ({
             {change && !loading && (
               <div className="flex items-center gap-1">
                 {change.type === 'increase' ? (
-                  <HiArrowTrendingUp className="h-4 w-4 text-green-500" />
+                  <HiArrowTrendingUp className="h-4 w-4 text-success" />
                 ) : (
-                  <HiArrowTrendingDown className="h-4 w-4 text-red-500" />
+                  <HiArrowTrendingDown className="h-4 w-4 text-error" />
                 )}
                 <span
                   className={`text-sm font-medium ${
-                    change.type === 'increase' ? 'text-green-600' : 'text-red-600'
+                    change.type === 'increase' ? 'text-success' : 'text-error'
                   }`}
                 >
                   {change.value}%
                 </span>
-                <span className="text-sm text-neutral-500">vs {change.period}</span>
+                <span className="text-sm text-base-content/50">vs {change.period}</span>
               </div>
             )}
           </div>

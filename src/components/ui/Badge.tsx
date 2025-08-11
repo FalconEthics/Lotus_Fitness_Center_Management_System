@@ -13,12 +13,12 @@ interface BadgeProps extends HTMLMotionProps<'span'> {
 }
 
 const variantStyles = {
-  default: 'bg-neutral-100 text-neutral-800 border-neutral-200',
-  primary: 'bg-red-100 text-red-800 border-red-200',
-  success: 'bg-green-100 text-green-800 border-green-200',
-  warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  danger: 'bg-red-100 text-red-800 border-red-200',
-  outline: 'bg-transparent text-neutral-600 border-neutral-300',
+  default: 'bg-base-200 text-base-content border-base-300',
+  primary: 'bg-primary/10 text-primary border-primary/20',
+  success: 'bg-success/10 text-success border-success/20',
+  warning: 'bg-warning/10 text-warning border-warning/20',
+  danger: 'bg-error/10 text-error border-error/20',
+  outline: 'bg-transparent text-base-content border-base-300',
 };
 
 const sizeStyles = {

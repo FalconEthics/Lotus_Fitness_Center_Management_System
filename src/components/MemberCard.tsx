@@ -33,21 +33,21 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
         whileHover={{ y: -2 }}
         className="min-w-[280px]"
       >
-        <Card hover padding="md" className="bg-gradient-to-br from-white to-neutral-50">
+        <Card hover padding="md" className="bg-base-100">
           <div className="flex items-center gap-3">
             <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-sm font-semibold text-red-600">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                <span className="text-sm font-semibold text-primary">
                   {initials}
                 </span>
               </div>
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-neutral-900 truncate">
+              <h3 className="font-semibold text-base-content truncate">
                 {member.name}
               </h3>
-              <p className="text-sm text-neutral-500 truncate">
+              <p className="text-sm text-base-content/60 truncate">
                 {member.email}
               </p>
               <Badge
@@ -72,13 +72,13 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
     >
       <Card hover padding="lg">
         <div className="text-center mb-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-xl font-bold text-white">
+          <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
+            <span className="text-xl font-bold text-primary-content">
               {initials}
             </span>
           </div>
           
-          <h3 className="text-lg font-semibold text-neutral-900 mb-1">
+          <h3 className="text-lg font-semibold text-base-content mb-1">
             {member.name}
           </h3>
           
@@ -92,23 +92,23 @@ export const MemberCard: React.FC<MemberCardProps> = ({ member, compact = false 
 
         <div className="space-y-3">
           <div className="flex items-center gap-3 text-sm">
-            <HiEnvelope className="h-4 w-4 text-neutral-400 flex-shrink-0" />
-            <span className="text-neutral-600 truncate">{member.email}</span>
+            <HiEnvelope className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+            <span className="text-base-content/70 truncate">{member.email}</span>
           </div>
           
           <div className="flex items-center gap-3 text-sm">
-            <HiPhone className="h-4 w-4 text-neutral-400 flex-shrink-0" />
-            <span className="text-neutral-600">{member.phone}</span>
+            <HiPhone className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+            <span className="text-base-content/70">{member.phone}</span>
           </div>
           
           <div className="flex items-center gap-3 text-sm">
-            <HiCalendarDays className="h-4 w-4 text-neutral-400 flex-shrink-0" />
-            <span className="text-neutral-600">Joined {formattedDate}</span>
+            <HiCalendarDays className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+            <span className="text-base-content/70">Joined {formattedDate}</span>
           </div>
 
           <div className="flex items-center gap-3 text-sm">
-            <HiUser className="h-4 w-4 text-neutral-400 flex-shrink-0" />
-            <span className="text-neutral-600">ID: {member.id}</span>
+            <HiUser className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+            <span className="text-base-content/70">ID: {member.id}</span>
           </div>
         </div>
       </Card>

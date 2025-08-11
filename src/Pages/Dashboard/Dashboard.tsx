@@ -1,232 +1,337 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { 
-  HiUsers, 
-  HiAcademicCap, 
-  HiChartBarSquare, 
-  HiUserPlus,
-  HiArrowTrendingUp,
-  HiSparkles
-} from 'react-icons/hi2';
-import { useDataset } from '../../contexts/DatasetContext';
-import { useDashboardStats } from '../../hooks/useDashboardStats';
-import { StatCard } from '../../components/StatCard';
-import { MemberCard } from '../../components/MemberCard';
-import { Card, Button } from '../../components/ui';
-import { staggerChildren, fadeInUp } from '../../theme';
-import { useDeviceType, useResponsiveGrid, useResponsiveContainer } from '../../utils/responsive';
+  FaUsers, 
+  FaDumbbell, 
+  FaChartLine, 
+  FaCalendarCheck,
+  FaUserTie,
+  FaExclamationTriangle,
+  FaDownload,
+  FaSave
+} from 'react-icons/fa';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line
+} from 'recharts';
+import toast from 'react-hot-toast';
+import { useDashboardStats, useMemberStatistics } from '../../hooks/useDashboardStats';
+import { useDataset, saveDataToLocalStorage, exportDataAsJSON } from '../../contexts/DatasetContext';
+import { StatCard } from '../../Reusable_Components/StatCard';
+import { ExpiringMembershipsAlert } from '../../components/alerts/ExpiringMembershipsAlert';
+import { MembershipAnalytics } from '../../components/analytics/MembershipAnalytics';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      damping: 25,
+      stiffness: 120
+    }
+  }
+};
 
 export function Dashboard(): JSX.Element {
   const dataset = useDataset();
-  const stats = useDashboardStats(dataset.members, dataset.classes);
-  
-  // Responsive hooks
-  const { isMobile, isTablet, isDesktop } = useDeviceType();
-  const statsGrid = useResponsiveGrid({ xs: 1, sm: 2, lg: 4 });
-  const analyticsGrid = useResponsiveGrid({ xs: 1, md: 2, lg: 3 });
-  const containerClass = useResponsiveContainer();
+  const stats = useDashboardStats();
+  const memberStats = useMemberStatistics();
+
+  const handleManualSave = () => {
+    saveDataToLocalStorage(dataset);
+    toast.success('Data saved successfully!');
+  };
+
+  const handleExportData = () => {
+    exportDataAsJSON(dataset);
+    toast.success('Data exported successfully!');
+  };
 
   return (
     <motion.div
-      variants={staggerChildren}
-      initial="initial"
-      animate="animate"
-      className={`space-y-6 md:space-y-8 ${containerClass}`}
+      className="min-h-screen bg-base-100 p-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
     >
-      {/* Header */}
-      <motion.div variants={fadeInUp} className={`flex ${isMobile ? 'flex-col gap-4' : 'items-center justify-between'}`}>
-        <div>
-          <h1 className={`font-bold text-neutral-900 mb-2 ${isMobile ? 'text-2xl' : 'text-3xl'}`}>
-            Dashboard
-          </h1>
-          <p className={`text-neutral-600 ${isMobile ? 'text-sm' : ''}`}>
-            Welcome back! Here's what's happening at Lotus Fitness Center.
-          </p>
-        </div>
-        
-        <Button
-          variant="primary"
-          size={isMobile ? 'sm' : 'md'}
-          icon={<HiSparkles className="h-5 w-5" />}
-          onClick={() => alert('Coming soon!')}
-          className={isMobile ? 'w-full' : ''}
-        >
-          {isMobile ? 'Report' : 'Generate Report'}
-        </Button>
-      </motion.div>
-
-      {/* Stats Grid */}
-      <motion.div 
-        variants={fadeInUp}
-        className={`grid ${statsGrid.gridCols} gap-4 md:gap-6`}
-      >
-        <StatCard
-          title="Total Members"
-          value={stats.totalMembers}
-          icon={HiUsers}
-          color="red"
-          change={{
-            value: 12,
-            type: 'increase',
-            period: 'last month',
-          }}
-        />
-        
-        <StatCard
-          title="Active Classes"
-          value={stats.totalClasses}
-          icon={HiAcademicCap}
-          color="blue"
-          change={{
-            value: 5,
-            type: 'increase',
-            period: 'last month',
-          }}
-        />
-        
-        <StatCard
-          title="Available Seats"
-          value={stats.availableSeats}
-          icon={HiChartBarSquare}
-          color="green"
-        />
-        
-        <StatCard
-          title="Unassigned Members"
-          value={stats.unassignedUsers}
-          icon={HiUserPlus}
-          color="yellow"
-        />
-      </motion.div>
-
-      {/* Analytics Cards */}
-      <motion.div 
-        variants={fadeInUp}
-        className={`grid ${analyticsGrid.gridCols} gap-4 md:gap-6`}
-      >
-        {/* Class Utilization */}
-        <Card padding="lg">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-neutral-900">
-              Class Utilization
-            </h3>
-            <div className="flex items-center gap-2">
-              <HiArrowTrendingUp className="h-5 w-5 text-green-500" />
-              <span className="text-sm font-medium text-green-600">
-                {stats.classUtilization}%
-              </span>
-            </div>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-neutral-600">Overall capacity usage</span>
-              <span className="font-medium text-neutral-900">{stats.classUtilization}%</span>
-            </div>
-            
-            <div className="w-full bg-neutral-200 rounded-full h-2">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${stats.classUtilization}%` }}
-                transition={{ duration: 1, delay: 0.5 }}
-                className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full"
-              />
-            </div>
-            
-            <p className="text-xs text-neutral-500">
-              Average class size: {stats.averageClassSize} members
-            </p>
-          </div>
-        </Card>
-
-        {/* Membership Distribution */}
-        <Card padding="lg">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-            Membership Types
-          </h3>
-          
-          <div className="space-y-3">
-            {Object.entries(stats.membershipDistribution).map(([type, count]) => (
-              <div key={type} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${
-                    type === 'VIP' ? 'bg-green-500' :
-                    type === 'Premium' ? 'bg-red-500' : 'bg-neutral-400'
-                  }`} />
-                  <span className="text-sm text-neutral-600">{type}</span>
-                </div>
-                <span className="font-medium text-neutral-900">{count}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Popular Instructors */}
-        <Card padding="lg">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-            Top Instructors
-          </h3>
-          
-          <div className="space-y-3">
-            {stats.popularInstructors.slice(0, 3).map((instructor, index) => (
-              <div key={instructor.instructor} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                    index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                    index === 1 ? 'bg-neutral-100 text-neutral-700' :
-                    'bg-orange-100 text-orange-700'
-                  }`}>
-                    #{index + 1}
-                  </div>
-                  <span className="text-sm text-neutral-900">{instructor.instructor}</span>
-                </div>
-                <span className="text-sm font-medium text-neutral-600">
-                  {instructor.classCount} classes
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Recent Members */}
-      <motion.div variants={fadeInUp}>
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h2 className="text-xl font-semibold text-neutral-900">Recent Members</h2>
-            <p className="text-neutral-600 text-sm">Latest members who joined the gym</p>
+            <h1 className="text-4xl font-bold text-primary mb-2">Dashboard</h1>
+            <p className="text-base-content/70">Welcome to Lotus Fitness Center Management</p>
           </div>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.location.href = '/managemembers'}
-          >
-            View All
-          </Button>
+          <div className="flex gap-2 mt-4 sm:mt-0">
+            <button
+              onClick={handleManualSave}
+              className="btn btn-outline btn-sm gap-2"
+            >
+              <FaSave className="h-4 w-4" />
+              Save Data
+            </button>
+            <button
+              onClick={handleExportData}
+              className="btn btn-primary btn-sm gap-2"
+            >
+              <FaDownload className="h-4 w-4" />
+              Export
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Key Statistics Cards */}
+        <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+          <StatCard
+            icon={FaUsers}
+            title="Total Members"
+            value={stats.totalMembers}
+            className="bg-primary text-primary-content"
+          />
+          <StatCard
+            icon={FaUsers}
+            title="Active Members"
+            value={stats.activeMembers}
+            className="bg-success text-success-content"
+          />
+          <StatCard
+            icon={FaExclamationTriangle}
+            title="Expiring Soon"
+            value={stats.expiringMembers}
+            className="bg-warning text-warning-content"
+          />
+          <StatCard
+            icon={FaDumbbell}
+            title="Classes"
+            value={stats.totalClasses}
+            className="bg-secondary text-secondary-content"
+          />
+          <StatCard
+            icon={FaUserTie}
+            title="Trainers"
+            value={stats.totalTrainers}
+            className="bg-info text-info-content"
+          />
+          <StatCard
+            icon={FaCalendarCheck}
+            title="Today's Attendance"
+            value={stats.todayAttendance}
+            className="bg-accent text-accent-content"
+          />
+        </motion.div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Membership Distribution Pie Chart */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Membership Distribution</h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.membershipDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {stats.membershipDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Attendance Trend Line Chart */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Attendance Trend (7 Days)</h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stats.attendanceTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#8884d8" 
+                      strokeWidth={2}
+                      dot={{ fill: '#8884d8' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Class Popularity Bar Chart */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Most Popular Classes</h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.classPopularity}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value">
+                      {stats.classPopularity.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Revenue by Plan */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Revenue by Plan (Monthly)</h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={stats.revenueByPlan}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip 
+                      formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                    />
+                    <Bar dataKey="value">
+                      {stats.revenueByPlan.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        <div className={`flex gap-4 overflow-x-auto pb-4 ${isMobile ? 'gap-3' : 'gap-4'}`}>
-          {stats.recentMembers.map((member) => (
-            <MemberCard 
-              key={member.id} 
-              member={member} 
-              compact 
-              className={isMobile ? 'min-w-[250px]' : 'min-w-[300px]'}
-            />
-          ))}
-          
-          {stats.recentMembers.length === 0 && (
-            <Card padding="lg" className={isMobile ? 'min-w-[250px]' : 'min-w-[300px]'}>
-              <div className="text-center py-8">
-                <HiUsers className={`mx-auto mb-3 text-neutral-300 ${isMobile ? 'h-8 w-8' : 'h-12 w-12'}`} />
-                <p className={`text-neutral-500 ${isMobile ? 'text-sm' : ''}`}>No recent members</p>
-                <p className="text-xs text-neutral-400">Members will appear here when they join</p>
+        {/* Additional Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Age Distribution */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Age Distribution</h2>
+              <div className="space-y-3">
+                {Object.entries(memberStats.ageGroups).map(([ageGroup, count]) => (
+                  <div key={ageGroup} className="flex justify-between items-center">
+                    <span className="font-medium">{ageGroup}</span>
+                    <span className="badge badge-primary">{count}</span>
+                  </div>
+                ))}
               </div>
-            </Card>
-          )}
+            </div>
+          </motion.div>
+
+          {/* Gender Distribution */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Gender Distribution</h2>
+              <div className="space-y-3">
+                {Object.entries(memberStats.genderDistribution).map(([gender, count]) => (
+                  <div key={gender} className="flex justify-between items-center">
+                    <span className="font-medium">{gender}</span>
+                    <span className="badge badge-secondary">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Status Distribution */}
+          <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+            <div className="card-body">
+              <h2 className="card-title text-xl mb-4">Member Status</h2>
+              <div className="space-y-3">
+                {Object.entries(memberStats.statusDistribution).map(([status, count]) => (
+                  <div key={status} className="flex justify-between items-center">
+                    <span className="font-medium">{status}</span>
+                    <span className={`badge ${
+                      status === 'Active' ? 'badge-success' :
+                      status === 'Expired' ? 'badge-error' :
+                      status === 'Trial' ? 'badge-info' :
+                      'badge-warning'
+                    }`}>
+                      {count}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </motion.div>
+
+        {/* Expiring Memberships Alert */}
+        <motion.div variants={itemVariants}>
+          <ExpiringMembershipsAlert />
+        </motion.div>
+
+        {/* Enhanced Membership Analytics */}
+        <motion.div variants={itemVariants}>
+          <MembershipAnalytics />
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div variants={itemVariants} className="card bg-base-200 shadow-xl">
+          <div className="card-body">
+            <h2 className="card-title text-xl mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button className="btn btn-outline">
+                Add New Member
+              </button>
+              <button className="btn btn-outline">
+                Schedule Class
+              </button>
+              <button className="btn btn-outline">
+                Mark Attendance
+              </button>
+              <button className="btn btn-outline">
+                Generate Report
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

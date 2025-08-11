@@ -17,7 +17,9 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Badge } from '../ui/Badge';
+import { ContextMenu, ContextMenuItem } from '../ui/ContextMenu';
 import { cn } from '../../utils/cn';
+import toast from 'react-hot-toast';
 
 interface ClassCardProps {
   fitnessClass: FitnessClass;
@@ -94,6 +96,60 @@ export const ClassCard: React.FC<ClassCardProps> = ({
     }
   };
 
+  // Context menu items for classes
+  const contextMenuItems: ContextMenuItem[] = [
+    {
+      id: 'edit',
+      label: 'Edit Class',
+      icon: HiPencil,
+      onClick: () => setIsEditing(true),
+      shortcut: 'Ctrl+E'
+    },
+    {
+      id: 'add-member',
+      label: 'Add Member',
+      icon: HiPlus,
+      onClick: () => setShowAddMember(true),
+      disabled: isFullyBooked,
+      shortcut: 'Ctrl+M'
+    },
+    {
+      id: 'view-members',
+      label: 'View Members',
+      icon: HiUsers,
+      onClick: () => {
+        if (enrolledMembers.length > 0) {
+          toast.success(`Class has ${enrolledMembers.length} enrolled members`);
+        } else {
+          toast.info('No members enrolled in this class');
+        }
+      }
+    },
+    {
+      id: 'schedule',
+      label: 'View Schedule',
+      icon: HiClock,
+      onClick: () => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        toast.success(`${fitnessClass.name} on ${days[fitnessClass.schedule.dayOfWeek]} at ${fitnessClass.schedule.startTime}`);
+      }
+    },
+    {
+      id: 'divider-1',
+      label: '',
+      onClick: () => {},
+      divider: true
+    },
+    {
+      id: 'delete',
+      label: 'Delete Class',
+      icon: HiTrash,
+      onClick: handleDelete,
+      variant: 'danger',
+      shortcut: 'Del'
+    }
+  ];
+
   return (
     <motion.div
       layout
@@ -103,7 +159,8 @@ export const ClassCard: React.FC<ClassCardProps> = ({
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      <ContextMenu items={contextMenuItems}>
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-context-menu">
         <CardContent className="p-6">
           {isEditing ? (
             <motion.div
@@ -326,6 +383,7 @@ export const ClassCard: React.FC<ClassCardProps> = ({
           )}
         </CardContent>
       </Card>
+      </ContextMenu>
     </motion.div>
   );
 };

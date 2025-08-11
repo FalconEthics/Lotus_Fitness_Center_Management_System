@@ -13,7 +13,7 @@ export function Layout({ children }: LayoutProps): JSX.Element {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-50">
+    <div className="flex flex-col min-h-screen bg-base-100">
       {/* Top Navigation */}
       <Nav onToggleSidebar={toggleSidebar} />
       

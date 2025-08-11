@@ -1,304 +1,342 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HiAcademicCap,
   HiPlus,
   HiMagnifyingGlass,
   HiUsers,
-  HiUser,
   HiClock,
-  HiHashtag
+  HiCalendarDays,
+  HiViewColumns,
+  HiChartBarSquare
 } from 'react-icons/hi2';
-import { useClasses, useMembers, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
+import { useDataset, useDatasetDispatch } from '../../contexts/DatasetContext';
 import { FitnessClass } from '../../types';
-import { ValidationUtils, DataUtils } from '../../utils/lodashHelpers';
+import { WeeklyCalendar } from '../../components/calendar/WeeklyCalendar';
+import { StatCard } from '../../components/StatCard';
 import { ClassCard } from '../../components/classes/ClassCard';
-import { Card, CardHeader, CardContent } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { fadeInUp, staggerChildren, pageVariants } from '../../theme';
+import { Card, Button, Input, Badge } from '../../components/ui';
+import { Modal } from '../../components/ui/Modal';
+import { ClassScheduleModal } from '../../components/calendar/ClassScheduleModal';
+import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
+
+type ViewMode = 'calendar' | 'list';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
+};
+
+const pageTransition = {
+  type: 'tween',
+  ease: 'anticipate',
+  duration: 0.4
+};
 
 export function Classes(): JSX.Element {
+  const { classes, members, trainers } = useDataset();
   const dispatch = useDatasetDispatch();
-  const classes = useClasses();
-  const members = useMembers();
-
-  // Form state for adding new classes
-  const [newClass, setNewClass] = useState<Omit<FitnessClass, 'id' | 'enrolled'>>({
-    name: '', 
-    instructor: '', 
-    schedule: '', 
-    capacity: 20
-  });
   
   // UI state
+  const [viewMode, setViewMode] = useState<ViewMode>('calendar');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedInstructor, setSelectedInstructor] = useState<string>('');
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  // Filtered classes based on search
-  const filteredClasses = classes.filter(fitnessClass => 
-    fitnessClass.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fitnessClass.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    fitnessClass.schedule.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Statistics
+  const stats = useMemo(() => {
+    const totalEnrolled = classes.reduce((sum, cls) => sum + (cls.enrolled?.length || 0), 0);
+    const totalCapacity = classes.reduce((sum, cls) => sum + cls.capacity, 0);
+    const utilizationRate = totalCapacity > 0 ? (totalEnrolled / totalCapacity) * 100 : 0;
+    const activeTrainers = new Set(classes.map(cls => cls.trainerId)).size;
 
-  const stats = {
-    total: classes.length,
-    totalCapacity: classes.reduce((sum, cls) => sum + cls.capacity, 0),
-    totalEnrolled: classes.reduce((sum, cls) => sum + cls.enrolled.length, 0),
-    averageUtilization: classes.length > 0 
-      ? Math.round((classes.reduce((sum, cls) => sum + (cls.enrolled.length / cls.capacity) * 100, 0) / classes.length))
-      : 0
+    return [
+      {
+        title: 'Total Classes',
+        value: classes.length,
+        icon: HiAcademicCap,
+        color: 'blue' as const,
+        change: { value: 12, type: 'increase' as const, period: 'last month' }
+      },
+      {
+        title: 'Total Enrollment',
+        value: totalEnrolled,
+        icon: HiUsers,
+        color: 'green' as const,
+        change: { value: 8, type: 'increase' as const, period: 'last week' }
+      },
+      {
+        title: 'Utilization Rate',
+        value: `${utilizationRate.toFixed(1)}%`,
+        icon: HiChartBarSquare,
+        color: 'yellow' as const,
+        change: { value: 5, type: 'increase' as const, period: 'last month' }
+      },
+      {
+        title: 'Active Trainers',
+        value: activeTrainers,
+        icon: HiClock,
+        color: 'gray' as const,
+      }
+    ];
+  }, [classes]);
+
+  // Get unique instructors for filtering
+  const instructors = useMemo(() => {
+    const uniqueInstructors = new Set(classes.map(cls => cls.instructor).filter(Boolean));
+    return Array.from(uniqueInstructors).sort();
+  }, [classes]);
+
+  // Filter classes based on search and instructor
+  const filteredClasses = useMemo(() => {
+    return classes.filter(cls => {
+      const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           cls.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (cls.schedule && cls.schedule.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesInstructor = !selectedInstructor || cls.instructor === selectedInstructor;
+      
+      return matchesSearch && matchesInstructor;
+    });
+  }, [classes, searchTerm, selectedInstructor]);
+
+  const debouncedSearch = debounce((value: string) => {
+    setSearchTerm(value);
+  }, 300);
+
+  const handleClassAdd = (classData: Omit<FitnessClass, 'id'>) => {
+    dispatch({
+      type: 'ADD_CLASS',
+      payload: {
+        ...classData,
+        id: Date.now()
+      }
+    });
+    toast.success('Class added successfully!');
   };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!newClass.name.trim()) newErrors.name = 'Class name is required';
-    if (!newClass.instructor.trim()) newErrors.instructor = 'Instructor is required';
-    if (!newClass.schedule.trim()) newErrors.schedule = 'Schedule is required';
-    if (!newClass.capacity || newClass.capacity <= 0) {
-      newErrors.capacity = 'Capacity must be greater than 0';
+  const handleClassUpdate = (classData: FitnessClass) => {
+    dispatch({
+      type: 'UPDATE_CLASS',
+      payload: classData
+    });
+    toast.success('Class updated successfully!');
+  };
+
+  const handleClassDelete = (classId: number) => {
+    if (confirm('Are you sure you want to delete this class?')) {
+      dispatch({
+        type: 'DELETE_CLASS',
+        payload: classId
+      });
+      toast.success('Class deleted successfully!');
     }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddClass = (): void => {
-    if (validate()) {
-      dispatch(datasetActions.addClass({...newClass, id: Date.now(), enrolled: []}));
-      setNewClass({name: '', instructor: '', schedule: '', capacity: 20});
-      setShowAddForm(false);
-      setErrors({});
-    }
-  };
-
-  const handleUpdateClass = (fitnessClass: FitnessClass): void => {
-    dispatch(datasetActions.updateClass(fitnessClass));
-  };
-
-  const handleDeleteClass = (id: number): void => {
-    dispatch(datasetActions.deleteClass(id));
-  };
-
-  const handleAddMemberToClass = (classId: number, memberId: number): void => {
-    const targetClass = DataUtils.findClassById(classes, classId);
-    
-    if (!targetClass) return;
-    
-    if (targetClass.enrolled.length >= targetClass.capacity) {
-      alert('Class is full');
-      return;
-    }
-    
-    const newEnrolled = [...targetClass.enrolled, memberId];
-    dispatch(datasetActions.updateClass({...targetClass, enrolled: newEnrolled}));
   };
 
   return (
     <motion.div
-      variants={pageVariants}
+      className="min-h-screen bg-base-100 p-6"
       initial="initial"
       animate="in"
       exit="out"
-      className="min-h-screen bg-neutral-50 p-6"
+      variants={pageVariants}
+      transition={pageTransition}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <motion.div variants={fadeInUp} className="mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-red-100 rounded-lg">
-                <HiAcademicCap className="h-8 w-8 text-red-600" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-neutral-900">Classes</h1>
-                <p className="text-neutral-600">Manage fitness classes and schedules</p>
-              </div>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
+          <div>
+            <h1 className="text-3xl font-bold text-base-content">Classes</h1>
+            <p className="text-base-content/70">Manage fitness classes and schedules</p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="btn-group">
+              <Button
+                variant={viewMode === 'calendar' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+                icon={<HiCalendarDays className="h-4 w-4" />}
+              >
+                Calendar
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'primary' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                icon={<HiViewColumns className="h-4 w-4" />}
+              >
+                List
+              </Button>
             </div>
-            <Button onClick={() => setShowAddForm(true)} className="gap-2">
-              <HiPlus className="h-4 w-4" />
+            
+            <Button
+              onClick={() => setShowAddModal(true)}
+              icon={<HiPlus className="h-5 w-5" />}
+              size="lg"
+            >
               Add Class
             </Button>
           </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div 
-          variants={staggerChildren}
-          initial="initial"
-          animate="animate"
-          className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        {/* Statistics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {[
-            { label: 'Total Classes', value: stats.total, icon: HiAcademicCap, color: 'bg-blue-500' },
-            { label: 'Total Enrolled', value: stats.totalEnrolled, icon: HiUsers, color: 'bg-red-500' },
-            { label: 'Total Capacity', value: stats.totalCapacity, icon: HiHashtag, color: 'bg-green-500' },
-            { label: 'Avg. Utilization', value: `${stats.averageUtilization}%`, icon: HiUser, color: 'bg-yellow-500' },
-          ].map((stat, index) => (
-            <motion.div key={index} variants={fadeInUp}>
-              <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
-                <CardContent className="flex items-center gap-4">
-                  <div className={`p-3 rounded-lg ${stat.color}`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-neutral-900">{stat.value}</p>
-                    <p className="text-sm text-neutral-600">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + index * 0.1 }}
+            >
+              <StatCard {...stat} />
             </motion.div>
           ))}
         </motion.div>
 
-        {/* Search */}
-        <motion.div variants={fadeInUp} className="mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <Input
-                placeholder="Search classes by name, instructor, or schedule..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                startIcon={<HiMagnifyingGlass className="h-4 w-4" />}
-              />
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Add Class Form Modal */}
-        <AnimatePresence>
-          {showAddForm && (
+        {/* Calendar View */}
+        <AnimatePresence mode="wait">
+          {viewMode === 'calendar' && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-              onClick={() => setShowAddForm(false)}
+              key="calendar"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.4 }}
             >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-2xl"
-              >
-                <Card>
-                  <CardHeader>
-                    <h2 className="text-xl font-semibold flex items-center gap-2">
-                      <HiPlus className="h-5 w-5" />
-                      Add New Class
-                    </h2>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        label="Class Name"
-                        value={newClass.name}
-                        onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
-                        startIcon={<HiAcademicCap className="h-4 w-4" />}
-                        error={errors.name}
-                        required
+              <WeeklyCalendar
+                classes={filteredClasses}
+                onClassAdd={handleClassAdd}
+                onClassUpdate={handleClassUpdate}
+                onClassDelete={handleClassDelete}
+              />
+            </motion.div>
+          )}
+
+          {/* List View */}
+          {viewMode === 'list' && (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.4 }}
+              className="space-y-6"
+            >
+              {/* Filters */}
+              <Card className="p-6">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Search classes by name, instructor, or schedule..."
+                      startIcon={<HiMagnifyingGlass className="h-5 w-5" />}
+                      onChange={(e) => debouncedSearch(e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="sm:w-64">
+                    <select
+                      value={selectedInstructor}
+                      onChange={(e) => setSelectedInstructor(e.target.value)}
+                      className="select select-bordered w-full"
+                    >
+                      <option value="">All Instructors</option>
+                      {instructors.map(instructor => (
+                        <option key={instructor} value={instructor}>
+                          {instructor}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Filter Summary */}
+                <div className="mt-4 flex items-center gap-4 text-sm text-base-content/60">
+                  <span>
+                    Showing {filteredClasses.length} of {classes.length} classes
+                  </span>
+                  {searchTerm && (
+                    <Badge variant="outline">
+                      Search: {searchTerm}
+                    </Badge>
+                  )}
+                  {selectedInstructor && (
+                    <Badge variant="outline">
+                      Instructor: {selectedInstructor}
+                    </Badge>
+                  )}
+                </div>
+              </Card>
+
+              {/* Classes Grid */}
+              {filteredClasses.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredClasses.map((fitnessClass, index) => (
+                    <motion.div
+                      key={fitnessClass.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + index * 0.05 }}
+                    >
+                      <ClassCard
+                        fitnessClass={fitnessClass}
+                        members={members}
+                        onUpdate={handleClassUpdate}
+                        onDelete={() => handleClassDelete(fitnessClass.id)}
                       />
-                      <Input
-                        label="Instructor"
-                        value={newClass.instructor}
-                        onChange={(e) => setNewClass({ ...newClass, instructor: e.target.value })}
-                        startIcon={<HiUser className="h-4 w-4" />}
-                        error={errors.instructor}
-                        required
-                      />
-                      <Input
-                        label="Schedule"
-                        value={newClass.schedule}
-                        onChange={(e) => setNewClass({ ...newClass, schedule: e.target.value })}
-                        startIcon={<HiClock className="h-4 w-4" />}
-                        error={errors.schedule}
-                        required
-                        className="md:col-span-2"
-                        placeholder="e.g., Mon, Wed, Fri 9:00 AM - 10:00 AM"
-                      />
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-neutral-700 mb-2">
-                          Capacity: {newClass.capacity} members
-                          {errors.capacity && <span className="text-red-500 ml-1">*</span>}
-                        </label>
-                        <input
-                          type="range"
-                          min="1"
-                          max="50"
-                          value={newClass.capacity}
-                          onChange={(e) => setNewClass({ ...newClass, capacity: parseInt(e.target.value) })}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                        />
-                        <div className="flex justify-between text-sm text-neutral-500 mt-1">
-                          <span>1</span>
-                          <span>50</span>
-                        </div>
-                        {errors.capacity && (
-                          <p className="text-xs text-red-500 mt-1">{errors.capacity}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-3 pt-4">
-                      <Button onClick={handleAddClass} className="flex-1">
-                        Add Class
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setShowAddForm(false)}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-16"
+                >
+                  <HiAcademicCap className="h-16 w-16 text-base-content/30 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-base-content mb-2">
+                    {searchTerm || selectedInstructor ? 'No classes found' : 'No classes yet'}
+                  </h3>
+                  <p className="text-base-content/60">
+                    {searchTerm || selectedInstructor 
+                      ? 'Try adjusting your search or filters' 
+                      : 'Get started by adding your first class'
+                    }
+                  </p>
+                  {!searchTerm && !selectedInstructor && (
+                    <Button
+                      onClick={() => setShowAddModal(true)}
+                      icon={<HiPlus className="h-5 w-5" />}
+                      className="mt-4"
+                    >
+                      Add First Class
+                    </Button>
+                  )}
+                </motion.div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Classes Grid */}
-        <motion.div
-          variants={staggerChildren}
-          initial="initial"
-          animate="animate"
-          className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3"
-        >
-          <AnimatePresence>
-            {filteredClasses.map(fitnessClass => (
-              <ClassCard
-                key={fitnessClass.id}
-                fitnessClass={fitnessClass}
-                members={members}
-                onUpdate={handleUpdateClass}
-                onDelete={handleDeleteClass}
-                onAddMember={handleAddMemberToClass}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {filteredClasses.length === 0 && (
-          <motion.div
-            variants={fadeInUp}
-            className="text-center py-12"
-          >
-            <HiAcademicCap className="h-16 w-16 text-neutral-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-neutral-900 mb-2">
-              {searchTerm ? 'No classes found' : 'No classes yet'}
-            </h3>
-            <p className="text-neutral-600">
-              {searchTerm 
-                ? 'Try adjusting your search criteria.'
-                : 'Add your first class to get started.'
-              }
-            </p>
-          </motion.div>
-        )}
+        {/* Add Class Modal */}
+        <ClassScheduleModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleClassAdd}
+        />
       </div>
     </motion.div>
   );

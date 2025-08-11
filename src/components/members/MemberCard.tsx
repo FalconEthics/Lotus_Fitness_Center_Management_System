@@ -10,22 +10,26 @@ import {
   HiTrash,
   HiPlus,
   HiAcademicCap,
-  HiXMark
+  HiXMark,
+  HiPrinter
 } from 'react-icons/hi2';
-import { Member, Class, MembershipType, MEMBERSHIP_TYPES } from '../../types';
+import { Member, FitnessClass, MEMBER_STATUSES, GENDERS } from '../../types';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Badge } from '../ui/Badge';
+import { ContextMenu, ContextMenuItem } from '../ui/ContextMenu';
 import { cn } from '../../utils/cn';
+import toast from 'react-hot-toast';
 
 interface MemberCardProps {
   member: Member;
-  classes: Class[];
+  classes: FitnessClass[];
   onUpdate: (member: Member) => void;
   onDelete: (id: number) => void;
   onAddToClass: (memberId: number, classId: number) => void;
+  onPrintMembershipCard?: (member: Member) => void;
 }
 
 const membershipTypeColors = {
@@ -39,7 +43,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
   classes,
   onUpdate,
   onDelete,
-  onAddToClass
+  onAddToClass,
+  onPrintMembershipCard
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<Member>(member);
@@ -106,6 +111,70 @@ export const MemberCard: React.FC<MemberCardProps> = ({
     });
   };
 
+  // Context menu items
+  const contextMenuItems: ContextMenuItem[] = [
+    {
+      id: 'edit',
+      label: 'Edit Member',
+      icon: HiPencil,
+      onClick: () => setIsEditing(true),
+      shortcut: 'Ctrl+E'
+    },
+    {
+      id: 'add-class',
+      label: 'Add to Class',
+      icon: HiPlus,
+      onClick: () => setShowAddClass(true),
+      shortcut: 'Ctrl+A'
+    },
+    {
+      id: 'print-card',
+      label: 'Print Membership Card',
+      icon: HiPrinter,
+      onClick: () => {
+        if (onPrintMembershipCard) {
+          onPrintMembershipCard(member);
+          toast.success('Membership card sent to printer');
+        } else {
+          toast.error('Print function not available');
+        }
+      },
+      shortcut: 'Ctrl+P'
+    },
+    {
+      id: 'contact',
+      label: 'Contact Member',
+      icon: HiEnvelope,
+      onClick: () => {
+        window.open(`mailto:${member.email}?subject=Lotus Fitness Center`);
+        toast.success('Email client opened');
+      }
+    },
+    {
+      id: 'call',
+      label: 'Call Member',
+      icon: HiPhone,
+      onClick: () => {
+        window.open(`tel:${member.phone}`);
+        toast.success('Calling member');
+      }
+    },
+    {
+      id: 'divider-1',
+      label: '',
+      onClick: () => {},
+      divider: true
+    },
+    {
+      id: 'delete',
+      label: 'Delete Member',
+      icon: HiTrash,
+      onClick: handleDelete,
+      variant: 'danger',
+      shortcut: 'Del'
+    }
+  ];
+
   return (
     <motion.div
       layout
@@ -115,7 +184,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
+      <ContextMenu items={contextMenuItems}>
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-context-menu">
         <CardContent className="p-6">
           {isEditing ? (
             <motion.div
@@ -198,6 +268,16 @@ export const MemberCard: React.FC<MemberCardProps> = ({
                   >
                     <HiPencil className="h-4 w-4" />
                   </Button>
+                  {onPrintMembershipCard && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onPrintMembershipCard(member)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <HiPrinter className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
@@ -299,6 +379,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           )}
         </CardContent>
       </Card>
+      </ContextMenu>
     </motion.div>
   );
 };

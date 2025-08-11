@@ -4,11 +4,15 @@ import './index.css';
 import App from './App';
 import ErrorBoundary from './Pages/LatterError/ErrorBoundary';
 import { DatasetProvider } from './contexts/DatasetContext';
+import { initializePWA } from './utils/pwa';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
   throw new Error('Failed to find the root element');
 }
+
+// Initialize PWA features
+initializePWA();
 
 createRoot(rootElement).render(
   <StrictMode>
