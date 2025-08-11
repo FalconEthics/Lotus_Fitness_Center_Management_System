@@ -103,6 +103,8 @@ export enum DatasetActionType {
   ADD_ATTENDANCE = 'ADD_ATTENDANCE',
   UPDATE_ATTENDANCE = 'UPDATE_ATTENDANCE',
   DELETE_ATTENDANCE = 'DELETE_ATTENDANCE',
+  IMPORT_DATA = 'IMPORT_DATA',
+  RESET_ALL_DATA = 'RESET_ALL_DATA',
 }
 
 // Action interfaces
@@ -191,6 +193,15 @@ export interface DeleteAttendanceAction {
   payload: number;
 }
 
+export interface ImportDataAction {
+  type: DatasetActionType.IMPORT_DATA;
+  payload: Dataset;
+}
+
+export interface ResetAllDataAction {
+  type: DatasetActionType.RESET_ALL_DATA;
+}
+
 // Union type for all dataset actions
 export type DatasetAction =
   | SetDatasetAction
@@ -209,7 +220,9 @@ export type DatasetAction =
   | DeleteTrainerAction
   | AddAttendanceAction
   | UpdateAttendanceAction
-  | DeleteAttendanceAction;
+  | DeleteAttendanceAction
+  | ImportDataAction
+  | ResetAllDataAction;
 
 // Form input types
 export interface FormInputProps {

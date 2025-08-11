@@ -1,288 +1,378 @@
-# 🏃‍♂️ Lotus Fitness Center Management System
+<a name="readme-top"></a>
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![GNU License][license-shield]][license-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-A comprehensive offline-first fitness center management application built with React 18, TypeScript, and modern web technologies. Designed for single-user operation by fitness center staff with complete local data management.
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System">
+    <img src="src/assets/logo.png" alt="Logo" width="100" height="100">
+  </a>
 
-![Build Status](https://img.shields.io/badge/build-passing-green)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![Tech Stack](https://img.shields.io/badge/React-18.3.1-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+<h3 align="center">Lotus Fitness Center Management System 2.0</h3>
 
-## ✨ Features
+  <p align="center">
+    A comprehensive, secure, and offline-capable fitness center management system built with modern React technologies.
+  <p align="center">
+    <a href="https://lotus-fitness-center-management-system.vercel.app/">View Demo</a>
+    ·
+    <a href="https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/issues">Request Feature</a>
+  </p>
+</div>
 
-### 👤 User Management
-- **Single User Profile**: Receptionist/owner profile with preferences
-- **Theme Settings**: Light/dark mode with system preference detection
-- **Auto-save Configuration**: Customizable auto-save intervals (1-30 minutes)
+## <a href="https://lotus-fitness-center-management-system.vercel.app/">🚀 Live Demo</a>
 
-### 👥 Member Management
-- **Complete Member Profiles**: Name, age, gender, contact, membership plans
-- **Status Tracking**: Active, Expired, Trial, Suspended status management
-- **Advanced Search & Filtering**: Debounced search with multiple filter options
-- **Expiring Memberships**: Smart alerts for renewals (3, 7, 30-day warnings)
-- **Bulk Actions**: Contact multiple members, export lists
+<!-- ABOUT THE PROJECT -->
 
-### 📋 Membership Plans
-- **Plan Creation**: Flexible plan duration and pricing
-- **Auto-calculation**: Automatic expiry date calculation
-- **Revenue Analytics**: Plan performance and revenue projections
-- **Plan Assignment**: Easy member-to-plan association
+## About The Project
 
-### 🏋️ Trainer Management
-- **Trainer Profiles**: Name, expertise, contact information
-- **Class Assignment**: Link trainers to multiple classes
-- **Workload Analytics**: Track trainer schedules and capacity
-- **Certification Tracking**: Monitor trainer qualifications
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#key-features">Key Features</a></li>
+      </ul>
+    </li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#security-features">Security Features</a></li>
+    <li><a href="#testing">Testing</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-### 📅 Class Scheduling
-- **Interactive Calendar**: Weekly view with drag-and-drop functionality
-- **Class Management**: Create, edit, delete fitness classes
-- **Member Enrollment**: Assign members to classes with capacity limits
-- **Schedule Conflicts**: Automatic conflict detection
+<img src="src/assets/screenshot.png">
 
-### 📊 Attendance Tracking
-- **Daily Attendance**: Mark present/absent for each class
-- **Historical Data**: View daily, weekly, monthly attendance logs
-- **Member Attendance**: Individual attendance history and statistics
-- **Class Statistics**: Track class popularity and attendance rates
+Lotus Fitness Center Management System 2.0 is a production-ready, offline-capable single-page application (SPA) designed to manage all aspects of a fitness center. This comprehensive system features advanced security, real-time analytics, and seamless data management capabilities.
 
-### 🖨️ Printable Outputs
-- **Membership Cards**: Professional member ID cards with QR codes
-- **Receipts**: Class booking and payment receipts
-- **Attendance Reports**: Comprehensive attendance summaries
-- **Analytics Reports**: Exportable business intelligence reports
+### 🎯 Key Features
 
-### 📈 Analytics Dashboard
-- **Real-time Metrics**: Active members, revenue, class popularity
-- **Membership Trends**: Growth rates, renewal patterns, churn analysis
-- **Revenue Projections**: Monthly/quarterly revenue forecasting
-- **Trainer Analytics**: Workload distribution and performance metrics
-- **Interactive Charts**: Built with Recharts for data visualization
+- **🔒 Advanced Security**: Encrypted authentication system with password strength validation
+- **📱 PWA Support**: Install as a mobile/desktop app with offline functionality
+- **📊 Real-time Analytics**: Interactive charts and comprehensive reporting
+- **👥 Member Management**: Complete member lifecycle with renewals and status tracking
+- **🏋️ Class Scheduling**: Drag-and-drop calendar with trainer assignments
+- **📈 Attendance Tracking**: Daily, weekly, and monthly attendance analytics
+- **🎨 Modern UI/UX**: Beautiful, responsive design with light/dark themes
+- **⚡ Performance Optimized**: Built with React 18, SWC, and modern best practices
+- **🧪 Fully Tested**: Comprehensive test suite for business logic and security
 
-### 💾 Data Management
-- **Local Storage**: All data stored in browser localStorage
-- **Auto-sync**: Configurable auto-save (default: 5 minutes)
-- **Manual Save**: Instant save with Ctrl+S shortcut
-- **JSON Export**: Complete dataset backup to JSON files
-- **JSON Import**: Restore from backup files with validation
-- **Data Reset**: Clear all data with confirmation prompts
+### Built With
 
-### ⚡ User Experience
-- **Progressive Web App**: Installable on desktop and mobile
-- **Offline-first**: Complete functionality without internet
-- **Responsive Design**: Optimized for all screen sizes
-- **Context Menus**: Right-click quick actions on all cards
-- **Keyboard Shortcuts**: Power user keyboard navigation
-- **Toast Notifications**: Real-time feedback for all actions
-- **Smooth Animations**: Framer Motion page transitions
-- **Search Everything**: Global search across all entities
+* ![React][React.com] - React 18 with latest features and concurrent rendering
+* ![TypeScript][TypeScript.com] - Full TypeScript support for type safety
+* ![Tailwind][Tailwind.com] - Modern CSS framework with DaisyUI components
+* ![Vite][Vite.com] - Lightning-fast build tool with SWC compiler
+* ![Context API][Context.com] - Advanced state management with useReducer pattern
+* ![Framer Motion][FramerMotion.com] - Smooth animations and page transitions
+* ![Recharts][Recharts.com] - Interactive data visualization and analytics
+* ![React Router][ReactRouter.com] - Modern routing with React Router v7
+* ![Date-fns][DateFns.com] - Modern date utility library
+* ![Lodash][Lodash.com] - Utility library for data manipulation
+* ![Crypto-js][CryptoJS.com] - Secure encryption for authentication
+* ![React Hot Toast][ReactHotToast.com] - Beautiful toast notifications
+* ![Vitest][Vitest.com] - Fast unit testing framework
 
-## 🚀 Quick Start
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
+
+<!-- INSTALLATION -->
+
+## Installation
+
+To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
-- **Bun** (recommended) or Node.js 18+
-- Modern web browser (Chrome, Firefox, Safari, Edge)
+
+- **Bun** (recommended) or npm
+  ```sh
+  curl -fsSL https://bun.sh/install | bash
+  ```
+  or
+  ```sh
+  npm install npm@latest -g
+  ```
 
 ### Installation
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd lotus-fitness-center-ms
+1. Clone the repo
+   ```sh
+   git clone https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System.git
+   ```
 
-# Install dependencies (with Bun - recommended)
-bun install
+2. Navigate to the project directory
+   ```sh
+   cd Lotus_Fitness_Center_Management_System
+   ```
 
-# Or with npm
-npm install
+3. Install dependencies
+   ```sh
+   bun install
+   # or
+   npm install
+   ```
 
-# Start development server
-bun run dev
+4. Start the development server
+   ```sh
+   bun run dev
+   # or
+   npm run dev
+   ```
 
-# Or with npm
-npm run dev
+5. Open your browser and navigate to `http://localhost:5173`
+
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
+
+## Usage
+
+### 🔐 Default Credentials
+- **Username**: `admin`
+- **Password**: `lotus2024`
+
+### 🚀 Getting Started
+
+1. **First Login**: Use the default credentials to access the system
+2. **Change Credentials**: Immediately change username and password in Profile settings
+3. **Import Sample Data** (Optional): Import the sample dataset from `public/dataset.json` via Profile → Data Management
+4. **Start Fresh**: Begin adding members, trainers, and classes from scratch
+
+### 📋 Core Workflows
+
+**Member Management**:
+- Add new members with complete profile information
+- Track membership status (Active, Expired, Trial, Suspended)
+- Monitor membership renewals and expiry alerts
+- Generate membership cards and receipts
+
+**Class Scheduling**:
+- Create classes with trainer assignments
+- Set capacity limits and enrollment management
+- Track class popularity and attendance rates
+- Calendar view with drag-and-drop functionality
+
+**Attendance Tracking**:
+- Mark daily attendance for members
+- Generate attendance reports and analytics
+- Track attendance trends and patterns
+- Export attendance data for analysis
+
+**Analytics & Reporting**:
+- Real-time dashboard with key metrics
+- Revenue tracking by membership plans
+- Member demographics and statistics
+- Class popularity and utilization reports
+
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
+
+## 🔒 Security Features
+
+### Advanced Authentication
+- **Encrypted Storage**: All authentication data is encrypted using AES encryption
+- **Password Security**: PBKDF2 hashing with salt for password protection
+- **Session Management**: Secure session handling with expiration
+- **Account Protection**: Automatic account lockout after failed attempts
+- **Password Strength**: Real-time validation with strength indicators
+
+### Data Security
+- **Local Encryption**: Sensitive data encrypted before localStorage storage
+- **Secure Backup**: Professional backup format with metadata validation
+- **Input Validation**: Comprehensive client-side data validation
+- **Session Timeout**: Automatic logout after inactivity periods
+
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
+
+## 🧪 Testing
+
+The project includes comprehensive tests for business logic and security features.
+
+### Running Tests
+
+```sh
+# Run all tests
+bun run test
+
+# Run tests in watch mode
+bun run test:watch
+
+# Run tests with UI
+bun run test:ui
+
+# Run tests with coverage
+bun run test:coverage
 ```
 
-### Build for Production
+### Test Coverage
 
-```bash
-# Build the application
-bun run build
+- **Authentication System**: Login, logout, password management, session handling
+- **Business Logic**: Data validation, member management, class scheduling
+- **Data Management**: Import/export, localStorage operations, data integrity
+- **Edge Cases**: Error handling, corrupted data recovery, validation failures
 
-# Preview production build
-bun run preview
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-# Run linter
-bun run lint
-```
+## 🏗️ Architecture
 
-## 📁 Project Structure
+### Tech Stack Details
+
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite with SWC compiler
+- **Styling**: Tailwind CSS + DaisyUI components
+- **State Management**: React Context API with useReducer
+- **Routing**: React Router v7
+- **Animations**: Framer Motion
+- **Data Visualization**: Recharts
+- **Testing**: Vitest + Testing Library
+- **Security**: Crypto-js for encryption
+
+### Project Structure
 
 ```
 src/
-├── components/
-│   ├── analytics/          # Analytics and reporting components
-│   ├── attendance/         # Attendance tracking components
-│   ├── classes/           # Class management components
-│   ├── forms/             # Form components and validation
-│   ├── members/           # Member management components
-│   ├── plans/             # Membership plans components
-│   ├── trainers/          # Trainer management components
-│   └── ui/                # Reusable UI components
-├── contexts/              # React Context providers
-├── hooks/                 # Custom React hooks
-├── Layout/                # Layout components and HOCs
-├── Pages/                 # Main page components
-├── Reusable_Components/   # Generic reusable components
-├── types/                 # TypeScript type definitions
-└── utils/                 # Utility functions
-
-public/
-├── manifest.json          # PWA manifest
-├── sw.js                 # Service worker
-├── logo.png              # App logo
-└── dataset.json          # Sample dataset
+├── components/          # Reusable UI components
+├── contexts/           # React Context providers
+├── hooks/              # Custom React hooks
+├── pages/              # Page components
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── tests/              # Test files
+└── assets/             # Static assets
 ```
 
-## ⌨️ Keyboard Shortcuts
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-### Global Navigation
-- `Ctrl + 1` - Dashboard
-- `Ctrl + 2` - Members
-- `Ctrl + 3` - Classes
-- `Ctrl + 4` - Trainers
-- `Ctrl + 5` - Plans
-- `Ctrl + 6` - Attendance
-- `Ctrl + 7` - Analytics
+## 🌟 Key Improvements in 2.0
 
-### Global Actions
-- `Ctrl + S` - Manual save
-- `Ctrl + F` - Focus search
-- `Ctrl + K` - Show shortcuts help
-- `Ctrl + Shift + T` - Toggle theme
-- `Ctrl + Shift + E` - Export data
+- **🔒 Advanced Security**: Complete authentication system overhaul
+- **📱 Offline Capability**: Full PWA support with service workers
+- **🎨 Modern Design**: Updated UI with DaisyUI and improved UX
+- **📊 Enhanced Analytics**: Rich data visualization and reporting
+- **⚡ Performance**: React 18 optimizations and SWC compilation
+- **🧪 Test Coverage**: Comprehensive test suite for reliability
+- **🔄 Data Persistence**: Robust data management with backup/restore
+- **🌙 Themes**: Light/dark mode with system preference detection
 
-### Page-Specific (Members)
-- `/` - Focus search
-- `A` - Add new member
-- `P` - Print member list
-- `X` - Clear all filters
-- `1-4` - Filter by status (Active/Trial/Expired/Suspended)
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-## 🎨 Customization
+<!-- CONTRIBUTING -->
 
-### Theme Configuration
-The app uses DaisyUI themes. Available themes:
-- `light` - Default light theme
-- `dark` - Default dark theme
-- `cupcake` - Soft pastel theme
-- `corporate` - Professional theme
-- And 20+ more DaisyUI themes
+## Contributing
 
-### Auto-save Settings
-Configure auto-save interval in User Settings:
-- Range: 1-30 minutes
-- Default: 5 minutes
-- Manual save always available with `Ctrl + S`
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any
+contributions you make are **greatly appreciated**.
 
-### PWA Installation
-Install as desktop app:
-1. Open app in browser
-2. Look for "Install" prompt or menu option
-3. Click "Install" to add to desktop/app drawer
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also
+simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-## 💾 Data Management
+1. Fork the Project
+2. Create your Feature Branch
+   ```sh
+   git checkout -b feature/AmazingFeature
+   ```
+3. Commit your Changes
+   ```sh
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. Push to the Branch
+   ```sh
+   git push origin feature/AmazingFeature
+   ```
+5. Open a Pull Request
 
-### Export Data
-1. Go to Settings page
-2. Click "Export Data" or use `Ctrl + Shift + E`
-3. Choose export format (complete dataset or specific entities)
-4. Save JSON file to desired location
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-### Import Data
-1. Go to Settings page
-2. Click "Import Data"
-3. Select JSON file from computer
-4. Confirm import (this will replace current data)
-5. Data validation ensures file format correctness
+<!-- LICENSE -->
 
-### Sample Dataset
-A comprehensive sample dataset is included at `public/dataset.json` with:
-- 50+ realistic UK-based members
-- 15+ fitness classes with schedules
-- 8+ certified trainers
-- 5+ membership plans
-- Historical attendance data
+## License
 
-## 📊 Analytics Features
+Distributed under the GNU License. See `LICENSE.txt` for more information.
 
-### Dashboard Metrics
-- **Active Members**: Current active membership count
-- **Revenue This Month**: Monthly recurring revenue
-- **Classes Today**: Today's scheduled classes
-- **Expiring Soon**: Members requiring renewal attention
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-### Advanced Analytics
-- **Membership Trends**: Growth rates and retention analysis
-- **Revenue Forecasting**: Projected monthly/quarterly revenue
-- **Class Popularity**: Most attended classes and optimal scheduling
-- **Trainer Workload**: Balanced trainer assignment analytics
-- **Renewal Tracking**: Member lifecycle and renewal patterns
+<!-- CONTACT -->
 
-## 🔧 Technical Details
+## Contact
 
-### Tech Stack
-- **Frontend**: React 18.3.1 + TypeScript + Vite + SWC
-- **Styling**: Tailwind CSS + DaisyUI 5.0
-- **State Management**: React Context API with useReducer
-- **Animations**: Framer Motion 12.23
-- **Charts**: Recharts 3.1
-- **Utilities**: Lodash 4.17, date-fns 4.1
-- **Printing**: react-to-print 3.1
-- **Notifications**: react-hot-toast 2.5
-- **Icons**: React Icons 5.4 (Heroicons v2)
+<ul>
+<li><a href="https://www.linkedin.com/in/soumik-das-profile/"> LinkedIn Profile</a></li>
+<li><a href="https://mrsoumikdas.com/"> Portfolio Site</a></li>
+<li><a href="https://www.instagram.com/account.soumik.das/"> Instagram Handle</a></li>
+</ul>
 
-### Performance Optimizations
-- **Code Splitting**: Automatic route-based splitting
-- **Lazy Loading**: Components loaded on demand
-- **Memoization**: Strategic use of useMemo and useCallback
-- **Debounced Search**: 300ms debounce for all search inputs
-- **Virtual Scrolling**: Large lists optimized for performance
-- **Service Worker**: Aggressive caching for offline performance
+~ wanna checkout my other projects: [https://github.com/FalconEthics](https://github.com/FalconEthics)
 
-### Browser Compatibility
-- Chrome 90+
-- Firefox 90+
-- Safari 14+
-- Edge 90+
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-## 🤝 Contributing
+<!-- ACKNOWLEDGMENTS -->
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+## Acknowledgments
 
-## 📝 License
+This project showcases modern React development practices, advanced security implementation, and production-ready application architecture. It demonstrates expertise in full-stack development, user experience design, and system security.
 
-This project is licensed under the MIT License. See `LICENSE` file for details.
+<p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-## 🆘 Support
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-For issues, questions, or feature requests:
-1. Check existing issues in the repository
-2. Create new issue with detailed description
-3. Include browser version and steps to reproduce
+[contributors-shield]: https://img.shields.io/github/contributors/FalconEthics/Lotus_Fitness_Center_Management_System.svg?style=for-the-badge
 
-## 🎯 Future Enhancements
+[contributors-url]: https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/graphs/contributors
 
-- **Multi-location Support**: Manage multiple fitness center branches
-- **Payment Integration**: Built-in payment processing
-- **Email Automation**: Automated renewal and class reminders
-- **Mobile App**: React Native companion app
-- **Advanced Reporting**: PDF report generation
-- **API Integration**: Optional backend synchronization
+[forks-shield]: https://img.shields.io/github/forks/FalconEthics/Lotus_Fitness_Center_Management_System.svg?style=for-the-badge
 
----
+[forks-url]: https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/network/members
 
-Built with ❤️ by Lotus Fitness Center Team
+[stars-shield]: https://img.shields.io/github/stars/FalconEthics/Lotus_Fitness_Center_Management_System.svg?style=for-the-badge
+
+[stars-url]: https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/stargazers
+
+[issues-shield]: https://img.shields.io/github/issues/FalconEthics/Lotus_Fitness_Center_Management_System.svg?style=for-the-badge
+
+[issues-url]: https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/issues
+
+[license-shield]: https://img.shields.io/github/license/FalconEthics/Lotus_Fitness_Center_Management_System.svg?style=for-the-badge
+
+[license-url]: https://github.com/FalconEthics/Lotus_Fitness_Center_Management_System/blob/main/LICENSE
+
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+
+[linkedin-url]: https://www.linkedin.com/in/soumik-das-profile/
+
+[product-screenshot]: ./screenshot1.png
+
+[React.com]: https://img.shields.io/badge/React_18-0187ce?style=for-the-badge&logo=react&logoColor=white
+
+[TypeScript.com]: https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white
+
+[Tailwind.com]: https://img.shields.io/badge/tailwind_css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white
+
+[Vite.com]: https://img.shields.io/badge/Vite-646cff?style=for-the-badge&logo=vite&logoColor=white
+
+[Context.com]: https://img.shields.io/badge/Context_API-61DAFB?style=for-the-badge&logo=react&logoColor=white
+
+[FramerMotion.com]: https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white
+
+[Recharts.com]: https://img.shields.io/badge/Recharts-FF6B6B?style=for-the-badge&logo=chart.js&logoColor=white
+
+[ReactRouter.com]: https://img.shields.io/badge/React_Router_v7-CA4245?style=for-the-badge&logo=react-router&logoColor=white
+
+[DateFns.com]: https://img.shields.io/badge/date--fns-770C56?style=for-the-badge&logo=date-fns&logoColor=white
+
+[Lodash.com]: https://img.shields.io/badge/Lodash-3492FF?style=for-the-badge&logo=lodash&logoColor=white
+
+[CryptoJS.com]: https://img.shields.io/badge/Crypto--js-F7931E?style=for-the-badge&logo=bitcoin&logoColor=white
+
+[ReactHotToast.com]: https://img.shields.io/badge/React_Hot_Toast-FF4B4B?style=for-the-badge&logo=react&logoColor=white
+
+[Vitest.com]: https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white

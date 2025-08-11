@@ -224,6 +224,15 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
         attendance: reject(state.attendance, { id: action.payload }),
       };
 
+    case DatasetActionType.IMPORT_DATA: {
+      // Extract only the dataset fields, ignore metadata
+      const { exportDate, version, appVersion, exportedBy, totalRecords, ...datasetFields } = action.payload as any;
+      return defaults({}, datasetFields, initialState);
+    }
+
+    case DatasetActionType.RESET_ALL_DATA:
+      return initialState;
+
     default:
       return state;
   }
@@ -390,6 +399,16 @@ export const datasetActions = {
     type: DatasetActionType.DELETE_ATTENDANCE,
     payload: attendanceId,
   }),
+
+  // Import/Reset data
+  importData: (data: any): DatasetAction => ({
+    type: DatasetActionType.IMPORT_DATA,
+    payload: data,
+  }),
+
+  resetAllData: (): DatasetAction => ({
+    type: DatasetActionType.RESET_ALL_DATA,
+  }),
 };
 
 // Enhanced selector hooks with performance optimizations
@@ -475,7 +494,22 @@ export function loadDataFromLocalStorage(): Dataset | null {
 }
 
 export function exportDataAsJSON(data: Dataset): void {
-  const dataStr = JSON.stringify(data, null, 2);
+  const exportData = {
+    exportDate: new Date().toISOString(),
+    version: "1.0",
+    appVersion: "2.0.0", 
+    exportedBy: `${data.userProfile.name} (${data.userProfile.role})`,
+    totalRecords: {
+      members: data.members.length,
+      classes: data.classes.length,
+      trainers: data.trainers.length,
+      membershipPlans: data.membershipPlans.length,
+      attendanceRecords: data.attendance.length
+    },
+    ...data
+  };
+  
+  const dataStr = JSON.stringify(exportData, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(dataBlob);
   

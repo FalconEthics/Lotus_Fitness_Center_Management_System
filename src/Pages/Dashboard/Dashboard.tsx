@@ -25,10 +25,11 @@ import {
 } from 'recharts';
 import toast from 'react-hot-toast';
 import { useDashboardStats, useMemberStatistics } from '../../hooks/useDashboardStats';
-import { useDataset, saveDataToLocalStorage, exportDataAsJSON } from '../../contexts/DatasetContext';
+import { useDataset } from '../../contexts/DatasetContext';
 import { StatCard } from '../../Reusable_Components/StatCard';
 import { ExpiringMembershipsAlert } from '../../components/alerts/ExpiringMembershipsAlert';
 import { MembershipAnalytics } from '../../components/analytics/MembershipAnalytics';
+import { getCurrentUsername } from '../../utils/auth';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -58,16 +59,6 @@ export function Dashboard(): JSX.Element {
   const stats = useDashboardStats();
   const memberStats = useMemberStatistics();
 
-  const handleManualSave = () => {
-    saveDataToLocalStorage(dataset);
-    toast.success('Data saved successfully!');
-  };
-
-  const handleExportData = () => {
-    exportDataAsJSON(dataset);
-    toast.success('Data exported successfully!');
-  };
-
   return (
     <motion.div
       className="min-h-screen bg-base-100 p-6"
@@ -81,22 +72,9 @@ export function Dashboard(): JSX.Element {
           <div>
             <h1 className="text-4xl font-bold text-primary mb-2">Dashboard</h1>
             <p className="text-base-content/70">Welcome to Lotus Fitness Center Management</p>
-          </div>
-          <div className="flex gap-2 mt-4 sm:mt-0">
-            <button
-              onClick={handleManualSave}
-              className="btn btn-outline btn-sm gap-2"
-            >
-              <FaSave className="h-4 w-4" />
-              Save Data
-            </button>
-            <button
-              onClick={handleExportData}
-              className="btn btn-primary btn-sm gap-2"
-            >
-              <FaDownload className="h-4 w-4" />
-              Export
-            </button>
+            <p className="text-sm text-base-content/50 mt-1">
+              Logged in as: <span className="font-medium">{getCurrentUsername()}</span>
+            </p>
           </div>
         </motion.div>
 

@@ -14,14 +14,27 @@ import {
   HiMoon,
   HiSun,
   HiBell,
-  HiClock
+  HiClock,
+  HiKey,
+  HiShieldCheck,
+  HiEye,
+  HiEyeSlash,
+  HiExclamationTriangle
 } from 'react-icons/hi2';
 import { Card, Button, Input, Badge } from '../../components/ui';
 import { StatCard } from '../../components/StatCard';
-import { useDataset, useDatasetDispatch } from '../../contexts/DatasetContext';
+import { useDataset, useDatasetDispatch, datasetActions } from '../../contexts/DatasetContext';
 import { UserProfile } from '../../types';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { 
+  getCurrentUsername, 
+  changePassword, 
+  changeUsername,
+  validatePasswordStrength,
+  logout
+} from '../../utils/auth';
+import { useNavigate } from 'react-router';
 
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
@@ -38,16 +51,17 @@ const pageTransition = {
 export function Profile(): JSX.Element {
   const dataset = useDataset();
   const dispatch = useDatasetDispatch();
+  const navigate = useNavigate();
   
   // User profile state
   const [profile, setProfile] = useState<UserProfile>({
     id: 1,
-    name: 'Admin User',
-    email: 'admin@lotus.fit',
-    phone: '+44 20 1234 5678',
-    role: 'Administrator',
+    name: dataset.userProfile.name || 'Admin User',
+    email: dataset.userProfile.email || 'admin@lotus.fit',
+    phone: dataset.userProfile.phone || '+44 20 1234 5678',
+    role: dataset.userProfile.role || 'Owner',
     avatar: '',
-    preferences: {
+    preferences: dataset.userProfile.preferences || {
       theme: 'light',
       autoSaveInterval: 5,
       notifications: true,
@@ -59,6 +73,25 @@ export function Profile(): JSX.Element {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<UserProfile>(profile);
+
+  // Security settings state
+  const [securitySettings, setSecuritySettings] = useState({
+    showPasswordForm: false,
+    showUsernameForm: false,
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+    newUsername: '',
+    showCurrentPassword: false,
+    showNewPassword: false,
+    showConfirmPassword: false,
+  });
+
+  // Data management state  
+  const [dataManagement, setDataManagement] = useState({
+    showImportWarning: false,
+    pendingImportFile: null as File | null
+  });
 
   // Load profile from localStorage on mount
   useEffect(() => {
@@ -99,13 +132,83 @@ export function Profile(): JSX.Element {
     setIsEditing(false);
   };
 
+  // Security Functions
+  const handlePasswordChange = () => {
+    const { currentPassword, newPassword, confirmPassword } = securitySettings;
+
+    if (!currentPassword) {
+      toast.error('Current password is required');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+
+    const validation = validatePasswordStrength(newPassword);
+    if (!validation.isValid) {
+      toast.error(validation.feedback.join('. '));
+      return;
+    }
+
+    const result = changePassword(currentPassword, newPassword);
+    
+    if (result.success) {
+      toast.success(result.message);
+      setSecuritySettings({
+        ...securitySettings,
+        showPasswordForm: false,
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+    } else {
+      toast.error(result.message);
+    }
+  };
+
+  const handleUsernameChange = () => {
+    const { currentPassword, newUsername } = securitySettings;
+
+    if (!currentPassword) {
+      toast.error('Password is required to change username');
+      return;
+    }
+
+    if (!newUsername.trim()) {
+      toast.error('New username is required');
+      return;
+    }
+
+    const result = changeUsername(currentPassword, newUsername.trim());
+    
+    if (result.success) {
+      toast.success(result.message);
+      setSecuritySettings({
+        ...securitySettings,
+        showUsernameForm: false,
+        currentPassword: '',
+        newUsername: '',
+      });
+      
+      // Update profile display
+      setProfile({
+        ...profile,
+        name: newUsername
+      });
+    } else {
+      toast.error(result.message);
+    }
+  };
+
   const handleResetData = () => {
     const confirmReset = window.confirm(
       'Are you sure you want to reset all data? This will delete all members, classes, trainers, and attendance records. This action cannot be undone.'
     );
     
     if (confirmReset) {
-      dispatch({ type: 'RESET_ALL_DATA' });
+      dispatch(datasetActions.resetAllData());
       toast.success('All data has been reset successfully!');
     }
   };
@@ -113,9 +216,18 @@ export function Profile(): JSX.Element {
   const handleExportData = () => {
     try {
       const dataToExport = {
-        ...dataset,
         exportDate: new Date().toISOString(),
-        version: '1.0'
+        version: '1.0',
+        appVersion: '2.0.0',
+        exportedBy: `${dataset.userProfile.name} (${dataset.userProfile.role})`,
+        totalRecords: {
+          members: dataset.members.length,
+          classes: dataset.classes.length,
+          trainers: dataset.trainers.length,
+          membershipPlans: dataset.membershipPlans.length,
+          attendanceRecords: dataset.attendance.length
+        },
+        ...dataset
       };
       
       const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
@@ -142,6 +254,26 @@ export function Profile(): JSX.Element {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Check if there's existing data that would be overwritten
+    const hasExistingData = dataset.members.length > 0 || 
+                           dataset.classes.length > 0 || 
+                           dataset.trainers.length > 0 ||
+                           dataset.attendance.length > 0;
+
+    if (hasExistingData) {
+      setDataManagement({
+        ...dataManagement,
+        showImportWarning: true,
+        pendingImportFile: file
+      });
+    } else {
+      processImportFile(file);
+    }
+
+    event.target.value = ''; // Reset file input
+  };
+
+  const processImportFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -152,12 +284,21 @@ export function Profile(): JSX.Element {
           throw new Error('Invalid data format');
         }
         
-        dispatch({
-          type: 'IMPORT_DATA',
-          payload: importedData
-        });
+        // Extract only dataset fields, ignore metadata for import
+        const { exportDate, version, appVersion, exportedBy, totalRecords, ...datasetFields } = importedData;
         
-        toast.success('Data imported successfully!');
+        dispatch(datasetActions.importData(datasetFields));
+        
+        toast.success(
+          `Data imported successfully! Imported ${datasetFields.members?.length || 0} members, ` +
+          `${datasetFields.classes?.length || 0} classes, ${datasetFields.trainers?.length || 0} trainers.`
+        );
+        
+        setDataManagement({
+          ...dataManagement,
+          showImportWarning: false,
+          pendingImportFile: null
+        });
       } catch (error) {
         toast.error('Failed to import data. Please check the file format.');
         console.error('Import error:', error);
@@ -165,7 +306,20 @@ export function Profile(): JSX.Element {
     };
     
     reader.readAsText(file);
-    event.target.value = ''; // Reset file input
+  };
+
+  const confirmImport = () => {
+    if (dataManagement.pendingImportFile) {
+      processImportFile(dataManagement.pendingImportFile);
+    }
+  };
+
+  const cancelImport = () => {
+    setDataManagement({
+      ...dataManagement,
+      showImportWarning: false,
+      pendingImportFile: null
+    });
   };
 
   // Statistics
@@ -190,7 +344,7 @@ export function Profile(): JSX.Element {
     },
     {
       title: 'Attendance Records',
-      value: dataset.attendanceRecords.length,
+      value: dataset.attendance.length,
       icon: HiClock,
       color: 'gray' as const
     }
@@ -467,6 +621,218 @@ export function Profile(): JSX.Element {
               </div>
             </Card>
 
+            {/* Security Settings */}
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold text-base-content mb-4 flex items-center gap-2">
+                <HiShieldCheck className="h-5 w-5" />
+                Security Settings
+              </h3>
+              
+              <div className="space-y-3">
+                <div className="text-sm text-base-content/70 mb-3">
+                  Current Username: <span className="font-medium text-base-content">{getCurrentUsername()}</span>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSecuritySettings({...securitySettings, showUsernameForm: !securitySettings.showUsernameForm, showPasswordForm: false})}
+                  icon={<HiUser className="h-4 w-4" />}
+                  fullWidth
+                >
+                  Change Username
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSecuritySettings({...securitySettings, showPasswordForm: !securitySettings.showPasswordForm, showUsernameForm: false})}
+                  icon={<HiKey className="h-4 w-4" />}
+                  fullWidth
+                >
+                  Change Password
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    logout();
+                    toast.success('Logged out successfully');
+                    navigate('/login');
+                  }}
+                  icon={<HiArrowPath className="h-4 w-4" />}
+                  className="text-warning hover:bg-warning/10 border-warning/30"
+                  fullWidth
+                >
+                  Logout
+                </Button>
+              </div>
+              
+              {/* Username Change Form */}
+              {securitySettings.showUsernameForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-base-300 pt-4 mt-4 space-y-3"
+                >
+                  <Input
+                    label="New Username"
+                    value={securitySettings.newUsername}
+                    onChange={(e) => setSecuritySettings({...securitySettings, newUsername: e.target.value})}
+                    placeholder="Enter new username"
+                  />
+                  
+                  <div className="relative">
+                    <Input
+                      label="Confirm Password"
+                      type={securitySettings.showCurrentPassword ? 'text' : 'password'}
+                      value={securitySettings.currentPassword}
+                      onChange={(e) => setSecuritySettings({...securitySettings, currentPassword: e.target.value})}
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-9 text-base-content/50 hover:text-base-content"
+                      onClick={() => setSecuritySettings({...securitySettings, showCurrentPassword: !securitySettings.showCurrentPassword})}
+                    >
+                      {securitySettings.showCurrentPassword ? <HiEyeSlash className="h-4 w-4" /> : <HiEye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleUsernameChange}
+                      className="flex-1"
+                    >
+                      Update Username
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSecuritySettings({...securitySettings, showUsernameForm: false, currentPassword: '', newUsername: ''})}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+              
+              {/* Password Change Form */}
+              {securitySettings.showPasswordForm && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="border-t border-base-300 pt-4 mt-4 space-y-3"
+                >
+                  <div className="relative">
+                    <Input
+                      label="Current Password"
+                      type={securitySettings.showCurrentPassword ? 'text' : 'password'}
+                      value={securitySettings.currentPassword}
+                      onChange={(e) => setSecuritySettings({...securitySettings, currentPassword: e.target.value})}
+                      placeholder="Enter current password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-9 text-base-content/50 hover:text-base-content"
+                      onClick={() => setSecuritySettings({...securitySettings, showCurrentPassword: !securitySettings.showCurrentPassword})}
+                    >
+                      {securitySettings.showCurrentPassword ? <HiEyeSlash className="h-4 w-4" /> : <HiEye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  
+                  <div className="relative">
+                    <Input
+                      label="New Password"
+                      type={securitySettings.showNewPassword ? 'text' : 'password'}
+                      value={securitySettings.newPassword}
+                      onChange={(e) => setSecuritySettings({...securitySettings, newPassword: e.target.value})}
+                      placeholder="Enter new password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-9 text-base-content/50 hover:text-base-content"
+                      onClick={() => setSecuritySettings({...securitySettings, showNewPassword: !securitySettings.showNewPassword})}
+                    >
+                      {securitySettings.showNewPassword ? <HiEyeSlash className="h-4 w-4" /> : <HiEye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  
+                  <div className="relative">
+                    <Input
+                      label="Confirm New Password"
+                      type={securitySettings.showConfirmPassword ? 'text' : 'password'}
+                      value={securitySettings.confirmPassword}
+                      onChange={(e) => setSecuritySettings({...securitySettings, confirmPassword: e.target.value})}
+                      placeholder="Confirm new password"
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-3 top-9 text-base-content/50 hover:text-base-content"
+                      onClick={() => setSecuritySettings({...securitySettings, showConfirmPassword: !securitySettings.showConfirmPassword})}
+                    >
+                      {securitySettings.showConfirmPassword ? <HiEyeSlash className="h-4 w-4" /> : <HiEye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  
+                  {securitySettings.newPassword && (
+                    <div className="text-xs space-y-1">
+                      {(() => {
+                        const validation = validatePasswordStrength(securitySettings.newPassword);
+                        return (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span>Password Strength:</span>
+                              <div className={`badge badge-sm ${
+                                validation.score <= 2 ? 'badge-error' :
+                                validation.score <= 4 ? 'badge-warning' :
+                                'badge-success'
+                              }`}>
+                                {validation.score <= 2 ? 'Weak' :
+                                 validation.score <= 4 ? 'Medium' : 'Strong'}
+                              </div>
+                            </div>
+                            {validation.feedback.length > 0 && (
+                              <ul className="list-disc list-inside text-base-content/60 space-y-1">
+                                {validation.feedback.map((item, index) => (
+                                  <li key={index}>{item}</li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        );
+                      })()} 
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handlePasswordChange}
+                      className="flex-1"
+                    >
+                      Update Password
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSecuritySettings({...securitySettings, showPasswordForm: false, currentPassword: '', newPassword: '', confirmPassword: ''})}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </Card>
+
             {/* Data Management */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold text-base-content mb-4 flex items-center gap-2">
@@ -482,7 +848,7 @@ export function Profile(): JSX.Element {
                   icon={<HiArrowDownTray className="h-4 w-4" />}
                   fullWidth
                 >
-                  Export Data
+                  Export Backup
                 </Button>
                 
                 <div>
@@ -500,7 +866,7 @@ export function Profile(): JSX.Element {
                     icon={<HiArrowUpTray className="h-4 w-4" />}
                     fullWidth
                   >
-                    Import Data
+                    Import Backup
                   </Button>
                 </div>
                 
@@ -519,6 +885,55 @@ export function Profile(): JSX.Element {
           </motion.div>
         </div>
       </div>
+
+      {/* Import Warning Modal */}
+      {dataManagement.showImportWarning && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-base-100 p-6 rounded-lg shadow-xl max-w-md w-full mx-4"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <HiExclamationTriangle className="h-6 w-6 text-warning" />
+              <h3 className="text-lg font-semibold">Overwrite Existing Data?</h3>
+            </div>
+            
+            <div className="mb-4 text-base-content/70">
+              <p className="mb-2">
+                You have existing data that will be completely replaced:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                {dataset.members.length > 0 && <li>{dataset.members.length} members</li>}
+                {dataset.classes.length > 0 && <li>{dataset.classes.length} classes</li>}
+                {dataset.trainers.length > 0 && <li>{dataset.trainers.length} trainers</li>}
+                {dataset.attendance.length > 0 && <li>{dataset.attendance.length} attendance records</li>}
+              </ul>
+              <p className="mt-2 font-medium text-warning">
+                This action cannot be undone!
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                variant="primary"
+                onClick={confirmImport}
+                icon={<HiArrowUpTray className="h-4 w-4" />}
+                className="flex-1 bg-warning text-warning-content hover:bg-warning/90"
+              >
+                Yes, Import
+              </Button>
+              <Button
+                variant="outline"
+                onClick={cancelImport}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }
