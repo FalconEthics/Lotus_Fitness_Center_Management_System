@@ -36,10 +36,15 @@ export interface UserProfile {
   email: string;
   phone: string;
   role: 'Owner' | 'Receptionist';
+  avatar?: string;
   preferences: {
     theme: string;
     autoSaveInterval: number; // minutes
     defaultView: 'dashboard' | 'members' | 'classes';
+    notifications?: boolean;
+    language?: string;
+    dateFormat?: string;
+    timeFormat?: string;
   };
 }
 

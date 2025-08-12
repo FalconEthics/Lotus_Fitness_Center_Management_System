@@ -34,6 +34,12 @@ import {
   validatePasswordStrength,
   logout
 } from '../../utils/auth';
+import { 
+  canFitInLocalStorage, 
+  getLocalStorageUsage, 
+  createLightDemoData,
+  formatBytes
+} from '../../utils/storageManager';
 import { useNavigate } from 'react-router';
 
 const pageVariants = {
@@ -208,7 +214,35 @@ export function Profile(): JSX.Element {
     );
     
     if (confirmReset) {
+      // Clear localStorage first
+      localStorage.removeItem('lotus-fitness-data');
+      localStorage.removeItem('userProfile');
+      
+      // Reset the dataset context
       dispatch(datasetActions.resetAllData());
+      
+      // Reset local profile state to default
+      const defaultProfile: UserProfile = {
+        id: 1,
+        name: 'Admin User',
+        email: 'admin@lotus-fitness.com',
+        phone: '+44 20 1234 5678',
+        role: 'Owner',
+        avatar: '',
+        preferences: {
+          theme: 'light',
+          autoSaveInterval: 5,
+          notifications: true,
+          language: 'en',
+          dateFormat: 'dd/MM/yyyy',
+          timeFormat: '24h',
+          defaultView: 'dashboard'
+        }
+      };
+      
+      setProfile(defaultProfile);
+      setEditData(defaultProfile);
+      
       toast.success('All data has been reset successfully!');
     }
   };
@@ -279,19 +313,67 @@ export function Profile(): JSX.Element {
       try {
         const importedData = JSON.parse(e.target?.result as string);
         
-        // Validate the imported data structure
-        if (!importedData.members || !importedData.classes) {
-          throw new Error('Invalid data format');
+        // Basic validation of required fields
+        if (!importedData || typeof importedData !== 'object') {
+          throw new Error('Invalid JSON format');
         }
         
         // Extract only dataset fields, ignore metadata for import
         const { exportDate, version, appVersion, exportedBy, totalRecords, ...datasetFields } = importedData;
         
-        dispatch(datasetActions.importData(datasetFields));
+        // Create validated data structure with safe defaults
+        let validatedData = {
+          userProfile: datasetFields.userProfile || profile,
+          members: Array.isArray(datasetFields.members) ? datasetFields.members : [],
+          classes: Array.isArray(datasetFields.classes) ? datasetFields.classes : [],
+          trainers: Array.isArray(datasetFields.trainers) ? datasetFields.trainers : [],
+          membershipPlans: Array.isArray(datasetFields.membershipPlans) ? datasetFields.membershipPlans : [],
+          attendance: Array.isArray(datasetFields.attendance) ? datasetFields.attendance : []
+        };
+        
+        // Check if data can fit in localStorage
+        const storageCheck = canFitInLocalStorage(validatedData);
+        
+        if (!storageCheck.canFit) {
+          const shouldCreateLight = window.confirm(
+            `The imported data is too large (${storageCheck.sizeFormatted}) for localStorage. ` +
+            `Would you like to import a lighter version with reduced attendance records? ` +
+            `\n\nClick OK for lighter version, Cancel to abort import.`
+          );
+          
+          if (shouldCreateLight) {
+            validatedData = createLightDemoData(validatedData);
+            const lightCheck = canFitInLocalStorage(validatedData);
+            
+            if (!lightCheck.canFit) {
+              throw new Error(`Even the light version (${lightCheck.sizeFormatted}) is too large. Please use a smaller dataset.`);
+            }
+            
+            toast.success(`Using lighter version of data (${lightCheck.sizeFormatted})`);
+          } else {
+            return; // User cancelled
+          }
+        } else if (storageCheck.isNearLimit) {
+          toast.warning(`Large dataset detected (${storageCheck.sizeFormatted}). This may impact app performance.`);
+        }
+        
+        // Clear localStorage first to ensure clean import
+        localStorage.removeItem('lotus-fitness-data');
+        localStorage.removeItem('userProfile');
+        
+        // Import the validated data
+        dispatch(datasetActions.importData(validatedData));
+        
+        // Update local profile state if userProfile exists in import
+        if (validatedData.userProfile) {
+          setProfile(validatedData.userProfile);
+          setEditData(validatedData.userProfile);
+        }
         
         toast.success(
-          `Data imported successfully! Imported ${datasetFields.members?.length || 0} members, ` +
-          `${datasetFields.classes?.length || 0} classes, ${datasetFields.trainers?.length || 0} trainers.`
+          `Data imported successfully! Imported ${validatedData.members.length} members, ` +
+          `${validatedData.classes.length} classes, ${validatedData.trainers.length} trainers, ` +
+          `${validatedData.attendance.length} attendance records.`
         );
         
         setDataManagement({
@@ -300,9 +382,15 @@ export function Profile(): JSX.Element {
           pendingImportFile: null
         });
       } catch (error) {
-        toast.error('Failed to import data. Please check the file format.');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        toast.error(`Failed to import data: ${errorMessage}`);
         console.error('Import error:', error);
+        console.log('Import data structure:', importedData); // Debug log
       }
+    };
+    
+    reader.onerror = () => {
+      toast.error('Failed to read file. Please try again.');
     };
     
     reader.readAsText(file);
@@ -323,6 +411,7 @@ export function Profile(): JSX.Element {
   };
 
   // Statistics
+  const storageUsage = getLocalStorageUsage();
   const stats = [
     {
       title: 'Total Members',
@@ -839,6 +928,29 @@ export function Profile(): JSX.Element {
                 <HiCog6Tooth className="h-5 w-5" />
                 Data Management
               </h3>
+              
+              {/* Storage Usage */}
+              <div className="mb-4 p-3 bg-base-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Storage Usage</span>
+                  <span className="text-sm text-base-content/70">{storageUsage.usedFormatted}</span>
+                </div>
+                <div className="w-full bg-base-300 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all ${
+                      storageUsage.percentUsed > 80 ? 'bg-error' :
+                      storageUsage.percentUsed > 60 ? 'bg-warning' : 'bg-primary'
+                    }`}
+                    style={{ width: `${Math.min(storageUsage.percentUsed, 100)}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-base-content/60 mt-1">
+                  {storageUsage.percentUsed.toFixed(1)}% used
+                  {storageUsage.percentUsed > 80 && (
+                    <span className="text-error ml-2">Storage nearly full!</span>
+                  )}
+                </div>
+              </div>
               
               <div className="space-y-3">
                 <Button

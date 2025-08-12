@@ -289,9 +289,9 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.IMPORT_DATA: {
-      // Extract only the dataset fields, ignore metadata
-      const { exportDate, version, appVersion, exportedBy, totalRecords, ...datasetFields } = action.payload as any;
-      return defaults({}, datasetFields, initialState);
+      // Metadata should already be extracted by the Profile component
+      // Just merge the imported data with initial state as fallback
+      return defaults({}, action.payload, initialState);
     }
 
     case DatasetActionType.RESET_ALL_DATA:
