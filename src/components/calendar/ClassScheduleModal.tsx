@@ -59,21 +59,33 @@ export const ClassScheduleModal: React.FC<ClassScheduleModalProps> = ({
 
   useEffect(() => {
     if (classData) {
-      // Parse existing class data
-      const scheduleMatch = classData.schedule?.match(/(\w+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/) || [];
-      const [, day, startHour, startMinute, endHour, endMinute] = scheduleMatch;
+      // Parse existing class data - handle both old string format and new object format
+      let day = 'Monday', startTime = '09:00', endTime = '10:00';
+      
+      if (typeof classData.schedule === 'object' && classData.schedule) {
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        day = dayNames[classData.schedule.dayOfWeek] || 'Monday';
+        startTime = classData.schedule.startTime || '09:00';
+        endTime = classData.schedule.endTime || '10:00';
+      } else if (typeof classData.schedule === 'string') {
+        const scheduleMatch = classData.schedule.match(/(\w+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/) || [];
+        const [, dayMatch, startHour, startMinute, endHour, endMinute] = scheduleMatch;
+        day = dayMatch || 'Monday';
+        startTime = scheduleMatch.length > 0 ? `${startHour}:${startMinute}` : '09:00';
+        endTime = scheduleMatch.length > 0 ? `${endHour}:${endMinute}` : '10:00';
+      }
       
       setFormData({
         name: classData.name || '',
-        instructor: classData.instructor || '',
+        instructor: '', // We don't store instructor name anymore
         trainerId: classData.trainerId || 0,
-        schedule: classData.schedule || '',
+        schedule: '',
         capacity: classData.capacity || 20,
         enrolled: classData.enrolled || [],
         description: classData.description || '',
-        day: day || 'Monday',
-        startTime: scheduleMatch.length > 0 ? `${startHour}:${startMinute}` : '09:00',
-        endTime: scheduleMatch.length > 0 ? `${endHour}:${endMinute}` : '10:00'
+        day,
+        startTime,
+        endTime
       });
     } else if (defaultTimeSlot) {
       // Set default time slot from calendar click
@@ -92,11 +104,12 @@ export const ClassScheduleModal: React.FC<ClassScheduleModalProps> = ({
 
   useEffect(() => {
     // Filter available members based on search
-    const filtered = members.filter(member => 
-      member.status === 'active' &&
-      (member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       member.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      !formData.enrolled.includes(member.id)
+    const filtered = (members || []).filter(member => 
+      member.status === 'Active' &&
+      !formData.enrolled.includes(member.id) &&
+      (searchTerm === '' || 
+       member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       member.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setAvailableMembers(filtered);
   }, [members, searchTerm, formData.enrolled]);
@@ -120,15 +133,24 @@ export const ClassScheduleModal: React.FC<ClassScheduleModalProps> = ({
       return;
     }
 
-    // Build schedule string
-    const schedule = `${formData.day} ${formData.startTime}-${formData.endTime}`;
-    const trainer = trainers.find(t => t.id === formData.trainerId);
+    // Build schedule object to match FitnessClass interface
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayOfWeek = dayNames.indexOf(formData.day);
+    
+    // Calculate duration in minutes
+    const [startHour, startMinute] = formData.startTime.split(':').map(Number);
+    const [endHour, endMinute] = formData.endTime.split(':').map(Number);
+    const duration = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
     
     const classPayload = {
       name: formData.name.trim(),
-      instructor: trainer?.name || '',
       trainerId: formData.trainerId,
-      schedule,
+      schedule: {
+        dayOfWeek,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        duration
+      },
       capacity: formData.capacity,
       enrolled: formData.enrolled,
       description: formData.description.trim()
@@ -228,11 +250,11 @@ export const ClassScheduleModal: React.FC<ClassScheduleModalProps> = ({
               required
             >
               <option value={0}>Select trainer...</option>
-              {trainers
-                .filter(trainer => trainer.status === 'active')
+              {(trainers || [])
+                .filter(trainer => trainer.isActive)
                 .map(trainer => (
                   <option key={trainer.id} value={trainer.id}>
-                    {trainer.name} - {trainer.specialties.join(', ')}
+                    {trainer.name} - {(trainer.expertise || []).join(', ')}
                   </option>
                 ))
               }
@@ -359,16 +381,16 @@ export const ClassScheduleModal: React.FC<ClassScheduleModalProps> = ({
                   >
                     <div>
                       <span className="font-medium">{member.name}</span>
-                      <span className="text-sm text-base-content/60 ml-2">{member.membershipType}</span>
+                      <span className="text-sm text-base-content/60 ml-2">{member.status}</span>
                     </div>
                     <span className="text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                       Add
                     </span>
                   </button>
                 ))}
-                {availableMembers.length === 0 && searchTerm && (
+                {availableMembers.length === 0 && (
                   <p className="text-base-content/60 text-sm text-center py-2">
-                    No available members found
+                    {searchTerm ? 'No members found matching your search' : 'No active members available to add'}
                   </p>
                 )}
               </div>

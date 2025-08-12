@@ -20,7 +20,7 @@ import {
 } from '../../contexts/DatasetContext';
 import { MembershipPlan } from '../../types';
 import { MembershipPlanForm } from '../../components/forms/MembershipPlanForm';
-import { StatCard } from '../../Reusable_Components/StatCard';
+import { StatCard } from '../../components/StatCard';
 import toast from 'react-hot-toast';
 
 const containerVariants = {

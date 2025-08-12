@@ -61,19 +61,37 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
       classes.forEach(classItem => {
         if (!classItem.schedule) return;
         
-        // Parse schedule - expecting format like "Monday 10:00-11:00"
-        const scheduleMatch = classItem.schedule.match(/(\w+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/);
-        if (!scheduleMatch) return;
+        let dayOfWeek: number, startTime: number, duration: number;
         
-        const [, dayName, startHour, startMinute, endHour, endMinute] = scheduleMatch;
-        const classDay = dayName.toLowerCase();
-        const currentDayName = format(day, 'EEEE').toLowerCase();
-        
-        if (classDay === currentDayName) {
-          const startTime = parseInt(startHour) + parseInt(startMinute) / 60;
-          const endTime = parseInt(endHour) + parseInt(endMinute) / 60;
-          const duration = endTime - startTime;
+        // Handle both object and string schedule formats
+        if (typeof classItem.schedule === 'object' && classItem.schedule) {
+          // New object format
+          dayOfWeek = classItem.schedule.dayOfWeek;
+          const [startHour, startMinute] = classItem.schedule.startTime.split(':').map(Number);
+          const [endHour, endMinute] = classItem.schedule.endTime.split(':').map(Number);
+          startTime = startHour + startMinute / 60;
+          duration = classItem.schedule.duration / 60; // Convert minutes to hours
+        } else if (typeof classItem.schedule === 'string') {
+          // Legacy string format like "Monday 10:00-11:00"
+          const scheduleMatch = classItem.schedule.match(/(\w+)\s+(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/);
+          if (!scheduleMatch) return;
           
+          const [, dayName, startHour, startMinute, endHour, endMinute] = scheduleMatch;
+          const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+          dayOfWeek = dayNames.indexOf(dayName.toLowerCase());
+          if (dayOfWeek === -1) return;
+          
+          startTime = parseInt(startHour) + parseInt(startMinute) / 60;
+          const endTime = parseInt(endHour) + parseInt(endMinute) / 60;
+          duration = endTime - startTime;
+        } else {
+          return;
+        }
+        
+        // Check if this class belongs to the current day
+        const currentDayOfWeek = day.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        
+        if (dayOfWeek === currentDayOfWeek) {
           const trainer = trainers.find(t => t.id === classItem.trainerId);
           const memberCount = classItem.enrolled?.length || 0;
           
@@ -247,7 +265,14 @@ export const WeeklyCalendar: React.FC<WeeklyCalendarProps> = ({
                   <div className="font-semibold truncate">{block.class.name}</div>
                   <div className="flex items-center gap-1 mt-1">
                     <HiClock className="h-3 w-3" />
-                    <span>{block.class.schedule?.split(' ')[1]}</span>
+                    <span>
+                      {typeof block.class.schedule === 'object' && block.class.schedule
+                        ? `${block.class.schedule.startTime}-${block.class.schedule.endTime}`
+                        : typeof block.class.schedule === 'string'
+                        ? block.class.schedule.split(' ')[1] || ''
+                        : ''
+                      }
+                    </span>
                   </div>
                   {block.trainer && (
                     <div className="flex items-center gap-1 mt-1">

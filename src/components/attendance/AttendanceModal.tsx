@@ -19,21 +19,21 @@ interface AttendanceModalProps {
 
 const STATUS_OPTIONS = [
   {
-    value: 'present' as const,
+    value: 'Present' as const,
     label: 'Present',
     icon: HiCheckCircle,
     color: 'success' as const,
     description: 'Member attended the class'
   },
   {
-    value: 'absent' as const,
+    value: 'Absent' as const,
     label: 'Absent',
     icon: HiXCircle,
     color: 'error' as const,
     description: 'Member did not attend'
   },
   {
-    value: 'late' as const,
+    value: 'Late' as const,
     label: 'Late',
     icon: HiClock,
     color: 'warning' as const,
@@ -54,9 +54,8 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
     date: defaultDate || format(new Date(), 'yyyy-MM-dd'),
     classId: defaultClassId || 0,
     memberId: 0,
-    status: 'present' as AttendanceRecord['status'],
-    checkInTime: format(new Date(), 'HH:mm'),
-    notes: ''
+    status: 'Present' as AttendanceRecord['status'],
+    checkInTime: format(new Date(), 'HH:mm')
   });
 
   const [memberSearch, setMemberSearch] = useState('');
@@ -66,7 +65,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
   // Filter active members based on search
   const filteredMembers = useMemo(() => {
     return members.filter(member => 
-      member.status === 'active' &&
+      member.status === 'Active' &&
       (member.name.toLowerCase().includes(memberSearch.toLowerCase()) ||
        member.email.toLowerCase().includes(memberSearch.toLowerCase()))
     ).sort((a, b) => a.name.localeCompare(b.name));
@@ -104,8 +103,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
           classId: formData.classId,
           memberId,
           status: formData.status,
-          checkInTime: formData.checkInTime,
-          notes: formData.notes
+          checkedInAt: `${formData.date}T${formData.checkInTime}:00.000Z`
         });
       });
       
@@ -122,7 +120,13 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
         return;
       }
       
-      onSubmit(formData);
+      onSubmit({
+        date: formData.date,
+        classId: formData.classId,
+        memberId: formData.memberId,
+        status: formData.status,
+        checkedInAt: `${formData.date}T${formData.checkInTime}:00.000Z`
+      });
     }
     
     // Reset form and close
@@ -130,9 +134,8 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
       date: format(new Date(), 'yyyy-MM-dd'),
       classId: 0,
       memberId: 0,
-      status: 'present',
-      checkInTime: format(new Date(), 'HH:mm'),
-      notes: ''
+      status: 'Present',
+      checkInTime: format(new Date(), 'HH:mm')
     });
     setSelectedMembers([]);
     setBulkMode(false);
@@ -230,7 +233,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
             <option value={0}>Select a class...</option>
             {classes.map(cls => (
               <option key={cls.id} value={cls.id}>
-                {cls.name} - {cls.schedule} ({cls.enrolled?.length || 0} enrolled)
+                {cls.name} - {typeof cls.schedule === 'object' ? `${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][cls.schedule.dayOfWeek]} ${cls.schedule.startTime}` : cls.schedule} ({cls.enrolled?.length || 0} enrolled)
               </option>
             ))}
           </select>
@@ -299,7 +302,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
               <option value={0}>Select a member...</option>
               {(formData.classId ? enrolledMembers : filteredMembers).map(member => (
                 <option key={member.id} value={member.id}>
-                  {member.name} - {member.membershipType}
+                  {member.name} - Member #{member.id}
                 </option>
               ))}
             </select>
@@ -364,7 +367,7 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
                   <div className="flex-1">
                     <p className="font-medium text-base-content">{member.name}</p>
                     <p className="text-sm text-base-content/60">
-                      {member.membershipType} • {member.email}
+                      Member #{member.id} • {member.email}
                     </p>
                   </div>
                 </label>
@@ -386,19 +389,6 @@ export const AttendanceModal: React.FC<AttendanceModalProps> = ({
           </div>
         )}
 
-        {/* Notes */}
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-base-content">
-            Notes (Optional)
-          </label>
-          <textarea
-            value={formData.notes}
-            onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            rows={3}
-            className="textarea textarea-bordered w-full"
-            placeholder="Additional notes about attendance..."
-          />
-        </div>
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-base-300">

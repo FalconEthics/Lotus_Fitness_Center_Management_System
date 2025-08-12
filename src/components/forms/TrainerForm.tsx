@@ -11,7 +11,7 @@ interface TrainerFormProps {
   onCancel: () => void;
 }
 
-const TRAINER_STATUSES = ['active', 'inactive', 'suspended'] as const;
+const TRAINER_STATUSES = ['active', 'inactive'] as const;
 
 const COMMON_SPECIALTIES = [
   'Personal Training',
@@ -57,13 +57,14 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
     name: trainer?.name || '',
     email: trainer?.email || '',
     phone: trainer?.phone || '',
-    status: trainer?.status || 'active',
-    specialties: trainer?.specialties || [],
+    status: trainer?.isActive ? 'active' : 'inactive',
+    specialties: trainer?.expertise || [],
     experience: trainer?.experience || 0,
     bio: trainer?.bio || '',
     rating: trainer?.rating || 0,
     hiredDate: trainer?.hiredDate || new Date().toISOString().split('T')[0],
-    certifications: trainer?.certifications || []
+    certifications: trainer?.certifications || [],
+    hourlyRate: trainer?.hourlyRate || 0
   });
 
   const [newSpecialty, setNewSpecialty] = useState('');
@@ -94,8 +95,18 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
     }
 
     const trainerData = {
-      ...formData,
-      rating: Math.max(0, Math.min(5, formData.rating)) // Ensure rating is between 0-5
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      isActive: formData.status === 'active',
+      expertise: formData.specialties,
+      experience: formData.experience,
+      bio: formData.bio,
+      rating: Math.max(0, Math.min(5, formData.rating)),
+      hiredDate: formData.hiredDate,
+      certifications: formData.certifications,
+      hourlyRate: formData.hourlyRate || undefined,
+      assignedClasses: trainer?.assignedClasses || []
     };
 
     if (trainer) {
@@ -211,6 +222,16 @@ export const TrainerForm: React.FC<TrainerFormProps> = ({
           value={formData.hiredDate}
           onChange={(e) => setFormData(prev => ({ ...prev, hiredDate: e.target.value }))}
           required
+        />
+
+        <Input
+          label="Hourly Rate (₹)"
+          type="number"
+          min="0"
+          max="10000"
+          value={formData.hourlyRate}
+          onChange={(e) => setFormData(prev => ({ ...prev, hourlyRate: parseInt(e.target.value) || 0 }))}
+          placeholder="1500"
         />
       </div>
 

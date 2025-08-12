@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   HiAcademicCap,
@@ -11,7 +11,7 @@ import {
   HiXMark,
   HiUserGroup
 } from 'react-icons/hi2';
-import { FitnessClass, Member } from '../../types';
+import { FitnessClass, Member, Trainer } from '../../types';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -24,14 +24,16 @@ import toast from 'react-hot-toast';
 interface ClassCardProps {
   fitnessClass: FitnessClass;
   members: Member[];
+  trainers: Trainer[];
   onUpdate: (fitnessClass: FitnessClass) => void;
   onDelete: (id: number) => void;
-  onAddMember: (classId: number, memberId: number) => void;
+  onAddMember?: (classId: number, memberId: number) => void;
 }
 
 export const ClassCard: React.FC<ClassCardProps> = ({
   fitnessClass,
   members,
+  trainers,
   onUpdate,
   onDelete,
   onAddMember
@@ -42,8 +44,22 @@ export const ClassCard: React.FC<ClassCardProps> = ({
   const [selectedMember, setSelectedMember] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const enrolledMembers = members.filter(member => fitnessClass.enrolled.includes(member.id));
-  const availableMembers = members.filter(member => !fitnessClass.enrolled.includes(member.id));
+  const enrolledMembers = (members || []).filter(member => fitnessClass.enrolled.includes(member.id));
+  const availableMembers = (members || []).filter(member => !fitnessClass.enrolled.includes(member.id));
+  
+  // Get trainer name from trainerId
+  const trainer = (trainers || []).find(t => t.id === fitnessClass.trainerId);
+  const trainerName = trainer ? trainer.name : 'Unassigned';
+  
+  // Format schedule display
+  const scheduleDisplay = useMemo(() => {
+    if (typeof fitnessClass.schedule === 'object' && fitnessClass.schedule) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayName = days[fitnessClass.schedule.dayOfWeek] || 'Unknown';
+      return `${dayName} ${fitnessClass.schedule.startTime}-${fitnessClass.schedule.endTime}`;
+    }
+    return fitnessClass.schedule || 'Schedule TBD';
+  }, [fitnessClass.schedule]);
   
   const capacityUtilization = (fitnessClass.enrolled.length / fitnessClass.capacity) * 100;
   const isFullyBooked = fitnessClass.enrolled.length >= fitnessClass.capacity;
@@ -58,8 +74,19 @@ export const ClassCard: React.FC<ClassCardProps> = ({
     const newErrors: Record<string, string> = {};
     
     if (!editData.name.trim()) newErrors.name = 'Class name is required';
-    if (!editData.instructor.trim()) newErrors.instructor = 'Instructor is required';
-    if (!editData.schedule.trim()) newErrors.schedule = 'Schedule is required';
+    if (!editData.trainerId) newErrors.trainerId = 'Trainer is required';
+    
+    // Validate schedule based on its type
+    if (typeof editData.schedule === 'string') {
+      if (!editData.schedule.trim()) newErrors.schedule = 'Schedule is required';
+    } else if (typeof editData.schedule === 'object') {
+      if (!editData.schedule || !editData.schedule.startTime || !editData.schedule.endTime) {
+        newErrors.schedule = 'Schedule is required';
+      }
+    } else {
+      newErrors.schedule = 'Schedule is required';
+    }
+    
     if (!editData.capacity || editData.capacity <= 0) {
       newErrors.capacity = 'Capacity must be greater than 0';
     }
@@ -130,8 +157,16 @@ export const ClassCard: React.FC<ClassCardProps> = ({
       label: 'View Schedule',
       icon: HiClock,
       onClick: () => {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        toast.success(`${fitnessClass.name} on ${days[fitnessClass.schedule.dayOfWeek]} at ${fitnessClass.schedule.startTime}`);
+        const scheduleText = typeof fitnessClass.schedule === 'object' && fitnessClass.schedule
+          ? (() => {
+              const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+              return `${days[fitnessClass.schedule.dayOfWeek]} at ${fitnessClass.schedule.startTime}`;
+            })()
+          : typeof fitnessClass.schedule === 'string'
+          ? fitnessClass.schedule
+          : 'No schedule set';
+        
+        toast.success(`${fitnessClass.name} - ${scheduleText}`);
       }
     },
     {
@@ -160,8 +195,8 @@ export const ClassCard: React.FC<ClassCardProps> = ({
       transition={{ duration: 0.2 }}
     >
       <ContextMenu items={contextMenuItems}>
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-context-menu">
-        <CardContent className="p-6">
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-context-menu h-full">
+        <CardContent className="p-6 h-full flex flex-col">
           {isEditing ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -189,23 +224,46 @@ export const ClassCard: React.FC<ClassCardProps> = ({
                   error={errors.name}
                   required
                 />
-                <Input
-                  label="Instructor"
-                  value={editData.instructor}
-                  onChange={(e) => setEditData({ ...editData, instructor: e.target.value })}
-                  startIcon={<HiUser className="h-4 w-4" />}
-                  error={errors.instructor}
-                  required
-                />
-                <Input
-                  label="Schedule"
-                  value={editData.schedule}
-                  onChange={(e) => setEditData({ ...editData, schedule: e.target.value })}
-                  startIcon={<HiClock className="h-4 w-4" />}
-                  error={errors.schedule}
-                  required
-                  className="md:col-span-2"
-                />
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-neutral-700">
+                    Trainer <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={editData.trainerId}
+                    onChange={(e) => setEditData({ ...editData, trainerId: parseInt(e.target.value) })}
+                    className="select select-bordered w-full"
+                    required
+                  >
+                    <option value={0}>Select trainer...</option>
+                    {(trainers || [])
+                      .filter(trainer => trainer.isActive)
+                      .map(trainer => (
+                        <option key={trainer.id} value={trainer.id}>
+                          {trainer.name} - {(trainer.expertise || []).join(', ')}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {errors.trainerId && (
+                    <p className="text-xs text-red-500 mt-1">{errors.trainerId}</p>
+                  )}
+                </div>
+                <div className="md:col-span-2 space-y-1">
+                  <label className="block text-sm font-medium text-neutral-700">
+                    Schedule <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={typeof editData.schedule === 'string' ? editData.schedule : scheduleDisplay}
+                    onChange={(e) => setEditData({ ...editData, schedule: e.target.value })}
+                    className="input input-bordered w-full"
+                    placeholder="e.g., Monday 10:00-11:00"
+                    required
+                  />
+                  {errors.schedule && (
+                    <p className="text-xs text-red-500 mt-1">{errors.schedule}</p>
+                  )}
+                </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
                     Capacity: {editData.capacity}
@@ -229,7 +287,7 @@ export const ClassCard: React.FC<ClassCardProps> = ({
               </div>
             </motion.div>
           ) : (
-            <>
+            <div className="flex flex-col h-full">
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-neutral-900 mb-1">
@@ -271,12 +329,12 @@ export const ClassCard: React.FC<ClassCardProps> = ({
                 <div className="flex items-center gap-3 text-neutral-600">
                   <HiUser className="h-4 w-4 flex-shrink-0" />
                   <span className="text-sm font-medium">Instructor:</span>
-                  <span className="text-sm">{fitnessClass.instructor}</span>
+                  <span className="text-sm">{trainerName}</span>
                 </div>
                 <div className="flex items-center gap-3 text-neutral-600">
                   <HiClock className="h-4 w-4 flex-shrink-0" />
                   <span className="text-sm font-medium">Schedule:</span>
-                  <span className="text-sm">{fitnessClass.schedule}</span>
+                  <span className="text-sm">{scheduleDisplay}</span>
                 </div>
                 <div className="flex items-center gap-3 text-neutral-600">
                   <HiUsers className="h-4 w-4 flex-shrink-0" />
@@ -305,7 +363,7 @@ export const ClassCard: React.FC<ClassCardProps> = ({
               </div>
 
               {/* Enrolled Members */}
-              <div className="mb-4">
+              <div className="flex-1">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
                     <HiUserGroup className="h-4 w-4" />
@@ -379,7 +437,7 @@ export const ClassCard: React.FC<ClassCardProps> = ({
                   )}
                 </AnimatePresence>
               </div>
-            </>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -62,12 +62,12 @@ export class DataUtils {
     return find(classes, { id });
   }
 
-  static getMembersByMembershipType(members: Member[]): Record<string, Member[]> {
-    return groupBy(members, 'membershipType');
+  static getMembersByMembershipPlan(members: Member[]): Record<string, Member[]> {
+    return groupBy(members, 'membershipPlanId');
   }
 
-  static getClassesByInstructor(classes: FitnessClass[]): Record<string, FitnessClass[]> {
-    return groupBy(classes, 'instructor');
+  static getClassesByTrainer(classes: FitnessClass[]): Record<string, FitnessClass[]> {
+    return groupBy(classes, 'trainerId');
   }
 
   static sortMembersByJoinDate(members: Member[], order: 'asc' | 'desc' = 'desc'): Member[] {

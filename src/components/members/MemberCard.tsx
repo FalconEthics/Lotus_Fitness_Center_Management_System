@@ -13,7 +13,7 @@ import {
   HiXMark,
   HiPrinter
 } from 'react-icons/hi2';
-import { Member, FitnessClass, MEMBER_STATUSES, GENDERS } from '../../types';
+import { Member, FitnessClass, MembershipPlan, MEMBER_STATUSES, GENDERS } from '../../types';
 import { Card, CardContent } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -26,21 +26,25 @@ import toast from 'react-hot-toast';
 interface MemberCardProps {
   member: Member;
   classes: FitnessClass[];
+  membershipPlans: MembershipPlan[];
   onUpdate: (member: Member) => void;
   onDelete: (id: number) => void;
   onAddToClass: (memberId: number, classId: number) => void;
   onPrintMembershipCard?: (member: Member) => void;
 }
 
-const membershipTypeColors = {
-  Basic: 'bg-gray-100 text-gray-800',
-  Premium: 'bg-red-100 text-red-800',
-  VIP: 'bg-red-600 text-white',
+const membershipPlanColors = {
+  'Basic Plan': 'bg-gray-100 text-gray-800',
+  'Premium Plan': 'bg-red-100 text-red-800',
+  'VIP Plan': 'bg-red-600 text-white',
+  // Fallback for any other plans
+  default: 'bg-blue-100 text-blue-800'
 };
 
 export const MemberCard: React.FC<MemberCardProps> = ({
   member,
   classes,
+  membershipPlans,
   onUpdate,
   onDelete,
   onAddToClass,
@@ -51,6 +55,10 @@ export const MemberCard: React.FC<MemberCardProps> = ({
   const [showAddClass, setShowAddClass] = useState(false);
   const [selectedClass, setSelectedClass] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Get membership plan details
+  const membershipPlan = membershipPlans.find(plan => plan.id === member.membershipPlanId);
+  const planName = membershipPlan?.name || 'Unknown Plan';
 
   const enrolledClasses = classes.filter(cls => cls.enrolled.includes(member.id));
   const availableClasses = classes.filter(cls => 
@@ -232,10 +240,10 @@ export const MemberCard: React.FC<MemberCardProps> = ({
                   required
                 />
                 <Select
-                  label="Membership Type"
-                  value={editData.membershipType}
-                  onChange={(e) => setEditData({ ...editData, membershipType: e.target.value as MembershipType })}
-                  options={MEMBERSHIP_TYPES.map(type => ({ value: type, label: type }))}
+                  label="Membership Plan"
+                  value={editData.membershipPlanId.toString()}
+                  onChange={(e) => setEditData({ ...editData, membershipPlanId: parseInt(e.target.value) })}
+                  options={membershipPlans.map(plan => ({ value: plan.id.toString(), label: plan.name }))}
                   required
                 />
                 <Input
@@ -256,8 +264,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
                   <h3 className="text-xl font-bold text-neutral-900 mb-1">
                     {member.name}
                   </h3>
-                  <Badge className={cn('text-xs', membershipTypeColors[member.membershipType])}>
-                    {member.membershipType}
+                  <Badge className={cn('text-xs', membershipPlanColors[planName] || membershipPlanColors.default)}>
+                    {planName}
                   </Badge>
                 </div>
                 <div className="flex gap-2">

@@ -11,12 +11,11 @@ interface ClassBookingReceiptProps {
   receiptNumber?: string;
 }
 
-export const ClassBookingReceipt = React.forwardRef<HTMLDivElement, ClassBookingReceiptProps>(
-  ({ member, fitnessClass, trainer, bookingDate = format(new Date(), 'yyyy-MM-dd'), receiptNumber }, ref) => {
+export const ClassBookingReceipt: React.FC<ClassBookingReceiptProps> = ({ member, fitnessClass, trainer, bookingDate = format(new Date(), 'yyyy-MM-dd'), receiptNumber }) => {
     const generatedReceiptNumber = receiptNumber || `LFC-${Date.now().toString().slice(-6)}`;
     
     return (
-      <div ref={ref} className="print-content">
+      <div className="print-content">
         <style>{`
           @media print {
             body { margin: 0; padding: 20px; }
@@ -99,7 +98,7 @@ export const ClassBookingReceipt = React.forwardRef<HTMLDivElement, ClassBooking
                   <div className="flex">
                     <span className="w-20 text-gray-500 text-sm">Instructor:</span>
                     <span className="font-medium text-gray-900">
-                      {trainer ? trainer.name : fitnessClass.instructor}
+                      {trainer ? trainer.name : 'Unassigned'}
                     </span>
                   </div>
                   <div className="flex">
@@ -174,11 +173,11 @@ export const ClassBookingReceipt = React.forwardRef<HTMLDivElement, ClassBooking
                       <h4 className="font-semibold text-gray-900">{trainer.name}</h4>
                       <p className="text-sm text-gray-600">{trainer.email}</p>
                       <p className="text-sm text-gray-600">{trainer.phone}</p>
-                      {trainer.specialties && (
+                      {trainer.expertise && (
                         <div className="mt-2">
                           <span className="text-xs text-gray-500">Specialties: </span>
                           <span className="text-xs font-medium">
-                            {trainer.specialties.join(', ')}
+                            {trainer.expertise.join(', ')}
                           </span>
                         </div>
                       )}
@@ -217,7 +216,4 @@ export const ClassBookingReceipt = React.forwardRef<HTMLDivElement, ClassBooking
         </div>
       </div>
     );
-  }
-);
-
-ClassBookingReceipt.displayName = 'ClassBookingReceipt';
+};

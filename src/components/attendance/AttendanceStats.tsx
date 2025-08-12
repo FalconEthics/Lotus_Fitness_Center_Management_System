@@ -13,9 +13,9 @@ interface AttendanceStatsProps {
 }
 
 const COLORS = {
-  present: '#10b981',
-  absent: '#ef4444', 
-  late: '#f59e0b'
+  Present: '#10b981',
+  Absent: '#ef4444', 
+  Late: '#f59e0b'
 };
 
 const STATUS_COLORS = ['#10b981', '#ef4444', '#f59e0b'];
@@ -37,9 +37,9 @@ export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
       return {
         date: format(day, 'MMM dd'),
         fullDate: dayStr,
-        present: dayRecords.filter(r => r.status === 'present').length,
-        absent: dayRecords.filter(r => r.status === 'absent').length,
-        late: dayRecords.filter(r => r.status === 'late').length,
+        present: dayRecords.filter(r => r.status === 'Present').length,
+        absent: dayRecords.filter(r => r.status === 'Absent').length,
+        late: dayRecords.filter(r => r.status === 'Late').length,
         total: dayRecords.length
       };
     });
@@ -67,7 +67,7 @@ export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
         acc[className] = { present: 0, total: 0 };
       }
       acc[className].total++;
-      if (record.status === 'present') {
+      if (record.status === 'Present') {
         acc[className].present++;
       }
       return acc;
@@ -87,7 +87,7 @@ export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
   // Member attendance leaders
   const memberLeaders = useMemo(() => {
     const memberAttendance = records.reduce((acc, record) => {
-      if (record.status === 'present') {
+      if (record.status === 'Present') {
         acc[record.memberId] = (acc[record.memberId] || 0) + 1;
       }
       return acc;
@@ -161,9 +161,9 @@ export const AttendanceStats: React.FC<AttendanceStatsProps> = ({
                   axisLine={false}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="present" stackId="a" fill={COLORS.present} name="Present" />
-                <Bar dataKey="late" stackId="a" fill={COLORS.late} name="Late" />
-                <Bar dataKey="absent" stackId="a" fill={COLORS.absent} name="Absent" />
+                <Bar dataKey="present" stackId="a" fill={COLORS.Present} name="Present" />
+                <Bar dataKey="late" stackId="a" fill={COLORS.Late} name="Late" />
+                <Bar dataKey="absent" stackId="a" fill={COLORS.Absent} name="Absent" />
               </BarChart>
             </ResponsiveContainer>
           </div>

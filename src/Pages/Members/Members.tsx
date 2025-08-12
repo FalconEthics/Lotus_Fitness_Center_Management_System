@@ -21,7 +21,7 @@ import {
 } from '../../contexts/DatasetContext';
 import { Member, MEMBER_STATUSES, GENDERS } from '../../types';
 import { MemberForm } from '../../components/forms/MemberForm';
-import { StatCard } from '../../Reusable_Components/StatCard';
+import { StatCard } from '../../components/StatCard';
 import { usePrintManager } from '../../components/printables';
 import { usePageShortcuts, commonPageShortcuts, PageShortcut } from '../../hooks/usePageShortcuts';
 import toast from 'react-hot-toast';
@@ -133,6 +133,12 @@ export function Members(): JSX.Element {
 
   usePageShortcuts(pageShortcuts);
 
+  // Helper function to get membership plan name
+  const getMembershipPlanName = (planId: number) => {
+    const plan = membershipPlans.find(p => p.id === planId);
+    return plan ? plan.name : 'Unknown Plan';
+  };
+
   // Filtered and searched members
   const filteredMembers = useMemo(() => {
     return members.filter(member => {
@@ -175,11 +181,6 @@ export function Members(): JSX.Element {
   const handleFormClose = () => {
     setShowForm(false);
     setEditingMember(undefined);
-  };
-
-  const getMembershipPlanName = (planId: number) => {
-    const plan = membershipPlans.find(p => p.id === planId);
-    return plan?.name || 'Unknown Plan';
   };
 
   const getStatusIcon = (status: string) => {

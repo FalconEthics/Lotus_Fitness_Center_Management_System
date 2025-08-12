@@ -23,21 +23,21 @@ interface AttendanceCardProps {
 }
 
 const statusConfig = {
-  present: {
+  Present: {
     icon: HiCheckCircle,
     color: 'success' as const,
     label: 'Present',
     bgColor: 'bg-success/10',
     textColor: 'text-success'
   },
-  absent: {
+  Absent: {
     icon: HiXCircle,
     color: 'error' as const,
     label: 'Absent',
     bgColor: 'bg-error/10',
     textColor: 'text-error'
   },
-  late: {
+  Late: {
     icon: HiClock,
     color: 'warning' as const,
     label: 'Late',

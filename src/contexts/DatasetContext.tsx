@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useMemo, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useReducer, useMemo, ReactNode, useEffect, useState } from 'react';
 import { cloneDeep, findIndex, reject, defaults } from 'lodash';
 import {
   Dataset,
@@ -27,6 +27,70 @@ const defaultUserProfile: UserProfile = {
     defaultView: 'dashboard',
   },
 };
+
+// Default trainers for initial setup
+const defaultTrainers: Trainer[] = [
+  {
+    id: 1,
+    name: 'Sarah Johnson',
+    email: 'sarah@lotus-fitness.com',
+    phone: '+91-9876543211',
+    expertise: ['Yoga', 'Pilates', 'Meditation'],
+    assignedClasses: [],
+    hourlyRate: 1500,
+    certifications: ['200hr Yoga Teacher Training', 'Pilates Instructor'],
+    isActive: true,
+    hiredDate: '2023-01-15',
+    experience: 8,
+    bio: 'Experienced yoga instructor with a passion for holistic wellness and mindfulness.',
+    rating: 4.8,
+  },
+  {
+    id: 2,
+    name: 'Mike Thompson',
+    email: 'mike@lotus-fitness.com',
+    phone: '+91-9876543212',
+    expertise: ['HIIT', 'CrossFit', 'Strength Training'],
+    assignedClasses: [],
+    hourlyRate: 2000,
+    certifications: ['NASM Certified', 'CrossFit Level 2'],
+    isActive: true,
+    hiredDate: '2023-03-20',
+    experience: 12,
+    bio: 'High-intensity trainer focused on functional fitness and strength development.',
+    rating: 4.9,
+  },
+  {
+    id: 3,
+    name: 'Priya Sharma',
+    email: 'priya@lotus-fitness.com',
+    phone: '+91-9876543213',
+    expertise: ['Zumba', 'Dance Fitness', 'Aerobics'],
+    assignedClasses: [],
+    hourlyRate: 1200,
+    certifications: ['Zumba Instructor', 'Dance Fitness Certified'],
+    isActive: true,
+    hiredDate: '2023-06-10',
+    experience: 6,
+    bio: 'Energetic dance fitness instructor who brings fun and excitement to every workout.',
+    rating: 4.7,
+  },
+  {
+    id: 4,
+    name: 'Raj Patel',
+    email: 'raj@lotus-fitness.com',
+    phone: '+91-9876543214',
+    expertise: ['Boxing', 'Martial Arts', 'Cardio'],
+    assignedClasses: [],
+    hourlyRate: 1800,
+    certifications: ['Boxing Coach', 'Kickboxing Instructor'],
+    isActive: true,
+    hiredDate: '2023-02-28',
+    experience: 10,
+    bio: 'Professional boxing coach with expertise in combat sports and self-defense.',
+    rating: 4.6,
+  },
+];
 
 // Initial state with all entities
 const initialState: Dataset = {
@@ -62,7 +126,7 @@ const initialState: Dataset = {
       isActive: true,
     },
   ],
-  trainers: [],
+  trainers: defaultTrainers,
   attendance: [],
 };
 
@@ -250,18 +314,15 @@ interface DatasetProviderProps {
 export function DatasetProvider({ children }: DatasetProviderProps) {
   const [state, dispatch] = useReducer(datasetReducer, initialState);
 
-  // Auto-save to localStorage
+  // Save to localStorage immediately on any state change (except initial load)
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
   useEffect(() => {
-    const autoSaveInterval = state.userProfile.preferences.autoSaveInterval * 60 * 1000; // Convert to milliseconds
-    
-    const intervalId = setInterval(() => {
+    if (!isInitialLoad) {
       localStorage.setItem('lotus-fitness-data', JSON.stringify(state));
-      // Could show toast notification here
-      console.log('Data auto-saved to localStorage');
-    }, autoSaveInterval);
-
-    return () => clearInterval(intervalId);
-  }, [state]);
+      console.log('Data immediately saved to localStorage');
+    }
+  }, [state, isInitialLoad]);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -274,6 +335,8 @@ export function DatasetProvider({ children }: DatasetProviderProps) {
         console.error('Error loading data from localStorage:', error);
       }
     }
+    // Mark initial load as complete
+    setIsInitialLoad(false);
   }, []);
 
   // Memoize the state and dispatch to prevent unnecessary re-renders

@@ -26,7 +26,7 @@ import {
 import toast from 'react-hot-toast';
 import { useDashboardStats, useMemberStatistics } from '../../hooks/useDashboardStats';
 import { useDataset } from '../../contexts/DatasetContext';
-import { StatCard } from '../../Reusable_Components/StatCard';
+import { StatCard } from '../../components/StatCard';
 import { ExpiringMembershipsAlert } from '../../components/alerts/ExpiringMembershipsAlert';
 import { MembershipAnalytics } from '../../components/analytics/MembershipAnalytics';
 import { getCurrentUsername } from '../../utils/auth';

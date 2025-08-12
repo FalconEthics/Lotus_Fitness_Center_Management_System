@@ -12,7 +12,7 @@ import {
   HiXCircle,
   HiEye
 } from 'react-icons/hi2';
-import { useDataset, useDatasetDispatch } from '../../contexts/DatasetContext';
+import { useDataset, useDatasetDispatch, useAttendance } from '../../contexts/DatasetContext';
 import { AttendanceRecord, Member, FitnessClass } from '../../types';
 import { StatCard } from '../../components/StatCard';
 import { AttendanceCard } from '../../components/attendance/AttendanceCard';
@@ -38,7 +38,8 @@ const pageTransition = {
 };
 
 export function Attendance(): JSX.Element {
-  const { attendanceRecords, members, classes } = useDataset();
+  const { members, classes } = useDataset();
+  const attendanceRecords = useAttendance();
   const dispatch = useDatasetDispatch();
   
   // UI state
@@ -100,9 +101,9 @@ export function Attendance(): JSX.Element {
   // Statistics
   const stats = useMemo(() => {
     const totalAttendance = filteredRecords.length;
-    const presentCount = filteredRecords.filter(r => r.status === 'present').length;
-    const absentCount = filteredRecords.filter(r => r.status === 'absent').length;
-    const lateCount = filteredRecords.filter(r => r.status === 'late').length;
+    const presentCount = filteredRecords.filter(r => r.status === 'Present').length;
+    const absentCount = filteredRecords.filter(r => r.status === 'Absent').length;
+    const lateCount = filteredRecords.filter(r => r.status === 'Late').length;
     
     const attendanceRate = totalAttendance > 0 ? (presentCount / totalAttendance) * 100 : 0;
     const uniqueMembers = new Set(filteredRecords.map(r => r.memberId)).size;

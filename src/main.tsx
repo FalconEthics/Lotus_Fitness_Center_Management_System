@@ -5,6 +5,7 @@ import App from './App';
 import ErrorBoundary from './Pages/LatterError/ErrorBoundary';
 import { DatasetProvider } from './contexts/DatasetContext';
 import { initializePWA } from './utils/pwa';
+import { initializeAuth } from './utils/auth';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -13,6 +14,9 @@ if (!rootElement) {
 
 // Initialize PWA features
 initializePWA();
+
+// Initialize authentication system
+initializeAuth();
 
 createRoot(rootElement).render(
   <StrictMode>

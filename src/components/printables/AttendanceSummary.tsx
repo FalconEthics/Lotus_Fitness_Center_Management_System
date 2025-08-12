@@ -12,8 +12,7 @@ interface AttendanceSummaryProps {
   selectedEntity?: Member | FitnessClass;
 }
 
-export const AttendanceSummary = React.forwardRef<HTMLDivElement, AttendanceSummaryProps>(
-  ({ records, members, classes, dateRange, reportType, selectedEntity }, ref) => {
+export const AttendanceSummary: React.FC<AttendanceSummaryProps> = ({ records, members, classes, dateRange, reportType, selectedEntity }) => {
     // Filter records by selected entity if provided
     const filteredRecords = selectedEntity 
       ? records.filter(record => 
@@ -41,7 +40,7 @@ export const AttendanceSummary = React.forwardRef<HTMLDivElement, AttendanceSumm
     const sortedDates = Object.keys(recordsByDate).sort();
 
     return (
-      <div ref={ref} className="print-content">
+      <div className="print-content">
         <style>{`
           @media print {
             body { margin: 0; padding: 20px; }
@@ -247,8 +246,10 @@ export const AttendanceSummary = React.forwardRef<HTMLDivElement, AttendanceSumm
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p><strong>Class:</strong> {selectedEntity.name}</p>
-                    <p><strong>Instructor:</strong> {(selectedEntity as FitnessClass).instructor}</p>
-                    <p><strong>Schedule:</strong> {(selectedEntity as FitnessClass).schedule}</p>
+                    <p><strong>Trainer ID:</strong> {(selectedEntity as FitnessClass).trainerId || 'Unassigned'}</p>
+                    <p><strong>Schedule:</strong> {typeof (selectedEntity as FitnessClass).schedule === 'object' 
+                      ? `${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][(selectedEntity as FitnessClass).schedule.dayOfWeek]} ${(selectedEntity as FitnessClass).schedule.startTime}-${(selectedEntity as FitnessClass).schedule.endTime}`
+                      : (selectedEntity as FitnessClass).schedule}</p>
                   </div>
                   <div>
                     <p><strong>Capacity:</strong> {(selectedEntity as FitnessClass).capacity}</p>
@@ -276,7 +277,4 @@ export const AttendanceSummary = React.forwardRef<HTMLDivElement, AttendanceSumm
         </div>
       </div>
     );
-  }
-);
-
-AttendanceSummary.displayName = 'AttendanceSummary';
+};

@@ -83,24 +83,31 @@ export function Classes(): JSX.Element {
     ];
   }, [classes]);
 
-  // Get unique instructors for filtering
-  const instructors = useMemo(() => {
-    const uniqueInstructors = new Set(classes.map(cls => cls.instructor).filter(Boolean));
-    return Array.from(uniqueInstructors).sort();
-  }, [classes]);
+  // Get unique trainers for filtering
+  const instructorOptions = useMemo(() => {
+    const uniqueTrainerIds = new Set(classes.map(cls => cls.trainerId).filter(id => id > 0));
+    return Array.from(uniqueTrainerIds)
+      .map(trainerId => trainers.find(trainer => trainer.id === trainerId))
+      .filter(Boolean)
+      .sort((a, b) => a!.name.localeCompare(b!.name));
+  }, [classes, trainers]);
 
-  // Filter classes based on search and instructor
+  // Filter classes based on search and trainer
   const filteredClasses = useMemo(() => {
     return classes.filter(cls => {
-      const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cls.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (cls.schedule && cls.schedule.toLowerCase().includes(searchTerm.toLowerCase()));
+      const trainer = trainers.find(t => t.id === cls.trainerId);
+      const trainerName = trainer?.name || 'Unassigned';
       
-      const matchesInstructor = !selectedInstructor || cls.instructor === selectedInstructor;
+      const matchesSearch = cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           trainerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (cls.description && cls.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesInstructor = !selectedInstructor || 
+                               (trainer && trainer.id.toString() === selectedInstructor);
       
       return matchesSearch && matchesInstructor;
     });
-  }, [classes, searchTerm, selectedInstructor]);
+  }, [classes, trainers, searchTerm, selectedInstructor]);
 
   const debouncedSearch = debounce((value: string) => {
     setSearchTerm(value);
@@ -157,9 +164,9 @@ export function Classes(): JSX.Element {
             <p className="text-base-content/70">Manage fitness classes and schedules</p>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             {/* View Mode Toggle */}
-            <div className="btn-group">
+            <div className="flex items-center gap-1">
               <Button
                 variant={viewMode === 'calendar' ? 'primary' : 'outline'}
                 size="sm"
@@ -253,10 +260,10 @@ export function Classes(): JSX.Element {
                       onChange={(e) => setSelectedInstructor(e.target.value)}
                       className="select select-bordered w-full"
                     >
-                      <option value="">All Instructors</option>
-                      {instructors.map(instructor => (
-                        <option key={instructor} value={instructor}>
-                          {instructor}
+                      <option value="">All Trainers</option>
+                      {instructorOptions.map(trainer => (
+                        <option key={trainer.id} value={trainer.id.toString()}>
+                          {trainer.name}
                         </option>
                       ))}
                     </select>
@@ -275,7 +282,7 @@ export function Classes(): JSX.Element {
                   )}
                   {selectedInstructor && (
                     <Badge variant="outline">
-                      Instructor: {selectedInstructor}
+                      Trainer: {instructorOptions.find(t => t.id.toString() === selectedInstructor)?.name || selectedInstructor}
                     </Badge>
                   )}
                 </div>
@@ -294,6 +301,7 @@ export function Classes(): JSX.Element {
                       <ClassCard
                         fitnessClass={fitnessClass}
                         members={members}
+                        trainers={trainers}
                         onUpdate={handleClassUpdate}
                         onDelete={() => handleClassDelete(fitnessClass.id)}
                       />

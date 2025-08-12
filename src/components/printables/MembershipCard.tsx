@@ -8,25 +8,14 @@ interface MembershipCardProps {
   plan?: MembershipPlan;
 }
 
-export const MembershipCard = React.forwardRef<HTMLDivElement, MembershipCardProps>(
-  ({ member, plan }, ref) => {
-    // Calculate expiry date based on plan duration
+export const MembershipCard: React.FC<MembershipCardProps> = ({ member, plan }) => {
+    // Calculate expiry date based on plan duration (in days)
     const startDate = parseISO(member.startDate);
     const getExpiryDate = () => {
       if (!plan) return format(addYears(startDate, 1), 'MMM dd, yyyy');
       
-      const duration = plan.duration;
-      if (duration.includes('month')) {
-        const months = parseInt(duration);
-        return format(addMonths(startDate, months), 'MMM dd, yyyy');
-      } else if (duration.includes('year')) {
-        const years = parseInt(duration);
-        return format(addYears(startDate, years), 'MMM dd, yyyy');
-      } else if (duration.includes('day')) {
-        const days = parseInt(duration);
-        return format(addDays(startDate, days), 'MMM dd, yyyy');
-      }
-      return format(addYears(startDate, 1), 'MMM dd, yyyy');
+      // plan.duration is number of days
+      return format(addDays(startDate, plan.duration), 'MMM dd, yyyy');
     };
 
     const memberInitials = member.name
@@ -37,7 +26,7 @@ export const MembershipCard = React.forwardRef<HTMLDivElement, MembershipCardPro
       .slice(0, 2);
 
     return (
-      <div ref={ref} className="print-content">
+      <div className="print-content">
         <style>{`
           @media print {
             body { margin: 0; padding: 20px; }
@@ -139,7 +128,4 @@ export const MembershipCard = React.forwardRef<HTMLDivElement, MembershipCardPro
         </div>
       </div>
     );
-  }
-);
-
-MembershipCard.displayName = 'MembershipCard';
+};

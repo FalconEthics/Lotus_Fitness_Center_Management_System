@@ -58,11 +58,16 @@ export interface Trainer {
   name: string;
   email: string;
   phone: string;
-  expertise: string[];
+  expertise: string[]; // Same as specialties in form
   assignedClasses: number[]; // class IDs
   hourlyRate?: number;
   certifications: string[];
   isActive: boolean;
+  // Additional fields for complete trainer profile
+  hiredDate?: string; // ISO date string
+  experience?: number; // years of experience
+  bio?: string;
+  rating?: number; // 0-5 rating
 }
 
 export interface AttendanceRecord {

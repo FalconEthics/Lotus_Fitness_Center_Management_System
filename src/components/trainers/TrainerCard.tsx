@@ -25,7 +25,6 @@ interface TrainerCardProps {
 const statusColors = {
   active: 'success',
   inactive: 'warning',
-  suspended: 'danger',
 } as const;
 
 export const TrainerCard: React.FC<TrainerCardProps> = ({ 
@@ -41,8 +40,8 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
     .toUpperCase()
     .slice(0, 2);
 
-  const joinDate = new Date(trainer.hiredDate);
-  const formattedDate = format(joinDate, 'MMM dd, yyyy');
+  const joinDate = trainer.hiredDate ? new Date(trainer.hiredDate) : null;
+  const formattedDate = joinDate ? format(joinDate, 'MMM dd, yyyy') : 'Recently Added';
 
   const renderRating = (rating: number) => {
     return (
@@ -153,10 +152,10 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
               </p>
               <div className="mt-1 flex items-center gap-2">
                 <Badge
-                  variant={statusColors[trainer.status]}
+                  variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
                   size="sm"
                 >
-                  {trainer.status}
+                  {trainer.isActive ? 'Active' : 'Inactive'}
                 </Badge>
                 {trainer.rating && renderRating(trainer.rating)}
               </div>
@@ -191,10 +190,10 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
             </h3>
             
             <Badge
-              variant={statusColors[trainer.status]}
+              variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
               size="md"
             >
-              {trainer.status}
+              {trainer.isActive ? 'Active' : 'Inactive'}
             </Badge>
           </div>
 
@@ -249,7 +248,7 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
             Specialties
           </h4>
           <div className="flex flex-wrap gap-2">
-            {trainer.specialties.map((specialty) => (
+            {trainer.expertise.map((specialty) => (
               <Badge
                 key={specialty}
                 variant="outline"
@@ -284,12 +283,36 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
         )}
 
         {/* Experience */}
+        {trainer.experience && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-base-content/70 mb-2">
+              Experience
+            </h4>
+            <p className="text-sm text-base-content/60">
+              {trainer.experience} years
+            </p>
+          </div>
+        )}
+
+        {/* Hourly Rate */}
+        {trainer.hourlyRate && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-base-content/70 mb-2">
+              Hourly Rate
+            </h4>
+            <p className="text-sm text-base-content/60">
+              ₹{trainer.hourlyRate}/hour
+            </p>
+          </div>
+        )}
+
+        {/* Assigned Classes */}
         <div className="mb-4">
           <h4 className="text-sm font-semibold text-base-content/70 mb-2">
-            Experience
+            Assigned Classes
           </h4>
           <p className="text-sm text-base-content/60">
-            {trainer.experience} years
+            {trainer.assignedClasses.length} classes assigned
           </p>
         </div>
 

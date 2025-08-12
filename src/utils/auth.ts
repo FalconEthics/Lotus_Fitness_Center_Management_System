@@ -78,7 +78,19 @@ export function initializeAuth(): void {
 function getAuthCredentials(): AuthCredentials | null {
   try {
     const encryptedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!encryptedAuth) return null;
+    if (!encryptedAuth) {
+      // If no auth data exists, initialize it
+      initializeAuth();
+      const newEncryptedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!newEncryptedAuth) return null;
+      
+      // Try to decrypt the newly initialized auth
+      try {
+        return decryptData(newEncryptedAuth, DEFAULT_USERNAME + DEFAULT_PASSWORD);
+      } catch (error) {
+        return null;
+      }
+    }
     
     // Try to decrypt with current session credentials first
     const session = getCurrentSession();
@@ -97,8 +109,19 @@ function getAuthCredentials(): AuthCredentials | null {
     try {
       return decryptData(encryptedAuth, DEFAULT_USERNAME + DEFAULT_PASSWORD);
     } catch (error) {
-      // If that fails, the credentials have been changed and we need login
-      return null;
+      // If decryption fails, the data might be corrupted - reinitialize
+      console.warn('Auth data corrupted, reinitializing...');
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      initializeAuth();
+      
+      const newEncryptedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!newEncryptedAuth) return null;
+      
+      try {
+        return decryptData(newEncryptedAuth, DEFAULT_USERNAME + DEFAULT_PASSWORD);
+      } catch (retryError) {
+        return null;
+      }
     }
   } catch (error) {
     console.error('Error retrieving auth credentials:', error);
@@ -249,9 +272,15 @@ export function isAuthenticated(): boolean {
 
 // Logout function
 export function logout(): void {
+  // Clear session data
   sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  
+  // Clear authentication flags and temporary keys
   localStorage.removeItem('auth');
   localStorage.removeItem('lotus-temp-auth-key');
+  
+  // Note: We don't remove AUTH_STORAGE_KEY (lotus-auth-data) because it contains
+  // the encrypted user credentials that should persist across sessions
 }
 
 // Change password function

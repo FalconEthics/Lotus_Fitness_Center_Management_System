@@ -49,14 +49,15 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
   const [showPreview, setShowPreview] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
+  const reactToPrintFn = useReactToPrint({
+    contentRef: printRef,
     documentTitle: getDocumentTitle(),
     onAfterPrint: () => {
       toast.success('Document printed successfully!');
       onClose();
     },
-    onPrintError: () => {
+    onPrintError: (error) => {
+      console.error('Print error:', error);
       toast.error('Failed to print document. Please try again.');
     },
     pageStyle: `
@@ -73,6 +74,17 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
       }
     `
   });
+
+  const handlePrint = () => {
+    // Check if ref is attached before printing
+    if (!printRef.current) {
+      console.error('Print ref not attached');
+      toast.error('Print content not ready. Please try again.');
+      return;
+    }
+    
+    reactToPrintFn();
+  };
 
   function getDocumentTitle(): string {
     switch (type) {
@@ -93,7 +105,6 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         if (!data.membershipCard) return null;
         return (
           <MembershipCard
-            ref={printRef}
             member={data.membershipCard.member}
             plan={data.membershipCard.plan}
           />
@@ -103,7 +114,6 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         if (!data.classReceipt) return null;
         return (
           <ClassBookingReceipt
-            ref={printRef}
             member={data.classReceipt.member}
             fitnessClass={data.classReceipt.fitnessClass}
             trainer={data.classReceipt.trainer}
@@ -116,7 +126,6 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         if (!data.attendanceSummary) return null;
         return (
           <AttendanceSummary
-            ref={printRef}
             records={data.attendanceSummary.records}
             members={data.attendanceSummary.members}
             classes={data.attendanceSummary.classes}
@@ -274,8 +283,8 @@ export const PrintManager: React.FC<PrintManagerProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Hidden print content */}
-      <div className="hidden">
+      {/* Hidden print content - use visibility instead of display:none so DOM elements exist */}
+      <div ref={printRef} style={{ position: 'absolute', left: '-9999px', visibility: 'hidden' }}>
         {renderPrintContent()}
       </div>
     </>

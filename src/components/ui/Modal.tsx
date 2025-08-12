@@ -85,16 +85,20 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Overlay */}
+        <>
+          {/* Fixed Overlay */}
           <motion.div
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
             onClick={closeOnOverlayClick ? onClose : undefined}
           />
+          
+          {/* Scrollable Container */}
+          <div className="fixed inset-0 z-[51] overflow-y-auto pointer-events-none">
+            <div className="flex min-h-full items-start justify-center p-4 py-8 pointer-events-auto">
 
           {/* Modal */}
           <motion.div
@@ -103,22 +107,22 @@ export const Modal: React.FC<ModalProps> = ({
             animate="visible"
             exit="exit"
             className={cn(
-              'relative bg-white rounded-xl shadow-2xl w-full',
+              'relative bg-base-100 rounded-xl shadow-2xl w-full my-8 max-h-[calc(100vh-4rem)] flex flex-col',
               sizeVariants[size]
             )}
           >
             {/* Header */}
             {(title || description) && (
-              <div className="px-6 py-4 border-b border-neutral-200">
+              <div className="px-6 py-4 border-b border-base-300 flex-shrink-0">
                 <div className="flex items-start justify-between">
                   <div>
                     {title && (
-                      <h2 className="text-xl font-semibold text-neutral-900">
+                      <h2 className="text-xl font-semibold text-base-content">
                         {title}
                       </h2>
                     )}
                     {description && (
-                      <p className="mt-1 text-sm text-neutral-600">
+                      <p className="mt-1 text-sm text-base-content/70">
                         {description}
                       </p>
                     )}
@@ -136,11 +140,13 @@ export const Modal: React.FC<ModalProps> = ({
             )}
 
             {/* Content */}
-            <div className="px-6 py-4">
+            <div className="px-6 py-4 overflow-y-auto flex-1 min-h-0">
               {children}
             </div>
           </motion.div>
-        </div>
+            </div>
+          </div>
+        </>
       )}
     </AnimatePresence>
   );
@@ -148,7 +154,7 @@ export const Modal: React.FC<ModalProps> = ({
 
 // Sub-components
 Modal.Footer = ({ children, className, ...props }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('px-6 py-4 border-t border-neutral-200 flex items-center justify-end gap-3', className)} {...props}>
+  <div className={cn('px-6 py-4 border-t border-base-300 flex items-center justify-end gap-3 flex-shrink-0', className)} {...props}>
     {children}
   </div>
 );
