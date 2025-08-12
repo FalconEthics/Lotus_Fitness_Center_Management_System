@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { Suspense } from 'react';
-import { Loading } from "../Reusable_Components/Loading";
+import { Loading } from "../components/ui/Loading";
 import { WithAuthAndDatasetProps } from '../types';
 import { isAuthenticated } from '../utils/auth';
 

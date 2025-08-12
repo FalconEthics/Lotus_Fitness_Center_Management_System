@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import toast from 'react-hot-toast';
-import { Loading } from "../../Reusable_Components/Loading";
+import { Loading } from "../../components/ui/Loading";
 import { 
   login, 
   isAuthenticated, 

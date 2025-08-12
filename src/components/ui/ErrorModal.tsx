@@ -1,6 +1,6 @@
-import bg from "../assets/bg.webp";
+import bg from "../../assets/bg.webp";
 import { AiOutlineReload } from "react-icons/ai";
-import { ErrorModalProps } from "../types";
+import { ErrorModalProps } from "../../types";
 
 export function ErrorModal(props: ErrorModalProps): JSX.Element {
   return (

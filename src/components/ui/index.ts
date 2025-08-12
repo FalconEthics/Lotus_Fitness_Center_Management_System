@@ -5,4 +5,6 @@ export { Select } from './Select';
 export { Badge } from './Badge';
 export { Modal } from './Modal';
 export { ContextMenu } from './ContextMenu';
+export { ErrorModal } from './ErrorModal';
+export { Loading } from './Loading';
 export type { ContextMenuItem } from './ContextMenu';

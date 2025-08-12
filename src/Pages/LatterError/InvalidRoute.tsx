@@ -1,4 +1,4 @@
-import {ErrorModal} from "../../Reusable_Components/ErrorModal";
+import {ErrorModal} from "../../components/ui/ErrorModal";
 
 export function InvalidRoute() {
 
