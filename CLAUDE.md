@@ -4,23 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Lotus Fitness Center Management System is a React-based fitness center management application built with modern TypeScript and Vite. It's designed as an offline-capable PWA for small fitness centers that need a complete management solution without cloud dependencies.
+Lotus Fitness Center Management System 2.0 is a production-ready, offline-capable fitness center management application built with modern React technologies. It's designed as a comprehensive PWA solution for fitness centers requiring complete data autonomy without cloud dependencies.
 
 **Tech Stack:**
 - Frontend: React 18 + TypeScript + Vite + SWC
 - Styling: Tailwind CSS + DaisyUI + Framer Motion (animations)
 - State: React Context API with useReducer pattern + localStorage persistence
-- Routing: React Router v7
+- Routing: React Router v7  
 - Build: Bun (preferred) or npm
-- Testing: Vitest + Testing Library
+- Testing: Vitest + Testing Library + jsdom
 - Charts: Recharts for analytics visualization
-- Utilities: Lodash, date-fns, crypto-js for security
+- Storage: Advanced localStorage management with size optimization
+- Security: Crypto-js for encryption, PBKDF2 password hashing
+- Utilities: Lodash, date-fns, clsx, react-hot-toast, react-to-print
 
 ## Development Commands
 
 ```bash
 # Development server
-bun run dev  # or npm run dev
+bun run dev  # or npm run dev (runs on http://localhost:5173)
 
 # Build for production
 bun run build  # or npm run build
@@ -32,13 +34,16 @@ bun run lint  # or npm run lint
 bun run preview  # or npm run preview
 
 # Run tests
-bun run test  # Run all tests
-bun run test:ui  # Run tests with UI
-bun run test:run  # Run tests once
-bun run test:coverage  # Run tests with coverage
+bun run test  # Run all tests in watch mode
+bun run test:ui  # Run tests with Vitest UI
+bun run test:run  # Run tests once without watch
+bun run test:coverage  # Run tests with coverage report
 ```
 
-**Important**: Use build commands instead of dev server when testing fixes, as dev server may cause Claude to exit due to console errors.
+**Important**: 
+- Use build commands instead of dev server when testing fixes, as dev server may cause Claude to exit due to console errors
+- Bun is the preferred package manager for faster installs and builds
+- The app runs on localhost:5173 by default in development
 
 ## Architecture
 
@@ -52,11 +57,12 @@ The app uses a sophisticated React Context + useReducer pattern with automatic l
 
 ### Authentication & Data Flow
 - **Offline-First Design**: No backend required, works completely offline
-- **Encrypted Auth**: localStorage-based authentication with crypto-js encryption
+- **Encrypted Auth**: localStorage-based authentication with crypto-js encryption and PBKDF2 hashing
 - **Default Credentials**: Username: `admin`, Password: `lotus2024`
 - **HOC Pattern**: `WithAuthAndDataset` wraps all protected pages
 - **Data Initialization**: App starts with default trainers and membership plans
-- **Import/Export**: Optional JSON backup/restore functionality for data migration
+- **Import/Export**: Professional JSON backup/restore with metadata validation and size checking
+- **Storage Management**: Advanced localStorage utilities with quota monitoring and optimization
 
 ### Routing Structure
 ```
@@ -121,8 +127,11 @@ Located in `src/types/index.ts`:
 - `src/types/index.ts` - Complete TypeScript definitions (always check this for interfaces)
 - `src/Layout/WithAuthAndDataset.tsx` - Authentication HOC wrapper
 - `src/utils/auth.ts` - Authentication utilities and encryption
+- `src/utils/storageManager.ts` - localStorage management, size checking, and optimization utilities
 - `src/hooks/useDashboardStats.ts` - Analytics calculations and dashboard data
 - `src/components/forms/` - All entity forms (Member, Trainer, Class, Plan forms)
+- `src/Pages/Profile/Profile.tsx` - User profile and data management interface
+- `public/lotus-fitness-demo-2025.json` - Demo dataset with 2025 data for testing/demonstrations
 
 ## Data Structure
 
@@ -236,14 +245,53 @@ The app expects a JSON dataset with this structure:
 - **Authentication**: Test login flow and session management
 - **Data Persistence**: Test import/export and localStorage operations
 
+## Storage Management
+
+### localStorage Optimization
+The app includes advanced localStorage management utilities in `src/utils/storageManager.ts`:
+
+- **Size Monitoring**: Real-time tracking of localStorage usage with 5MB limit awareness
+- **Quota Management**: Automatic detection and handling of storage quota exceeded errors
+- **Data Optimization**: Smart compression and data reduction for large datasets
+- **Import Validation**: Pre-import size checking to prevent app crashes
+
+### Demo Data Handling
+- **Demo Dataset**: `public/lotus-fitness-demo-2025.json` contains comprehensive test data
+- **Format Compliance**: Demo data matches exact export format with metadata structure
+- **Size Optimization**: Demo data optimized to stay within localStorage limits (~1.3MB)
+- **Realistic Patterns**: Includes seasonal attendance patterns and proper member enrollments
+
+### Data Export Format
+```json
+{
+  "metadata": {
+    "exportDate": "ISO datetime string",
+    "version": "2.0.0", 
+    "appVersion": "Lotus Fitness Center Management System 2.0",
+    "exportedBy": "admin",
+    "totalRecords": number
+  },
+  "data": {
+    "userProfile": {...},
+    "members": [...],
+    "classes": [...],
+    "membershipPlans": [...], 
+    "trainers": [...],
+    "attendance": [...]
+  }
+}
+```
+
 ## Performance Considerations
 - **Avoid Direct Context Access**: Always use selector hooks to prevent unnecessary re-renders
 - **Memoize Calculations**: Use useMemo for expensive computations like statistics
 - **Batch Updates**: Combine multiple state changes when possible
 - **Optimize Animations**: Use Framer Motion's layout animations sparingly
+- **Storage Efficiency**: Use storageManager utilities for large data operations
 
 ## Security Features
 - **Encrypted Authentication**: Passwords hashed with PBKDF2, stored encrypted in localStorage
 - **Session Management**: Automatic logout after inactivity
 - **Input Validation**: Comprehensive client-side validation for all forms
 - **Data Integrity**: JSON schema validation for import/export operations
+- **Storage Security**: Encrypted data persistence with crypto-js

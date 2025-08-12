@@ -59,12 +59,13 @@ Lotus Fitness Center Management System 2.0 is a production-ready, offline-capabl
 
 ### 🎯 Key Features
 
-- **🔒 Advanced Security**: Encrypted authentication system with password strength validation
+- **🔒 Advanced Security**: Encrypted authentication system with PBKDF2 hashing and password strength validation
 - **📱 PWA Support**: Install as a mobile/desktop app with offline functionality
 - **📊 Real-time Analytics**: Interactive charts and comprehensive reporting
 - **👥 Member Management**: Complete member lifecycle with renewals and status tracking
 - **🏋️ Class Scheduling**: Drag-and-drop calendar with trainer assignments
 - **📈 Attendance Tracking**: Daily, weekly, and monthly attendance analytics
+- **💾 Smart Storage**: Advanced localStorage management with quota monitoring and optimization
 - **🎨 Modern UI/UX**: Beautiful, responsive design with light/dark themes
 - **⚡ Performance Optimized**: Built with React 18, SWC, and modern best practices
 - **🧪 Fully Tested**: Comprehensive test suite for business logic and security
@@ -144,7 +145,7 @@ To get a local copy up and running follow these simple steps.
 
 1. **First Login**: Use the default credentials to access the system
 2. **Change Credentials**: Immediately change username and password in Profile settings
-3. **Import Sample Data** (Optional): Import the sample dataset from `public/dataset.json` via Profile → Data Management
+3. **Import Demo Data** (Optional): Import the comprehensive demo dataset from `public/lotus-fitness-demo-2025.json` via Profile → Data Management
 4. **Start Fresh**: Begin adding members, trainers, and classes from scratch
 
 ### 📋 Core Workflows
@@ -187,6 +188,7 @@ To get a local copy up and running follow these simple steps.
 ### Data Security
 - **Local Encryption**: Sensitive data encrypted before localStorage storage
 - **Secure Backup**: Professional backup format with metadata validation
+- **Smart Storage Management**: Automatic quota monitoring and data optimization
 - **Input Validation**: Comprehensive client-side data validation
 - **Session Timeout**: Automatic logout after inactivity periods
 
@@ -199,11 +201,11 @@ The project includes comprehensive tests for business logic and security feature
 ### Running Tests
 
 ```sh
-# Run all tests
+# Run all tests in watch mode
 bun run test
 
-# Run tests in watch mode
-bun run test:watch
+# Run tests once without watch
+bun run test:run
 
 # Run tests with UI
 bun run test:ui
@@ -216,7 +218,8 @@ bun run test:coverage
 
 - **Authentication System**: Login, logout, password management, session handling
 - **Business Logic**: Data validation, member management, class scheduling
-- **Data Management**: Import/export, localStorage operations, data integrity
+- **Data Management**: Import/export, localStorage operations, storage quota management
+- **Storage Utilities**: Data compression, size optimization, quota monitoring
 - **Edge Cases**: Error handling, corrupted data recovery, validation failures
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
@@ -232,8 +235,9 @@ bun run test:coverage
 - **Routing**: React Router v7
 - **Animations**: Framer Motion
 - **Data Visualization**: Recharts
-- **Testing**: Vitest + Testing Library
-- **Security**: Crypto-js for encryption
+- **Storage**: Advanced localStorage management with quota monitoring
+- **Testing**: Vitest + Testing Library + jsdom
+- **Security**: Crypto-js with PBKDF2 hashing
 
 ### Project Structure
 
@@ -242,9 +246,9 @@ src/
 ├── components/          # Reusable UI components
 ├── contexts/           # React Context providers
 ├── hooks/              # Custom React hooks
-├── pages/              # Page components
+├── Pages/              # Page components
 ├── types/              # TypeScript type definitions
-├── utils/              # Utility functions
+├── utils/              # Utility functions (including storageManager)
 ├── tests/              # Test files
 └── assets/             # Static assets
 ```
@@ -253,13 +257,14 @@ src/
 
 ## 🌟 Key Improvements in 2.0
 
-- **🔒 Advanced Security**: Complete authentication system overhaul
+- **🔒 Advanced Security**: Complete authentication system overhaul with PBKDF2 hashing
 - **📱 Offline Capability**: Full PWA support with service workers
 - **🎨 Modern Design**: Updated UI with DaisyUI and improved UX
 - **📊 Enhanced Analytics**: Rich data visualization and reporting
 - **⚡ Performance**: React 18 optimizations and SWC compilation
+- **💾 Smart Storage**: Advanced localStorage management with quota monitoring and optimization
 - **🧪 Test Coverage**: Comprehensive test suite for reliability
-- **🔄 Data Persistence**: Robust data management with backup/restore
+- **🔄 Data Persistence**: Robust data management with professional backup/restore format
 - **🌙 Themes**: Light/dark mode with system preference detection
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
