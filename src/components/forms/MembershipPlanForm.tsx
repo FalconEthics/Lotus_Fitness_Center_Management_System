@@ -144,7 +144,7 @@ export function MembershipPlanForm({ plan, onClose, onSuccess }: MembershipPlanF
                             <label className="label">
                                 <span className="label-text font-medium">Status</span>
                             </label>
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3 min-h-[3rem]">
                                 <input
                                     type="checkbox"
                                     className="toggle toggle-primary"
@@ -158,12 +158,12 @@ export function MembershipPlanForm({ plan, onClose, onSuccess }: MembershipPlanF
                         </div>
                     </div>
 
-                    <div className="form-control">
+                    <div className="form-control w-full">
                         <label className="label">
                             <span className="label-text font-medium">Description</span>
                         </label>
                         <textarea
-                            className="textarea textarea-bordered h-20"
+                            className="textarea textarea-bordered h-20 w-full"
                             value={formData.description}
                             onChange={(e) => handleChange('description', e.target.value)}
                             placeholder="Brief description of the plan..."

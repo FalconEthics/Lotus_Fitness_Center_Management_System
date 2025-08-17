@@ -327,3 +327,21 @@ The app includes a comprehensive Excel export system accessible via Dashboard "G
 - **Input Validation**: Comprehensive client-side validation for all forms
 - **Data Integrity**: JSON schema validation for import/export operations  
 - **Storage Security**: Encrypted data persistence with crypto-js
+
+## Recent Updates & Fixes
+
+### Demo Data Quality (2025-08-17)
+The demo dataset (`public/lotus-fitness-demo-2025.json`) has been optimized with realistic capacity/enrollment ratios:
+- All 22 classes now have proper capacity values that exceed enrollment by 15-30%
+- Capacity values range from realistic minimums (109) to large class sizes (282)
+- Data maintains ~1.3MB size while providing authentic demonstration scenarios
+
+### Known UI Areas for Future Enhancement
+- Plan creation form layout: Description textarea spacing and status toggle positioning (MembershipPlanForm.tsx:164-171, 147-158)
+- Trainer card alignment consistency across different screen sizes (TrainerCard component)
+
+### Development Notes
+- When testing fixes that generate console errors, prefer using `bun run build` over `bun run dev` to avoid Claude exit issues
+- The app includes comprehensive Excel export functionality via `src/utils/reportExporter.ts` with 9 different report types
+- All forms use the standardized `src/components/ui/Modal.tsx` component for consistent UX
+- Demo data can be imported via Profile → Data Management for comprehensive testing scenarios

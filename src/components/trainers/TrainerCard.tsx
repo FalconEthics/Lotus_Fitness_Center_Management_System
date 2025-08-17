@@ -180,27 +180,9 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
             <ContextMenu items={contextMenuItems}>
                 <Card hover padding="lg" className="h-full cursor-context-menu">
                     {/* Header with Actions */}
-                    <div className="flex items-start justify-between mb-4">
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-3">
-                                <span className="text-xl font-bold text-primary-content">
-                                    {initials}
-                                </span>
-                            </div>
-
-                            <h3 className="text-lg font-semibold text-base-content mb-1">
-                                {trainer.name}
-                            </h3>
-
-                            <Badge
-                                variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
-                                size="md"
-                            >
-                                {trainer.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
-                        </div>
-
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-center relative mb-6">
+                        {/* Action Buttons - Top Right */}
+                        <div className="absolute top-0 right-0 flex items-center gap-2">
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -219,18 +201,38 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
                                 <span className="sr-only">Delete</span>
                             </Button>
                         </div>
+
+                        {/* Centered Avatar and Info */}
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-3">
+                                <span className="text-xl font-bold text-primary-content">
+                                    {initials}
+                                </span>
+                            </div>
+
+                            <h3 className="text-lg font-semibold text-base-content mb-2">
+                                {trainer.name}
+                            </h3>
+
+                            <Badge
+                                variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
+                                size="md"
+                            >
+                                {trainer.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                        </div>
                     </div>
 
                     {/* Essential Information */}
-                    <div className="space-y-3 mb-4">
+                    <div className="space-y-3 mb-6">
                         <div className="flex items-center gap-3 text-sm">
                             <HiEnvelope className="h-4 w-4 text-base-content/40 flex-shrink-0" />
-                            <span className="text-base-content/70 truncate">{trainer.email}</span>
+                            <span className="text-base-content/70 truncate flex-1">{trainer.email}</span>
                         </div>
 
                         <div className="flex items-center gap-3 text-sm">
                             <HiPhone className="h-4 w-4 text-base-content/40 flex-shrink-0" />
-                            <span className="text-base-content/70">{trainer.phone}</span>
+                            <span className="text-base-content/70 flex-1">{trainer.phone}</span>
                         </div>
                     </div>
 
@@ -259,18 +261,23 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
                     </div>
 
                     {/* Quick Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="text-center">
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="text-center bg-base-200 rounded-lg p-3">
                             <p className="text-lg font-bold text-primary">{trainer.assignedClasses.length}</p>
                             <p className="text-xs text-base-content/60">Classes</p>
                         </div>
-                        {trainer.rating && (
-                            <div className="text-center">
+                        {trainer.rating ? (
+                            <div className="text-center bg-base-200 rounded-lg p-3">
                                 <div className="flex items-center justify-center gap-1">
                                     <HiStar className="h-4 w-4 text-warning fill-current" />
                                     <span className="font-bold text-base-content">{trainer.rating.toFixed(1)}</span>
                                 </div>
                                 <p className="text-xs text-base-content/60">Rating</p>
+                            </div>
+                        ) : (
+                            <div className="text-center bg-base-200 rounded-lg p-3">
+                                <p className="text-lg font-bold text-base-content/60">-</p>
+                                <p className="text-xs text-base-content/60">No Rating</p>
                             </div>
                         )}
                     </div>
@@ -334,15 +341,15 @@ export const TrainerCard: React.FC<TrainerCardProps> = ({
                                 )}
 
                                 {/* Experience & Rate */}
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {trainer.experience && (
-                                        <div>
+                                        <div className="bg-base-200 rounded-lg p-3">
                                             <h4 className="text-sm font-semibold text-base-content/70 mb-1">Experience</h4>
                                             <p className="text-sm text-base-content/60">{trainer.experience} years</p>
                                         </div>
                                     )}
                                     {trainer.hourlyRate && (
-                                        <div>
+                                        <div className="bg-base-200 rounded-lg p-3">
                                             <h4 className="text-sm font-semibold text-base-content/70 mb-1">Hourly Rate</h4>
                                             <p className="text-sm text-base-content/60">₹{trainer.hourlyRate}/hour</p>
                                         </div>
