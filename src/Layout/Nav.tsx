@@ -5,6 +5,7 @@ import { HiBars3, HiArrowRightOnRectangle, HiBell, HiUser, HiCommandLine } from 
 import logo from "../assets/logo.png";
 import { Button, Badge } from "../components/ui";
 import { ThemeToggle } from '../components/ui/ThemeToggle';
+import toast from 'react-hot-toast';
 
 interface NavProps {
   onToggleSidebar: () => void;
@@ -64,6 +65,12 @@ export function Nav({ onToggleSidebar }: NavProps): JSX.Element {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => {
+              toast.info('🚧 Notifications feature is currently under development and will be available in a future update!', {
+                duration: 4000,
+                position: 'top-center',
+              });
+            }}
             icon={<HiBell className="h-5 w-5" />}
             className="relative"
           >

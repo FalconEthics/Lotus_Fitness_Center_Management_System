@@ -28,6 +28,7 @@ interface ClassCardProps {
   onUpdate: (fitnessClass: FitnessClass) => void;
   onDelete: (id: number) => void;
   onAddMember?: (classId: number, memberId: number) => void;
+  onEdit?: (fitnessClass: FitnessClass) => void;
 }
 
 export const ClassCard: React.FC<ClassCardProps> = ({
@@ -36,13 +37,15 @@ export const ClassCard: React.FC<ClassCardProps> = ({
   trainers,
   onUpdate,
   onDelete,
-  onAddMember
+  onAddMember,
+  onEdit
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<FitnessClass>(fitnessClass);
   const [showAddMember, setShowAddMember] = useState(false);
   const [selectedMember, setSelectedMember] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showEnrolledMembers, setShowEnrolledMembers] = useState(false);
 
   const enrolledMembers = (members || []).filter(member => fitnessClass.enrolled.includes(member.id));
   const availableMembers = (members || []).filter(member => !fitnessClass.enrolled.includes(member.id));
@@ -111,9 +114,34 @@ export const ClassCard: React.FC<ClassCardProps> = ({
 
   const handleAddMember = () => {
     if (selectedMember) {
-      onAddMember(fitnessClass.id, parseInt(selectedMember));
+      const memberId = parseInt(selectedMember);
+      const updatedClass = {
+        ...fitnessClass,
+        enrolled: [...fitnessClass.enrolled, memberId]
+      };
+      onUpdate(updatedClass);
       setSelectedMember('');
       setShowAddMember(false);
+      toast.success('Member added to class successfully!');
+    }
+  };
+
+  const handleRemoveMember = (memberId: number) => {
+    const updatedClass = {
+      ...fitnessClass,
+      enrolled: fitnessClass.enrolled.filter(id => id !== memberId)
+    };
+    onUpdate(updatedClass);
+    toast.success('Member removed from class successfully!');
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't open modal if clicking on interactive elements
+    if ((e.target as HTMLElement).closest('button, select, input')) {
+      return;
+    }
+    if (onEdit) {
+      onEdit(fitnessClass);
     }
   };
 
@@ -195,7 +223,10 @@ export const ClassCard: React.FC<ClassCardProps> = ({
       transition={{ duration: 0.2 }}
     >
       <ContextMenu items={contextMenuItems}>
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-context-menu h-full">
+        <Card 
+          className="overflow-hidden hover:shadow-lg transition-shadow duration-200 cursor-pointer h-full"
+          onClick={handleCardClick}
+        >
         <CardContent className="p-6 h-full flex flex-col">
           {isEditing ? (
             <motion.div
@@ -365,14 +396,30 @@ export const ClassCard: React.FC<ClassCardProps> = ({
               {/* Enrolled Members */}
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+                  <button 
+                    className="text-sm font-semibold text-neutral-700 flex items-center gap-2 hover:text-neutral-900 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowEnrolledMembers(!showEnrolledMembers);
+                    }}
+                  >
                     <HiUserGroup className="h-4 w-4" />
                     Enrolled Members ({enrolledMembers.length})
-                  </h4>
+                    <motion.span
+                      animate={{ rotate: showEnrolledMembers ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-xs"
+                    >
+                      ▼
+                    </motion.span>
+                  </button>
                   {availableMembers.length > 0 && !isFullyBooked && (
                     <Button
                       size="xs"
-                      onClick={() => setShowAddMember(!showAddMember)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAddMember(!showAddMember);
+                      }}
                     >
                       <HiPlus className="h-3 w-3 mr-1" />
                       Add Member
@@ -380,23 +427,45 @@ export const ClassCard: React.FC<ClassCardProps> = ({
                   )}
                 </div>
 
-                {enrolledMembers.length > 0 ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {enrolledMembers.map(member => (
-                      <div
-                        key={member.id}
-                        className="flex items-center gap-2 p-2 bg-red-50 rounded-lg border border-red-100"
-                      >
-                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
-                          <HiUser className="h-3 w-3 text-red-600" />
+                <AnimatePresence>
+                  {showEnrolledMembers && enrolledMembers.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-2 mb-4"
+                    >
+                      {enrolledMembers.map(member => (
+                        <div
+                          key={member.id}
+                          className="flex items-center justify-between p-2 bg-blue-50 rounded-lg border border-blue-100"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                              <HiUser className="h-3 w-3 text-blue-600" />
+                            </div>
+                            <span className="text-sm text-blue-700 font-medium">
+                              {member.name}
+                            </span>
+                          </div>
+                          <Button
+                            size="xs"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveMember(member.id);
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <HiXMark className="h-3 w-3" />
+                          </Button>
                         </div>
-                        <span className="text-xs text-red-700 font-medium truncate">
-                          {member.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {!showEnrolledMembers && enrolledMembers.length === 0 && (
                   <p className="text-sm text-neutral-500 italic">
                     No members enrolled yet
                   </p>
@@ -409,26 +478,42 @@ export const ClassCard: React.FC<ClassCardProps> = ({
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
                       className="mt-3 pt-3 border-t border-neutral-200"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <div className="flex gap-2">
-                        <Select
-                          placeholder="Select a member"
+                        <select
                           value={selectedMember}
-                          onChange={(e) => setSelectedMember(e.target.value)}
-                          options={availableMembers.map(member => ({
-                            value: member.id.toString(),
-                            label: `${member.name} (${member.membershipType})`
-                          }))}
-                          className="flex-1"
-                          size="sm"
-                        />
-                        <Button size="sm" onClick={handleAddMember} disabled={!selectedMember}>
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            setSelectedMember(e.target.value);
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="select select-bordered select-sm flex-1"
+                        >
+                          <option value="">Select a member</option>
+                          {availableMembers.map(member => (
+                            <option key={member.id} value={member.id.toString()}>
+                              {member.name} ({member.status})
+                            </option>
+                          ))}
+                        </select>
+                        <Button 
+                          size="sm" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddMember();
+                          }} 
+                          disabled={!selectedMember}
+                        >
                           Add
                         </Button>
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          onClick={() => setShowAddMember(false)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowAddMember(false);
+                          }}
                         >
                           <HiXMark className="h-4 w-4" />
                         </Button>

@@ -123,15 +123,18 @@ Located in `src/types/index.ts`:
 
 ## Key Files and Their Purposes
 
-- `src/contexts/DatasetContext.tsx` - State management core with all business logic
+- `src/contexts/DatasetContext.tsx` - State management core with all business logic and default data initialization
 - `src/types/index.ts` - Complete TypeScript definitions (always check this for interfaces)
-- `src/Layout/WithAuthAndDataset.tsx` - Authentication HOC wrapper
-- `src/utils/auth.ts` - Authentication utilities and encryption
-- `src/utils/storageManager.ts` - localStorage management, size checking, and optimization utilities
-- `src/hooks/useDashboardStats.ts` - Analytics calculations and dashboard data
-- `src/components/forms/` - All entity forms (Member, Trainer, Class, Plan forms)
-- `src/Pages/Profile/Profile.tsx` - User profile and data management interface
-- `public/lotus-fitness-demo-2025.json` - Demo dataset with 2025 data for testing/demonstrations
+- `src/Layout/WithAuthAndDataset.tsx` - Authentication HOC wrapper that provides auth + dataset context
+- `src/utils/auth.ts` - Authentication utilities with PBKDF2 encryption and session management
+- `src/utils/storageManager.ts` - localStorage management, size checking, quota monitoring, and data optimization
+- `src/utils/reportExporter.ts` - Excel export functionality with 9 different report types using xlsx library
+- `src/hooks/useDashboardStats.ts` - Analytics calculations and dashboard statistical data
+- `src/components/forms/` - All entity forms (Member, Trainer, Class, Plan forms) with validation
+- `src/components/reports/ReportGenerationModal.tsx` - Comprehensive report generation interface with date ranges
+- `src/components/ui/Modal.tsx` - Standardized modal component used throughout the app (important for consistent UX)
+- `src/Pages/Profile/Profile.tsx` - User profile and data management interface with import/export functionality
+- `public/lotus-fitness-demo-2025.json` - Demo dataset with 2025 data for testing/demonstrations (~1.3MB optimized)
 
 ## Data Structure
 
@@ -282,16 +285,45 @@ The app includes advanced localStorage management utilities in `src/utils/storag
 }
 ```
 
+## UI/UX Development Guidelines
+
+### Modal Component Usage
+- **Always use `src/components/ui/Modal.tsx`** for consistent modal behavior and backdrop positioning
+- Modal component automatically handles backdrop gaps and proper centering
+- Use `Modal.Footer` pattern for consistent action button layouts
+
+### Button Group Patterns
+- Use `btn-group gap-0` for connected buttons (theme toggles, filters, single/bulk toggles)
+- Add responsive classes `flex-1 sm:flex-none` for mobile-friendly button groups
+- Example: `<div className="btn-group gap-0 w-full sm:w-auto">`
+
+### Stats Cards Alignment  
+- Always use `grid-cols-1 sm:grid-cols-2 lg:grid-cols-[N]` pattern for responsive stats
+- Add `className="h-full"` to motion wrappers for consistent card heights
+- Example: `<motion.div className="h-full"><StatCard {...stat} /></motion.div>`
+
+### Form Styling Consistency
+- Forms should use standardized Modal component with proper size props
+- Grid layouts should be `grid-cols-1 md:grid-cols-2` for form fields
+- All forms must include proper validation and error handling
+
 ## Performance Considerations
 - **Avoid Direct Context Access**: Always use selector hooks to prevent unnecessary re-renders
-- **Memoize Calculations**: Use useMemo for expensive computations like statistics
+- **Memoize Calculations**: Use useMemo for expensive computations like statistics  
 - **Batch Updates**: Combine multiple state changes when possible
 - **Optimize Animations**: Use Framer Motion's layout animations sparingly
 - **Storage Efficiency**: Use storageManager utilities for large data operations
+
+## Report Generation System
+The app includes a comprehensive Excel export system accessible via Dashboard "Generate Report" button:
+- **9 Report Types**: Members, attendance, classes, trainers, revenue analysis
+- **Date Range Selection**: Flexible filtering with start/end dates
+- **Professional Formatting**: Uses xlsx library for rich Excel file generation
+- **File Naming**: Automatic timestamping (e.g., `members-report-2025-01-13-1430.xlsx`)
 
 ## Security Features
 - **Encrypted Authentication**: Passwords hashed with PBKDF2, stored encrypted in localStorage
 - **Session Management**: Automatic logout after inactivity
 - **Input Validation**: Comprehensive client-side validation for all forms
-- **Data Integrity**: JSON schema validation for import/export operations
+- **Data Integrity**: JSON schema validation for import/export operations  
 - **Storage Security**: Encrypted data persistence with crypto-js

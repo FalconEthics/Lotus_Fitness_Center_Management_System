@@ -169,11 +169,24 @@ export function Login() {
             </button>
 
             {/* Default Credentials Info */}
-            <div className="alert alert-info text-sm">
-              <div>
-                <strong>Default credentials:</strong><br/>
-                Username: admin<br/>
-                Password: lotus2024
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-5 h-5 bg-primary/20 rounded-full flex items-center justify-center mt-0.5">
+                  <span className="text-primary text-xs font-bold">i</span>
+                </div>
+                <div className="text-base-content">
+                  <div className="font-semibold text-primary mb-1">Default credentials:</div>
+                  <div className="space-y-1 text-base-content/80">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Username:</span>
+                      <code className="bg-base-200 px-2 py-0.5 rounded text-xs">admin</code>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">Password:</span>
+                      <code className="bg-base-200 px-2 py-0.5 rounded text-xs">lotus2024</code>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.form>
