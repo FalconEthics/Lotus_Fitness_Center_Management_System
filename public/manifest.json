@@ -1,0 +1,73 @@
+{
+  "name": "Lotus Fitness Center Management System",
+  "short_name": "LFC Management",
+  "description": "Complete fitness center management solution with member tracking, class scheduling, and analytics",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["business", "fitness", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "features": [
+    "member-management",
+    "class-scheduling", 
+    "attendance-tracking",
+    "analytics-dashboard",
+    "printable-reports"
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View analytics and overview",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Members",
+      "short_name": "Members",
+      "description": "Manage gym members",
+      "url": "/managemembers",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Classes",
+      "short_name": "Classes",
+      "description": "Schedule and manage classes",
+      "url": "/manageclasses",
+      "icons": [
+        {
+          "src": "/logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

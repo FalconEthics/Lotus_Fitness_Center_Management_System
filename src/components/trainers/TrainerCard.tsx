@@ -1,0 +1,385 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    HiEnvelope,
+    HiPhone,
+    HiStar,
+    HiPencil,
+    HiTrash,
+    HiUser,
+    HiCalendarDays,
+    HiAcademicCap,
+    HiChevronDown,
+    HiInformationCircle
+} from 'react-icons/hi2';
+import { Card, Badge, Button, ContextMenu, ContextMenuItem } from '../ui';
+import { Trainer } from '../../types';
+import { format } from 'date-fns';
+import toast from 'react-hot-toast';
+
+interface TrainerCardProps {
+    trainer: Trainer;
+    onEdit: () => void;
+    onDelete: () => void;
+    compact?: boolean;
+}
+
+const statusColors = {
+    active: 'success',
+    inactive: 'warning',
+} as const;
+
+export const TrainerCard: React.FC<TrainerCardProps> = ({
+    trainer,
+    onEdit,
+    onDelete,
+    compact = false
+}) => {
+    const [showMoreInfo, setShowMoreInfo] = useState(false);
+
+    const initials = trainer.name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+
+    const joinDate = trainer.hiredDate ? new Date(trainer.hiredDate) : null;
+    const formattedDate = joinDate ? format(joinDate, 'MMM dd, yyyy') : 'Recently Added';
+
+    const renderRating = (rating: number) => {
+        return (
+            <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, index) => (
+                    <HiStar
+                        key={index}
+                        className={`h-4 w-4 ${index < Math.floor(rating)
+                                ? 'text-warning fill-current'
+                                : 'text-base-content/20'
+                            }`}
+                    />
+                ))}
+                <span className="text-sm text-base-content/70 ml-1">
+                    {rating.toFixed(1)}
+                </span>
+            </div>
+        );
+    };
+
+    // Context menu items for trainer
+    const contextMenuItems: ContextMenuItem[] = [
+        {
+            id: 'edit',
+            label: 'Edit Trainer',
+            icon: HiPencil,
+            onClick: onEdit,
+            shortcut: 'Ctrl+E'
+        },
+        {
+            id: 'contact',
+            label: 'Send Email',
+            icon: HiEnvelope,
+            onClick: () => {
+                window.open(`mailto:${trainer.email}?subject=Lotus Fitness Center`);
+                toast.success('Email client opened');
+            }
+        },
+        {
+            id: 'call',
+            label: 'Call Trainer',
+            icon: HiPhone,
+            onClick: () => {
+                window.open(`tel:${trainer.phone}`);
+                toast.success('Calling trainer');
+            }
+        },
+        {
+            id: 'schedule',
+            label: 'View Schedule',
+            icon: HiCalendarDays,
+            onClick: () => {
+                toast.success(`${trainer.name} teaches ${trainer.assignedClasses.length} classes`);
+            }
+        },
+        {
+            id: 'certifications',
+            label: 'View Certifications',
+            icon: HiAcademicCap,
+            onClick: () => {
+                if (trainer.certifications.length > 0) {
+                    toast.success(`Certifications: ${trainer.certifications.join(', ')}`);
+                } else {
+                    toast.info('No certifications on file');
+                }
+            }
+        },
+        {
+            id: 'divider-1',
+            label: '',
+            onClick: () => { },
+            divider: true
+        },
+        {
+            id: 'delete',
+            label: 'Delete Trainer',
+            icon: HiTrash,
+            onClick: onDelete,
+            variant: 'danger',
+            shortcut: 'Del'
+        }
+    ];
+
+    if (compact) {
+        return (
+            <motion.div
+                whileHover={{ y: -2 }}
+                className="min-w-[280px]"
+            >
+                <ContextMenu items={contextMenuItems}>
+                    <Card hover padding="md" className="cursor-context-menu">
+                        <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0">
+                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <span className="text-sm font-semibold text-primary">
+                                        {initials}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-base-content truncate">
+                                    {trainer.name}
+                                </h3>
+                                <p className="text-sm text-base-content/60 truncate">
+                                    {trainer.email}
+                                </p>
+                                <div className="mt-1 flex items-center gap-2">
+                                    <Badge
+                                        variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
+                                        size="sm"
+                                    >
+                                        {trainer.isActive ? 'Active' : 'Inactive'}
+                                    </Badge>
+                                    {trainer.rating && renderRating(trainer.rating)}
+                                </div>
+                            </div>
+                        </div>
+                    </Card>
+                </ContextMenu>
+            </motion.div>
+        );
+    }
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4 }}
+            className="w-full"
+        >
+            <ContextMenu items={contextMenuItems}>
+                <Card hover padding="lg" className="h-full cursor-context-menu">
+                    {/* Header with Actions */}
+                    <div className="flex flex-col items-center relative mb-6">
+                        {/* Action Buttons - Top Right */}
+                        <div className="absolute top-0 right-0 flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onEdit}
+                                icon={<HiPencil className="h-4 w-4" />}
+                            >
+                                <span className="sr-only">Edit</span>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={onDelete}
+                                icon={<HiTrash className="h-4 w-4" />}
+                                className="text-error hover:bg-error/10"
+                            >
+                                <span className="sr-only">Delete</span>
+                            </Button>
+                        </div>
+
+                        {/* Centered Avatar and Info */}
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mb-3">
+                                <span className="text-xl font-bold text-primary-content">
+                                    {initials}
+                                </span>
+                            </div>
+
+                            <h3 className="text-lg font-semibold text-base-content mb-2">
+                                {trainer.name}
+                            </h3>
+
+                            <Badge
+                                variant={statusColors[trainer.isActive ? 'active' : 'inactive']}
+                                size="md"
+                            >
+                                {trainer.isActive ? 'Active' : 'Inactive'}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    {/* Essential Information */}
+                    <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-3 text-sm">
+                            <HiEnvelope className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+                            <span className="text-base-content/70 truncate flex-1">{trainer.email}</span>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-sm">
+                            <HiPhone className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+                            <span className="text-base-content/70 flex-1">{trainer.phone}</span>
+                        </div>
+                    </div>
+
+                    {/* Specialties (Always Visible) */}
+                    <div className="mb-4">
+                        <h4 className="text-sm font-semibold text-base-content/70 flex items-center gap-2 mb-2">
+                            <HiAcademicCap className="h-4 w-4" />
+                            Specialties
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                            {trainer.expertise.slice(0, 3).map((specialty) => (
+                                <Badge
+                                    key={specialty}
+                                    variant="outline"
+                                    size="sm"
+                                >
+                                    {specialty}
+                                </Badge>
+                            ))}
+                            {trainer.expertise.length > 3 && (
+                                <Badge variant="ghost" size="sm">
+                                    +{trainer.expertise.length - 3} more
+                                </Badge>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                        <div className="text-center bg-base-200 rounded-lg p-3">
+                            <p className="text-lg font-bold text-primary">{trainer.assignedClasses.length}</p>
+                            <p className="text-xs text-base-content/60">Classes</p>
+                        </div>
+                        {trainer.rating ? (
+                            <div className="text-center bg-base-200 rounded-lg p-3">
+                                <div className="flex items-center justify-center gap-1">
+                                    <HiStar className="h-4 w-4 text-warning fill-current" />
+                                    <span className="font-bold text-base-content">{trainer.rating.toFixed(1)}</span>
+                                </div>
+                                <p className="text-xs text-base-content/60">Rating</p>
+                            </div>
+                        ) : (
+                            <div className="text-center bg-base-200 rounded-lg p-3">
+                                <p className="text-lg font-bold text-base-content/60">-</p>
+                                <p className="text-xs text-base-content/60">No Rating</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* More Info Toggle */}
+                    <button
+                        onClick={() => setShowMoreInfo(!showMoreInfo)}
+                        className="w-full btn btn-ghost btn-sm mb-4 gap-2"
+                    >
+                        <HiInformationCircle className="h-4 w-4" />
+                        {showMoreInfo ? 'Less Info' : 'More Info'}
+                        <motion.div
+                            animate={{ rotate: showMoreInfo ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <HiChevronDown className="h-4 w-4" />
+                        </motion.div>
+                    </button>
+
+                    {/* Collapsible More Info Section */}
+                    <AnimatePresence>
+                        {showMoreInfo && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="space-y-4 border-t border-base-300 pt-4"
+                            >
+                                {/* Hire Date */}
+                                <div className="flex items-center gap-3 text-sm">
+                                    <HiCalendarDays className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+                                    <span className="text-base-content/70">Hired {formattedDate}</span>
+                                </div>
+
+                                {/* Full Specialties */}
+                                {trainer.expertise.length > 3 && (
+                                    <div>
+                                        <h4 className="text-sm font-semibold text-base-content/70 mb-2">All Specialties</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {trainer.expertise.map((specialty) => (
+                                                <Badge
+                                                    key={specialty}
+                                                    variant="outline"
+                                                    size="sm"
+                                                >
+                                                    {specialty}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Bio */}
+                                {trainer.bio && (
+                                    <div>
+                                        <h4 className="text-sm font-semibold text-base-content/70 mb-2">Bio</h4>
+                                        <p className="text-sm text-base-content/60">
+                                            {trainer.bio}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Experience & Rate */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {trainer.experience && (
+                                        <div className="bg-base-200 rounded-lg p-3">
+                                            <h4 className="text-sm font-semibold text-base-content/70 mb-1">Experience</h4>
+                                            <p className="text-sm text-base-content/60">{trainer.experience} years</p>
+                                        </div>
+                                    )}
+                                    {trainer.hourlyRate && (
+                                        <div className="bg-base-200 rounded-lg p-3">
+                                            <h4 className="text-sm font-semibold text-base-content/70 mb-1">Hourly Rate</h4>
+                                            <p className="text-sm text-base-content/60">₹{trainer.hourlyRate}/hour</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Certifications */}
+                                {trainer.certifications && trainer.certifications.length > 0 && (
+                                    <div>
+                                        <h4 className="text-sm font-semibold text-base-content/70 mb-2">Certifications</h4>
+                                        <div className="space-y-1">
+                                            {trainer.certifications.map((cert, index) => (
+                                                <div key={index} className="text-sm text-base-content/60">
+                                                    • {cert}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* ID (for reference) */}
+                                <div className="flex items-center gap-3 text-sm">
+                                    <HiUser className="h-4 w-4 text-base-content/40 flex-shrink-0" />
+                                    <span className="text-base-content/70">ID: {trainer.id}</span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </Card>
+            </ContextMenu>
+        </motion.div>
+    );
+};
