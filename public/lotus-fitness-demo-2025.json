@@ -6335,7 +6335,7 @@
         "endTime": "08:00",
         "duration": 60
       },
-      "capacity": 12,
+      "capacity": 155,
       "enrolled": [
         33,
         28,
@@ -6484,7 +6484,7 @@
         "endTime": "19:30",
         "duration": 60
       },
-      "capacity": 8,
+      "capacity": 109,
       "enrolled": [
         33,
         17,
@@ -6593,7 +6593,7 @@
         "endTime": "10:00",
         "duration": 60
       },
-      "capacity": 20,
+      "capacity": 282,
       "enrolled": [
         35,
         42,
@@ -6853,7 +6853,7 @@
         "endTime": "18:00",
         "duration": 60
       },
-      "capacity": 15,
+      "capacity": 207,
       "enrolled": [
         33,
         17,
@@ -7048,7 +7048,7 @@
         "endTime": "19:45",
         "duration": 45
       },
-      "capacity": 16,
+      "capacity": 251,
       "enrolled": [
         35,
         42,
@@ -7281,7 +7281,7 @@
         "endTime": "19:00",
         "duration": 60
       },
-      "capacity": 14,
+      "capacity": 188,
       "enrolled": [
         33,
         28,
@@ -7459,7 +7459,7 @@
         "endTime": "20:30",
         "duration": 60
       },
-      "capacity": 25,
+      "capacity": 317,
       "enrolled": [
         33,
         28,
@@ -7749,7 +7749,7 @@
         "endTime": "11:00",
         "duration": 60
       },
-      "capacity": 20,
+      "capacity": 260,
       "enrolled": [
         35,
         42,
@@ -7990,7 +7990,7 @@
         "endTime": "12:00",
         "duration": 60
       },
-      "capacity": 12,
+      "capacity": 167,
       "enrolled": [
         33,
         28,
@@ -8150,7 +8150,7 @@
         "endTime": "15:00",
         "duration": 60
       },
-      "capacity": 10,
+      "capacity": 144,
       "enrolled": [
         42,
         28,
@@ -8290,7 +8290,7 @@
         "endTime": "21:00",
         "duration": 60
       },
-      "capacity": 14,
+      "capacity": 206,
       "enrolled": [
         72,
         45,
@@ -8484,7 +8484,7 @@
         "endTime": "16:30",
         "duration": 90
       },
-      "capacity": 12,
+      "capacity": 132,
       "enrolled": [
         42,
         28,
@@ -8613,7 +8613,7 @@
         "endTime": "07:30",
         "duration": 60
       },
-      "capacity": 20,
+      "capacity": 268,
       "enrolled": [
         28,
         41,
@@ -8861,7 +8861,7 @@
         "endTime": "10:30",
         "duration": 90
       },
-      "capacity": 18,
+      "capacity": 257,
       "enrolled": [
         35,
         21,
@@ -9099,7 +9099,7 @@
         "endTime": "18:30",
         "duration": 90
       },
-      "capacity": 6,
+      "capacity": 89,
       "enrolled": [
         28,
         17,
@@ -9191,7 +9191,7 @@
         "endTime": "19:15",
         "duration": 75
       },
-      "capacity": 15,
+      "capacity": 226,
       "enrolled": [
         35,
         39,
@@ -9402,7 +9402,7 @@
         "endTime": "17:00",
         "duration": 60
       },
-      "capacity": 8,
+      "capacity": 74,
       "enrolled": [
         42,
         35,
@@ -9481,7 +9481,7 @@
         "endTime": "12:45",
         "duration": 45
       },
-      "capacity": 12,
+      "capacity": 194,
       "enrolled": [
         42,
         35,
@@ -9664,7 +9664,7 @@
         "endTime": "20:00",
         "duration": 60
       },
-      "capacity": 22,
+      "capacity": 310,
       "enrolled": [
         17,
         45,
@@ -9948,7 +9948,7 @@
         "endTime": "16:00",
         "duration": 60
       },
-      "capacity": 15,
+      "capacity": 207,
       "enrolled": [
         35,
         1,
@@ -10143,7 +10143,7 @@
         "endTime": "17:00",
         "duration": 60
       },
-      "capacity": 10,
+      "capacity": 141,
       "enrolled": [
         35,
         28,
@@ -10280,7 +10280,7 @@
         "endTime": "15:00",
         "duration": 60
       },
-      "capacity": 8,
+      "capacity": 104,
       "enrolled": [
         33,
         35,
