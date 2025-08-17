@@ -65,6 +65,7 @@ Lotus Fitness Center Management System 2.0 is a production-ready, offline-capabl
 - **👥 Member Management**: Complete member lifecycle with renewals and status tracking
 - **🏋️ Class Scheduling**: Drag-and-drop calendar with trainer assignments
 - **📈 Attendance Tracking**: Daily, weekly, and monthly attendance analytics
+- **📄 Excel Export**: Professional report generation with 9 different report types (members, attendance, revenue, etc.)
 - **💾 Smart Storage**: Advanced localStorage management with quota monitoring and optimization
 - **🎨 Modern UI/UX**: Beautiful, responsive design with light/dark themes
 - **⚡ Performance Optimized**: Built with React 18, SWC, and modern best practices
@@ -145,7 +146,7 @@ To get a local copy up and running follow these simple steps.
 
 1. **First Login**: Use the default credentials to access the system
 2. **Change Credentials**: Immediately change username and password in Profile settings
-3. **Import Demo Data** (Optional): Import the comprehensive demo dataset from `public/lotus-fitness-demo-2025.json` via Profile → Data Management
+3. **Import Demo Data** (Optional): Import the comprehensive demo dataset from `public/lotus-fitness-demo-2025.json` via Profile → Data Management - includes realistic 2025 data with proper class capacity ratios
 4. **Start Fresh**: Begin adding members, trainers, and classes from scratch
 
 ### 📋 Core Workflows
@@ -173,6 +174,8 @@ To get a local copy up and running follow these simple steps.
 - Revenue tracking by membership plans
 - Member demographics and statistics
 - Class popularity and utilization reports
+- Excel export with 9 professional report types
+- Date range filtering for comprehensive analysis
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
@@ -266,6 +269,8 @@ src/
 - **🧪 Test Coverage**: Comprehensive test suite for reliability
 - **🔄 Data Persistence**: Robust data management with professional backup/restore format
 - **🌙 Themes**: Light/dark mode with system preference detection
+- **📄 Export System**: Professional Excel reporting with 9 different report types
+- **✨ Polished UI**: Refined form layouts and component alignment for optimal user experience
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
