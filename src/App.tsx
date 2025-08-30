@@ -13,6 +13,7 @@ import { Plans } from './Pages/Plans/Plans';
 import { Trainers } from './Pages/Trainers/Trainers';
 import { Attendance } from './Pages/Attendance/Attendance';
 import { Profile } from './Pages/Profile/Profile';
+import About from './Pages/About/About';
 import { PageTransition } from './components/PageTransition';
 import WithAuthAndDataset from './Layout/WithAuthAndDataset';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -112,6 +113,14 @@ function AppRoutes(): JSX.Element {
                 <ProfileWithAuth />
               </PageTransition>
             </Layout>
+          } 
+        />
+        <Route 
+          path="/about" 
+          element={
+            <PageTransition>
+              <About />
+            </PageTransition>
           } 
         />
         <Route 

@@ -1,8 +1,9 @@
 import bg from "../../assets/bg.webp";
 import logo from "../../assets/logo.png";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { motion } from "framer-motion";
+import { HiInformationCircle } from "react-icons/hi2";
 import toast from 'react-hot-toast';
 import { Loading } from "../../components/ui/Loading";
 import { 
@@ -189,6 +190,17 @@ export function Login() {
                 </div>
               </div>
             </div>
+
+            {/* About link for mobile - below default credentials */}
+            <div className="block lg:hidden text-center">
+              <Link 
+                to="/about" 
+                className="inline-flex items-center gap-2 text-sm text-base-content/70 hover:text-primary transition-colors"
+              >
+                <HiInformationCircle className="w-4 h-4" />
+                About this app
+              </Link>
+            </div>
           </motion.form>
         ) : (
           <motion.div
@@ -203,6 +215,22 @@ export function Login() {
             <Loading/>
           </motion.div>
         )}
+      </motion.div>
+
+      {/* Floating About button for desktop - bottom right corner */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+        className="hidden lg:block fixed bottom-6 right-6 z-20"
+      >
+        <Link 
+          to="/about"
+          className="btn btn-circle btn-primary shadow-lg hover:shadow-xl transition-all duration-300 group"
+          title="About this app"
+        >
+          <HiInformationCircle className="w-6 h-6 group-hover:scale-110 transition-transform" />
+        </Link>
       </motion.div>
     </div>
   );
