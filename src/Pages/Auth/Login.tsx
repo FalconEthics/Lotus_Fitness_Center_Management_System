@@ -6,11 +6,10 @@ import { motion } from "framer-motion";
 import { HiInformationCircle } from "react-icons/hi2";
 import toast from 'react-hot-toast';
 import { Loading } from "../../components/ui/Loading";
-import { 
-  login, 
-  isAuthenticated, 
-  initializeAuth, 
-  isAccountLocked,
+import {
+  login,
+  isAuthenticated,
+  initializeAuth,
   getCurrentUsername
 } from "../../utils/auth";
 
@@ -46,12 +45,6 @@ export function Login() {
     if (!password) {
       toast.error("Password is required");
       document.getElementById("password")?.focus();
-      return;
-    }
-
-    // Check if account is locked
-    if (isAccountLocked()) {
-      toast.error("Account is temporarily locked due to too many failed attempts");
       return;
     }
 

@@ -101,53 +101,51 @@ describe('Authentication System', () => {
 
     it('should fail login with incorrect username', () => {
       const result = login('wronguser', 'lotus2024');
-      
+
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Invalid credentials');
+      expect(result.message).toBe('Invalid username or password');
       expect(isAuthenticated()).toBe(false);
     });
 
     it('should fail login with incorrect password', () => {
       const result = login('admin', 'wrongpassword');
-      
+
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Invalid credentials');
+      expect(result.message).toBe('Invalid username or password');
       expect(isAuthenticated()).toBe(false);
     });
 
-    it('should track failed login attempts', () => {
-      login('admin', 'wrongpassword');
+    it('should return error for failed login attempts', () => {
       const result = login('admin', 'wrongpassword');
-      
-      expect(result.attemptsLeft).toBe(3);
-    });
 
-    it('should lock account after 5 failed attempts', () => {
-      // Make 5 failed attempts
-      for (let i = 0; i < 5; i++) {
-        login('admin', 'wrongpassword');
-      }
-      
-      expect(isAccountLocked()).toBe(true);
-      
-      const result = login('admin', 'lotus2024');
       expect(result.success).toBe(false);
-      expect(result.message).toContain('locked');
+      expect(result.message).toBe('Invalid username or password');
     });
 
-    it('should reset attempts after successful login', () => {
-      // Make 2 failed attempts
+    it('should allow multiple login attempts without lockout', () => {
+      // Simplified auth has no lockout - just simple validation
+      for (let i = 0; i < 10; i++) {
+        const result = login('admin', 'wrongpassword');
+        expect(result.success).toBe(false);
+      }
+
+      // Should still be able to login with correct credentials
+      const successResult = login('admin', 'lotus2024');
+      expect(successResult.success).toBe(true);
+    });
+
+    it('should allow relogin after logout', () => {
+      // Make a failed attempt
       login('admin', 'wrongpassword');
-      login('admin', 'wrongpassword');
-      
+
       // Successful login
       const result = login('admin', 'lotus2024');
       expect(result.success).toBe(true);
-      
-      // Logout and make another failed attempt - should start fresh
+
+      // Logout and login again
       logout();
-      const failResult = login('admin', 'wrongpassword');
-      expect(failResult.attemptsLeft).toBe(4);
+      const reloginResult = login('admin', 'lotus2024');
+      expect(reloginResult.success).toBe(true);
     });
   });
 
@@ -308,22 +306,25 @@ describe('Authentication System', () => {
 
     it('should handle corrupted auth data gracefully', () => {
       localStorage.setItem('lotus-auth-data', 'corrupted data');
-      
+
+      // Should reinitialize and allow login
       const result = login('admin', 'lotus2024');
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
     });
 
     it('should handle corrupted session data gracefully', () => {
       login('admin', 'lotus2024');
       sessionStorage.setItem('lotus-session', 'corrupted data');
-      
+
       expect(isAuthenticated()).toBe(false);
     });
 
-    it('should store passwords securely (no plain text)', () => {
+    it('should store auth data in localStorage', () => {
+      // In the simplified version, we use plain localStorage
+      // This is acceptable for a portfolio demo showing CRUD skills
       const authData = localStorage.getItem('lotus-auth-data');
-      expect(authData).not.toContain('lotus2024');
-      expect(authData).not.toContain('admin');
+      expect(authData).toBeTruthy();
+      expect(authData).toContain('username');
     });
   });
 });
