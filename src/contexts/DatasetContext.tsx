@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useMemo, ReactNode, useEffect, useState } from 'react';
-import { cloneDeep, findIndex, reject, defaults } from 'lodash';
+import { defaults } from 'lodash';
 import {
   Dataset,
   DatasetAction,
@@ -93,7 +93,7 @@ const defaultTrainers: Trainer[] = [
 ];
 
 // Initial state with all entities
-const initialState: Dataset = {
+export const initialState: Dataset = {
   userProfile: defaultUserProfile,
   members: [],
   classes: [],
@@ -131,7 +131,7 @@ const initialState: Dataset = {
 };
 
 // Enhanced reducer with all entity operations
-function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
+export function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
   switch (action.type) {
     case DatasetActionType.SET_DATASET:
       return defaults({}, action.payload, initialState);
@@ -151,30 +151,26 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_MEMBER: {
-      const newState = cloneDeep(state);
-      const memberIndex = findIndex(newState.members, { id: action.payload.id });
-      if (memberIndex !== -1) {
-        newState.members[memberIndex] = action.payload;
-      }
-      return newState;
+      return {
+        ...state,
+        members: state.members.map(member =>
+          member.id === action.payload.id ? action.payload : member
+        ),
+      };
     }
 
     case DatasetActionType.DELETE_MEMBER: {
       const memberId = action.payload;
-      const newState = cloneDeep(state);
-      
-      // Remove member
-      newState.members = reject(newState.members, { id: memberId });
-      
-      // Remove member from all classes
-      newState.classes.forEach(cls => {
-        cls.enrolled = reject(cls.enrolled, id => id === memberId);
-      });
-      
-      // Remove attendance records
-      newState.attendance = reject(newState.attendance, { memberId });
-      
-      return newState;
+
+      return {
+        ...state,
+        members: state.members.filter(member => member.id !== memberId),
+        classes: state.classes.map(cls => ({
+          ...cls,
+          enrolled: cls.enrolled.filter(id => id !== memberId),
+        })),
+        attendance: state.attendance.filter(record => record.memberId !== memberId),
+      };
     }
 
     // Class Actions
@@ -185,30 +181,26 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_CLASS: {
-      const newState = cloneDeep(state);
-      const classIndex = findIndex(newState.classes, { id: action.payload.id });
-      if (classIndex !== -1) {
-        newState.classes[classIndex] = action.payload;
-      }
-      return newState;
+      return {
+        ...state,
+        classes: state.classes.map(cls =>
+          cls.id === action.payload.id ? action.payload : cls
+        ),
+      };
     }
 
     case DatasetActionType.DELETE_CLASS: {
       const classId = action.payload;
-      const newState = cloneDeep(state);
-      
-      // Remove class
-      newState.classes = reject(newState.classes, { id: classId });
-      
-      // Remove attendance records for this class
-      newState.attendance = reject(newState.attendance, { classId });
-      
-      // Update trainer assignments
-      newState.trainers.forEach(trainer => {
-        trainer.assignedClasses = reject(trainer.assignedClasses, id => id === classId);
-      });
-      
-      return newState;
+
+      return {
+        ...state,
+        classes: state.classes.filter(cls => cls.id !== classId),
+        attendance: state.attendance.filter(record => record.classId !== classId),
+        trainers: state.trainers.map(trainer => ({
+          ...trainer,
+          assignedClasses: trainer.assignedClasses.filter(id => id !== classId),
+        })),
+      };
     }
 
     // Membership Plan Actions
@@ -219,18 +211,18 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_MEMBERSHIP_PLAN: {
-      const newState = cloneDeep(state);
-      const planIndex = findIndex(newState.membershipPlans, { id: action.payload.id });
-      if (planIndex !== -1) {
-        newState.membershipPlans[planIndex] = action.payload;
-      }
-      return newState;
+      return {
+        ...state,
+        membershipPlans: state.membershipPlans.map(plan =>
+          plan.id === action.payload.id ? action.payload : plan
+        ),
+      };
     }
 
     case DatasetActionType.DELETE_MEMBERSHIP_PLAN:
       return {
         ...state,
-        membershipPlans: reject(state.membershipPlans, { id: action.payload }),
+        membershipPlans: state.membershipPlans.filter(plan => plan.id !== action.payload),
       };
 
     // Trainer Actions
@@ -241,29 +233,24 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_TRAINER: {
-      const newState = cloneDeep(state);
-      const trainerIndex = findIndex(newState.trainers, { id: action.payload.id });
-      if (trainerIndex !== -1) {
-        newState.trainers[trainerIndex] = action.payload;
-      }
-      return newState;
+      return {
+        ...state,
+        trainers: state.trainers.map(trainer =>
+          trainer.id === action.payload.id ? action.payload : trainer
+        ),
+      };
     }
 
     case DatasetActionType.DELETE_TRAINER: {
       const trainerId = action.payload;
-      const newState = cloneDeep(state);
-      
-      // Remove trainer
-      newState.trainers = reject(newState.trainers, { id: trainerId });
-      
-      // Update classes that had this trainer
-      newState.classes.forEach(cls => {
-        if (cls.trainerId === trainerId) {
-          cls.trainerId = 0; // Unassigned
-        }
-      });
-      
-      return newState;
+
+      return {
+        ...state,
+        trainers: state.trainers.filter(trainer => trainer.id !== trainerId),
+        classes: state.classes.map(cls =>
+          cls.trainerId === trainerId ? { ...cls, trainerId: 0 } : cls
+        ),
+      };
     }
 
     // Attendance Actions
@@ -274,18 +261,18 @@ function datasetReducer(state: Dataset, action: DatasetAction): Dataset {
       };
 
     case DatasetActionType.UPDATE_ATTENDANCE: {
-      const newState = cloneDeep(state);
-      const attendanceIndex = findIndex(newState.attendance, { id: action.payload.id });
-      if (attendanceIndex !== -1) {
-        newState.attendance[attendanceIndex] = action.payload;
-      }
-      return newState;
+      return {
+        ...state,
+        attendance: state.attendance.map(record =>
+          record.id === action.payload.id ? action.payload : record
+        ),
+      };
     }
 
     case DatasetActionType.DELETE_ATTENDANCE:
       return {
         ...state,
-        attendance: reject(state.attendance, { id: action.payload }),
+        attendance: state.attendance.filter(record => record.id !== action.payload),
       };
 
     case DatasetActionType.IMPORT_DATA: {
@@ -474,35 +461,35 @@ export const datasetActions = {
   }),
 };
 
-// Enhanced selector hooks with performance optimizations
+// Selector hooks - optimized to return direct references
 export function useUserProfile(): UserProfile {
   const { userProfile } = useDataset();
-  return useMemo(() => userProfile, [userProfile]);
+  return userProfile;
 }
 
 export function useMembers(): Member[] {
   const { members } = useDataset();
-  return useMemo(() => members, [members]);
+  return members;
 }
 
 export function useClasses(): FitnessClass[] {
   const { classes } = useDataset();
-  return useMemo(() => classes, [classes]);
+  return classes;
 }
 
 export function useMembershipPlans(): MembershipPlan[] {
   const { membershipPlans } = useDataset();
-  return useMemo(() => membershipPlans, [membershipPlans]);
+  return membershipPlans;
 }
 
 export function useTrainers(): Trainer[] {
   const { trainers } = useDataset();
-  return useMemo(() => trainers, [trainers]);
+  return trainers;
 }
 
 export function useAttendance(): AttendanceRecord[] {
   const { attendance } = useDataset();
-  return useMemo(() => attendance, [attendance]);
+  return attendance;
 }
 
 // Entity-specific selector hooks
