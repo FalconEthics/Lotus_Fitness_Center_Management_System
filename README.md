@@ -55,21 +55,24 @@
 
 <img src="src/assets/screenshot.png">
 
-Lotus Fitness Center Management System 2.0 is a production-ready, offline-capable single-page application (SPA) designed to manage all aspects of a fitness center. This comprehensive system features advanced security, real-time analytics, and seamless data management capabilities.
+> **⚠️ Portfolio Demonstration Project**
+> This is a **frontend skills showcase** demonstrating advanced React development, complex state management, and modern web technologies. **NOT intended for production use** — in real-world scenarios, fitness center management systems require a secure backend API, database infrastructure, and proper authentication systems.
 
-### 🎯 Key Features
+Lotus Fitness Center Management System 2.0 is a comprehensive, offline-capable single-page application (SPA) that demonstrates professional frontend development practices. This project showcases React 18 patterns, TypeScript type safety, Context API state management, localStorage persistence, and modern UI/UX design — all the skills needed for building complex web applications.
 
-- **🔒 Advanced Security**: Encrypted authentication system with PBKDF2 hashing and password strength validation
-- **📱 PWA Support**: Install as a mobile/desktop app with offline functionality
-- **📊 Real-time Analytics**: Interactive charts and comprehensive reporting
-- **👥 Member Management**: Complete member lifecycle with renewals and status tracking
-- **🏋️ Class Scheduling**: Drag-and-drop calendar with trainer assignments
-- **📈 Attendance Tracking**: Daily, weekly, and monthly attendance analytics
-- **📄 Excel Export**: Professional report generation with 9 different report types (members, attendance, revenue, etc.)
-- **💾 Smart Storage**: Advanced localStorage management with quota monitoring and optimization
-- **🎨 Modern UI/UX**: Beautiful, responsive design with light/dark themes
-- **⚡ Performance Optimized**: Built with React 18, SWC, and modern best practices
-- **🧪 Fully Tested**: Comprehensive test suite for business logic and security
+### 🎯 Key Features & Skills Demonstrated
+
+- **⚛️ React 18 Mastery**: Context API with useReducer pattern, split contexts for performance optimization
+- **🔷 TypeScript Excellence**: Full type safety with strict mode, comprehensive interface definitions
+- **📊 Data Visualization**: Interactive Recharts integration with real-time analytics
+- **🎨 Modern UI/UX**: Tailwind CSS + DaisyUI components with Framer Motion animations
+- **💾 State Persistence**: Advanced localStorage management with quota monitoring and data optimization
+- **📱 PWA Implementation**: Offline-first design with service worker registration
+- **📄 Excel Export**: Professional report generation using xlsx library (9 report types)
+- **🔒 Client-side Auth**: localStorage-based authentication flow (educational demonstration)
+- **⚡ Performance**: Optimized bundle splitting, React 18 concurrent features, SWC compilation
+- **🧪 Testing**: Comprehensive Vitest suite for business logic and state management
+- **🎯 CRUD Operations**: Complete member/trainer/class lifecycle management with inline editing
 
 ### Built With
 
@@ -82,8 +85,6 @@ Lotus Fitness Center Management System 2.0 is a production-ready, offline-capabl
 * ![Recharts][Recharts.com] - Interactive data visualization and analytics
 * ![React Router][ReactRouter.com] - Modern routing with React Router v7
 * ![Date-fns][DateFns.com] - Modern date utility library
-* ![Lodash][Lodash.com] - Utility library for data manipulation
-* ![Crypto-js][CryptoJS.com] - Secure encryption for authentication
 * ![React Hot Toast][ReactHotToast.com] - Beautiful toast notifications
 * ![Vitest][Vitest.com] - Fast unit testing framework
 
@@ -179,21 +180,22 @@ To get a local copy up and running follow these simple steps.
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-## 🔒 Security Features
+## 🎓 Frontend Skills Showcased
 
-### Advanced Authentication
-- **Encrypted Storage**: All authentication data is encrypted using AES encryption
-- **Password Security**: PBKDF2 hashing with salt for password protection
-- **Session Management**: Secure session handling with expiration
-- **Account Protection**: Automatic account lockout after failed attempts
-- **Password Strength**: Real-time validation with strength indicators
+### State Management & Architecture
+- **Context API Pattern**: Split contexts (state/dispatch) to prevent unnecessary re-renders
+- **useReducer Pattern**: Centralized state updates with type-safe action creators
+- **Selector Hooks**: Performance-optimized data access with memoization
+- **Immutable Updates**: Proper state immutability using spread operators
+- **localStorage Persistence**: Automatic state synchronization with local storage
 
-### Data Security
-- **Local Encryption**: Sensitive data encrypted before localStorage storage
-- **Secure Backup**: Professional backup format with metadata validation
-- **Smart Storage Management**: Automatic quota monitoring and data optimization
-- **Input Validation**: Comprehensive client-side data validation
-- **Session Timeout**: Automatic logout after inactivity periods
+### Authentication & Security (Educational)
+- **Client-side Auth Flow**: localStorage-based authentication system demonstration
+- **Session Management**: Session handling with expiration and validation
+- **Password Management**: Change password functionality with validation
+- **Protected Routes**: HOC pattern for route protection
+
+> **Note**: This implements client-side authentication for demonstration purposes only. Production applications require backend authentication with JWT tokens, secure password hashing (bcrypt/argon2), HTTPS, CSRF protection, and proper session management on the server side.
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
@@ -231,16 +233,15 @@ bun run test:coverage
 
 ### Tech Stack Details
 
-- **Frontend**: React 18 with TypeScript
-- **Build Tool**: Vite with SWC compiler
-- **Styling**: Tailwind CSS + DaisyUI components
-- **State Management**: React Context API with useReducer
-- **Routing**: React Router v7
-- **Animations**: Framer Motion
-- **Data Visualization**: Recharts
+- **Frontend**: React 18 with TypeScript (strict mode)
+- **Build Tool**: Vite with SWC compiler for fast builds
+- **Styling**: Tailwind CSS + DaisyUI components + Framer Motion
+- **State Management**: React Context API with useReducer pattern
+- **Routing**: React Router v7 with protected routes
+- **Data Visualization**: Recharts for interactive analytics
 - **Storage**: Advanced localStorage management with quota monitoring
-- **Testing**: Vitest + Testing Library + jsdom
-- **Security**: Crypto-js with PBKDF2 hashing
+- **Testing**: Vitest + Testing Library + jsdom (67 tests)
+- **Bundle Optimization**: Manual code splitting (vendor, router, ui, charts, utils)
 
 ### Project Structure
 
@@ -258,19 +259,19 @@ src/
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
-## 🌟 Key Improvements in 2.0
+## 🌟 Key Technical Achievements
 
-- **🔒 Advanced Security**: Complete authentication system overhaul with PBKDF2 hashing
-- **📱 Offline Capability**: Full PWA support with service workers
-- **🎨 Modern Design**: Updated UI with DaisyUI and improved UX
-- **📊 Enhanced Analytics**: Rich data visualization and reporting
-- **⚡ Performance**: React 18 optimizations and SWC compilation
-- **💾 Smart Storage**: Advanced localStorage management with quota monitoring and optimization
-- **🧪 Test Coverage**: Comprehensive test suite for reliability
-- **🔄 Data Persistence**: Robust data management with professional backup/restore format
-- **🌙 Themes**: Light/dark mode with system preference detection
-- **📄 Export System**: Professional Excel reporting with 9 different report types
-- **✨ Polished UI**: Refined form layouts and component alignment for optimal user experience
+- **⚛️ Advanced React Patterns**: Split Context API, custom hooks, HOC pattern, performance optimization
+- **🔷 TypeScript Mastery**: Strict mode, comprehensive interfaces, type-safe reducers
+- **📱 PWA Implementation**: Service workers, offline capability, install prompts
+- **🎨 Modern UI/UX**: DaisyUI components, Framer Motion animations, responsive design
+- **📊 Data Visualization**: Recharts integration with 6+ chart types, real-time updates
+- **⚡ Performance**: React 18 concurrent features, bundle optimization, lazy loading
+- **💾 State Management**: Context + useReducer with localStorage persistence (5 entities, auto-save)
+- **🧪 Testing Culture**: 67 tests covering business logic, state management, edge cases
+- **🔄 Data Operations**: JSON import/export, Excel report generation (9 types), backup/restore
+- **🌙 Theming**: Light/dark mode with system preference detection
+- **📱 Responsive Design**: Mobile-first approach with Tailwind CSS utilities
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
@@ -328,7 +329,23 @@ Distributed under the GNU License. See `LICENSE.txt` for more information.
 
 ## Acknowledgments
 
-This project showcases modern React development practices, advanced security implementation, and production-ready application architecture. It demonstrates expertise in full-stack development, user experience design, and system security.
+This project showcases modern React development practices, advanced frontend architecture patterns, and professional-grade application development. It demonstrates expertise in:
+
+- **Frontend Architecture**: Context API state management, custom hooks, HOC patterns
+- **TypeScript**: Strict typing, interface design, type-safe reducers
+- **Performance Optimization**: Bundle splitting, React 18 features, lazy loading
+- **Modern Tooling**: Vite + SWC, Vitest testing, Tailwind CSS
+- **User Experience**: Responsive design, animations, accessibility
+- **Best Practices**: Code organization, testing culture, documentation
+
+**Important**: This is a frontend demonstration project. Real-world fitness center systems require:
+- Backend REST/GraphQL API
+- Database (PostgreSQL/MongoDB)
+- Server-side authentication (JWT, OAuth)
+- HTTPS/SSL certificates
+- CORS configuration
+- Rate limiting & security middleware
+- Cloud infrastructure (AWS/GCP/Azure)
 
 <p align="right"><a href="#readme-top">˄ back to top</a></p>
 
