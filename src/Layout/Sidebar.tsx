@@ -10,7 +10,8 @@ import {
   HiCreditCard,
   HiUserGroup,
   HiClipboardDocumentCheck,
-  HiUser
+  HiUser,
+  HiInformationCircle
 } from "react-icons/hi2";
 import { Button } from "../components/ui";
 import { SidebarItemProps } from '../types';
@@ -24,6 +25,7 @@ const navItems = [
   { to: "/managetrainers", icon: HiUserGroup, label: "Trainers" },
   { to: "/attendance", icon: HiClipboardDocumentCheck, label: "Attendance" },
   { to: "/profile", icon: HiUser, label: "Profile" },
+  { to: "/about", icon: HiInformationCircle, label: "About" },
 ];
 
 // Navigation item component with modern styling

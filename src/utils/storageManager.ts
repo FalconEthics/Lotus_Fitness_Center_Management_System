@@ -131,48 +131,13 @@ export function clearAllLocalStorage(): void {
 export function optimizeDataForStorage(data: any): any {
   // Clone the data to avoid mutating the original
   const optimized = JSON.parse(JSON.stringify(data));
-  
+
   // Remove any metadata fields that aren't essential
   delete optimized.exportDate;
   delete optimized.version;
   delete optimized.appVersion;
   delete optimized.exportedBy;
   delete optimized.totalRecords;
-  
+
   return optimized;
-}
-
-/**
- * Compress attendance records by grouping by date
- */
-export function compressAttendanceRecords(attendance: any[]): any[] {
-  if (!Array.isArray(attendance) || attendance.length === 0) {
-    return attendance;
-  }
-  
-  // For demo purposes, we could sample the attendance data
-  // Keep every 10th record to reduce size while maintaining patterns
-  const compressed = attendance.filter((_, index) => index % 10 === 0);
-  
-  return compressed;
-}
-
-/**
- * Create a lighter version of the demo data
- */
-export function createLightDemoData(fullData: any): any {
-  const lightData = { ...fullData };
-  
-  // Reduce attendance records significantly
-  if (lightData.attendance && Array.isArray(lightData.attendance)) {
-    // Keep only 10% of attendance records but maintain temporal distribution
-    const totalRecords = lightData.attendance.length;
-    const targetSize = Math.min(10000, Math.floor(totalRecords * 0.1)); // Max 10k records
-    
-    // Sample records evenly across the dataset
-    const step = Math.floor(totalRecords / targetSize);
-    lightData.attendance = lightData.attendance.filter((_, index) => index % step === 0);
-  }
-  
-  return lightData;
 }
