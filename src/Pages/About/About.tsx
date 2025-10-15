@@ -48,21 +48,21 @@ const About = () => {
     ];
 
     const keyFeatures = [
-        { icon: HiShieldCheck, title: 'Advanced Security', desc: 'PBKDF2 hashing & AES encryption' },
-        { icon: HiDevicePhoneMobile, title: 'PWA Support', desc: 'Install as mobile/desktop app' },
-        { icon: HiChartBar, title: 'Real-time Analytics', desc: 'Interactive charts & reporting' },
-        { icon: HiUsers, title: 'Member Management', desc: 'Complete lifecycle tracking' },
-        { icon: HiCalendarDays, title: 'Class Scheduling', desc: 'Drag-and-drop calendar' },
-        { icon: HiTableCells, title: 'Excel Export', desc: '9 professional report types' },
-        { icon: HiCircleStack, title: 'Smart Storage', desc: 'Quota monitoring & optimization' },
-        { icon: HiBolt, title: 'Performance', desc: 'React 18 & SWC compilation' },
-        { icon: HiBeaker, title: 'Fully Tested', desc: 'Comprehensive test suite' }
+        { icon: HiShieldCheck, title: 'React 18 Patterns', desc: 'Context API + useReducer state management' },
+        { icon: HiDevicePhoneMobile, title: 'TypeScript Strict', desc: 'Full type safety & interfaces' },
+        { icon: HiChartBar, title: 'Data Visualization', desc: 'Recharts integration & analytics' },
+        { icon: HiUsers, title: 'CRUD Operations', desc: 'Complete entity lifecycle management' },
+        { icon: HiCalendarDays, title: 'localStorage Persistence', desc: 'Auto-save & quota monitoring' },
+        { icon: HiTableCells, title: 'Excel Export', desc: 'Professional reports with xlsx' },
+        { icon: HiCircleStack, title: 'PWA Features', desc: 'Offline-first design & service workers' },
+        { icon: HiBolt, title: 'Performance', desc: 'Bundle splitting & optimization' },
+        { icon: HiBeaker, title: 'Tested', desc: '67 tests with Vitest' }
     ];
 
     const techStack = [
         'React 18', 'TypeScript', 'Tailwind CSS', 'Vite + SWC',
         'Context API', 'Framer Motion', 'Recharts', 'React Router v7',
-        'Date-fns', 'Lodash', 'Crypto-js', 'Vitest'
+        'Date-fns', 'Vitest', 'DaisyUI', 'React Hot Toast'
     ];
 
     return (
@@ -92,36 +92,37 @@ const About = () => {
                             Lotus Fitness Center Management System 2.0
                         </h1>
                         <p className="text-lg text-base-content/80 max-w-2xl mx-auto">
-                            A comprehensive, secure, and offline-capable fitness center management system built with modern React technologies.
+                            Frontend skills demonstration showcasing advanced React patterns, TypeScript, state management, and modern web technologies.
                         </p>
                     </div>
 
-                    {/* Project Disclaimer */}
+                    {/* Project Purpose Notice */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
-                        className="alert alert-warning"
+                        className="alert alert-info"
                     >
                         <HiExclamationTriangle className="w-5 h-5" />
                         <div>
-                            <h3 className="font-bold">Project Application Notice</h3>
+                            <h3 className="font-bold">Portfolio Demonstration Project</h3>
                             <p className="text-sm">
-                                This is a portfolio project application built for demonstration purposes.
-                                Please do not enter any personal or sensitive information. Use the provided
-                                demo data and default credentials for testing purposes only.
+                                This application demonstrates advanced <strong>frontend development skills</strong> including
+                                React 18 patterns, Context API state management, TypeScript, localStorage persistence,
+                                and modern UI/UX design. <strong>Not intended for production use</strong> — real fitness
+                                center systems require backend APIs, secure databases, and server-side authentication.
                             </p>
                         </div>
                     </motion.div>
 
-                    {/* Key Features Grid */}
+                    {/* Skills Demonstrated Grid */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4, duration: 0.5 }}
                         className="space-y-6"
                     >
-                        <h2 className="text-2xl font-bold text-center">Key Features</h2>
+                        <h2 className="text-2xl font-bold text-center">Skills Demonstrated</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {keyFeatures.map((feature, index) => (
                                 <motion.div

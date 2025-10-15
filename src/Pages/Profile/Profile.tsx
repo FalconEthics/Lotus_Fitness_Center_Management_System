@@ -37,7 +37,6 @@ import {
 import {
     canFitInLocalStorage,
     getLocalStorageUsage,
-    createLightDemoData,
     formatBytes
 } from '../../utils/storageManager';
 import { useNavigate } from 'react-router';
